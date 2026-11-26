@@ -792,6 +792,76 @@ The part also gives each of `word-201` to `word-230` its second later frame, wri
 | and all that | phrase | phrase | We talked about the kids and all that. | We talked about the kids ____ ____ ____. | y todo eso | and other things of the same kind |
 | a lot | phrase | phrase | I go to the market a lot. | I go to the market ____ ____. | mucho | often, or very much |
 
+## Lessons 58 to 62
+
+Part 3 of the second content batch (ADR 049, its amendment of 2026-11-25, #2042), drafted by Claude Opus 5.5. It has 4 band 1 lessons in NGSL-Spoken 1.2 order and 1 unit lesson, as parts 1 and 2 have. The heads are *round* (spoken 207), *whole* (211), *whether* (215) and *whatever* (218). Lesson 62 teaches PHaVE's ready phrasal verbs *get up* (23), *go down* (26) and *show up* (27), and the PHRASE units *or whatever* and *to do with*, in ADR 044's order of 2026-11-25. Every lesson asks for school level 1 and takes 300 s. Its skill follows from its position in `curriculum.json`. No later frame is added: batch 2's own words take theirs in batch 3.
+
+- **Readiness.** *get* is taught by lesson 18, *go* by lesson 2, *show* by lesson 20, *down* by lesson 28 and *whatever* by lesson 61. *up*, *or*, *to*, *do* and *with* are frame words admitted at lesson 1.
+- **Order of the units.** *get up* is the PHaVE item lesson 57 left for this lesson. Among the ready untaught PHRASE units marked `* * *` in speech and `X` in writing, *sort of* is already taught by *sort*'s anchor frame (lesson 49), so lesson 62 takes *or whatever*. *that sort of thing* waits again: it means what *or whatever* means, so the two in one lesson would be a semantic set that fills each other's gap. *last night* is taught by *night*'s anchor frame (lesson 49), so the next unit in order is *to do with* (`* * *` spoken, `*` written).
+- **Senses.** *round* is taught as one part of a game, never the British *round* for *around*. *deal* is taught as an agreement (*it's a deal*), *mind* as the verb of *Do you mind if…?*, *whether* as 'if, of 2 things', and *couple* in *a couple of*. *get up*, *go down* and *show up* are each taught in their PHaVE sense of the highest share: 'rise after lying or sitting' (92 %), 'move down to a lower level' (29 %) and 'appear at a gathering' (81 %).
+- **Part of speech.** *already*, *far*, *ever*, *whether*, *please*, *ago* and *exactly* are filed as adverbs, as *though* is. *whole* is filed as an adjective, and *nothing* and *whatever* as nouns, as *something* is. *or whatever* and *to do with* are filed as `phrase`.
+- **Shared glosses.** *watch* shares *ver* with *see* (lesson 22). *guy* shares *tipo* with *kind* (lesson 46); *kind* cannot fill *He's a nice ____.* *or whatever* is glossed *o lo que sea*, so its gap holds two words where *whatever*'s holds one.
+
+### Lesson 58
+
+**Theme:** *Watching the game*, es *Viendo el partido*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| round | noun | 519 | 207 | Our team is in the next round! | Our team is in the next ____! | ronda | one part of a game; the teams that win it go on to the next part |
+| guy | noun | 701 | 263 | He's a nice guy. | He's a nice ____. | tipo | a man, in the way people say it when they talk |
+| watch | verb | 326 | 275 | Do you want to watch the news? | Do you want to ____ the news? | ver | to look at something for a time, to see what happens |
+| deal | noun | 321 | 290 | Okay, if you help me, it's a deal. | Okay, if you help me, it's a ____. | trato | a plan that 2 people agree on, where each one does something |
+| already | adverb | 302 | 286 | Thanks, but I already have one. | Thanks, but I ____ have one. | ya | before now, or before you think |
+
+### Lesson 59
+
+**Theme:** *A long walk*, es *Una larga caminata*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| whole | adjective | 310 | 211 | The whole town knows about it. | The ____ town knows about it. | entero | all of something, with no part left out |
+| walk | verb | 339 | 283 | Do you want to walk to the river? | Do you want to ____ to the river? | caminar | to move on your feet, not fast |
+| far | adverb | 245 | 253 | Is the farm far from here? | Is the farm ____ from here? | lejos | a long way from a place |
+| couple | noun | 514 | 266 | I'll be back in a couple of days. | I'll be back in a ____ of days. | un par | used before of: 2, or a small number |
+| ever | adverb | 317 | 242 | Have you ever been to the city? | Have you ____ been to the city? | alguna vez | at any time |
+
+### Lesson 60
+
+**Theme:** *A room for the night*, es *Un cuarto para la noche*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| whether | adverb | 273 | 215 | I'm not sure whether she's in town. | I'm not sure ____ she's in town. | si | used when there are 2 things that could be true, and you do not know which |
+| room | noun | 254 | 301 | Your room is ready. | Your ____ is ready. | cuarto | a part of a house with walls around it, such as the place where you sleep |
+| stay | verb | 345 | 304 | Can you stay for a bit? | Can you ____ for a bit? | quedarse | to not leave a place, or to live in a place for a short time |
+| please | adverb | 471 | 298 | Please come in. | ____ come in. | por favor | a word you say when you ask for something, to be nice |
+| nothing | noun | 336 | 257 | I have nothing to do today. | I have ____ to do today. | nada | not anything |
+
+### Lesson 61
+
+**Theme:** *Dinner at home*, es *La cena en casa*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| whatever | noun | 675 | 218 | We can do whatever you want. | We can do ____ you want. | lo que sea | anything at all, when it does not matter what |
+| eat | verb | 476 | 311 | When do you want to eat? | When do you want to ____? | comer | to take food into your body |
+| mind | verb | 341 | 261 | Do you mind if I sit here? | Do you ____ if I sit here? | importar | to feel that something is a problem for you |
+| ago | adverb | 372 | 300 | I saw her a week ago. | I saw her a week ____. | hace | before now; used after an amount of time, such as a week |
+| exactly | adverb | 670 | 299 | That's exactly what I need. | That's ____ what I need. | exactamente | no more and no less; with nothing different |
+
+### Lesson 62
+
+**Theme:** *An early start*, es *Un comienzo temprano*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| get up | phave | verb | When I get up, I eat and go to the farm. | When I ____ ____, I eat and go to the farm. | levantarse | to stand up, or to leave your bed after you sleep |
+| go down | phave | verb | Go down the hill to the river. | ____ ____ the hill to the river. | bajar | to move to a lower place |
+| show up | phave | verb | You can't just show up at my house! | You can't just ____ ____ at my house! | aparecer | to come to a place or an event, often when people are not sure you will come |
+| or whatever | phrase | phrase | We can eat, watch the news, or whatever. | We can eat, watch the news, ____ ____. | o lo que sea | or something like that, when it does not matter what |
+| to do with | phrase | phrase | What does that have to do with me? | What does that have ____ ____ ____ me? | que ver con | used after have, to say that one thing is about another thing or is part of it |
+
 ## Texts
 
 One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #1276). It holds every card word of its four band lessons, the band lessons up to and including its `fromLessonId` with unit lessons skipped, in any form the grammar admits, and no token unknown at its lesson. The gate checks both. Its length, 80 to 150 tokens in band 1 as `tokensOf` counts the title and the sentences, is checked by the review of check 7. Each text is told in the first person by someone who lives in the town and names no one.
@@ -831,3 +901,9 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 **Title:** *A Bad Morning*. **Band lessons:** 53 to 56. **Tokens:** 130. **In no card sense:** *there*, *asked*, *help*.
 
 > This morning, there was a problem with my car. I don't understand cars, so I asked somebody for help. A student from the school came, and we looked at the car together. She was pretty sure it was a small issue. I had to sit and wait for a minute. Then she had an idea, but it was hard to do. I was late to the office, so I said sorry. I didn't have enough money for a new car, though. On the way home, I went to the market, where you can buy food by the pound. The student came back at night, and the car is okay now. Anyway, I guess everything is good now. It was a bad morning, but not a bad day.
+
+### text-7, lesson 61
+
+**Title:** *A New Home*. **Band lessons:** 58 to 61. **Tokens:** 147.
+
+> A couple of weeks ago, I came to this town to work on a farm. I didn't have a room, and I had nothing to do at night. A guy from the farm said I could stay with his family. His house isn't far from the farm, so I walk there every morning. I wasn't sure whether I had enough money for a room, but he had an idea. Now we have a deal. I help his family, and I can eat whatever I want. Every night, we eat together and watch the news. Their kid's team is in the next round, so the whole family will go and watch. The kid always says please and thank you. I don't mind working on the farm. I already love it here. It's the best home I have ever had, and it's exactly what I needed.

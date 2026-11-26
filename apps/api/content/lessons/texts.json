@@ -116,5 +116,25 @@
       "It was a bad morning, but not a bad day."
     ],
     "noCardSense": ["there", "asked", "help"]
+  },
+  {
+    "id": "text-7",
+    "fromLessonId": "lesson-61",
+    "title": "A New Home",
+    "sentences": [
+      "A couple of weeks ago, I came to this town to work on a farm.",
+      "I didn't have a room, and I had nothing to do at night.",
+      "A guy from the farm said I could stay with his family.",
+      "His house isn't far from the farm, so I walk there every morning.",
+      "I wasn't sure whether I had enough money for a room, but he had an idea.",
+      "Now we have a deal.",
+      "I help his family, and I can eat whatever I want.",
+      "Every night, we eat together and watch the news.",
+      "Their kid's team is in the next round, so the whole family will go and watch.",
+      "The kid always says please and thank you.",
+      "I don't mind working on the farm.",
+      "I already love it here.",
+      "It's the best home I have ever had, and it's exactly what I needed."
+    ]
   }
 ]
