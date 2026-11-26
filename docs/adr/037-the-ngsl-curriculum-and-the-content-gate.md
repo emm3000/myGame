@@ -1,5 +1,5 @@
 ---
-status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049, the holdout's comparison amended by ADR 057: a card, with its reviews and the reading it opens, against reading alone, the order and check 2 amended 2026-11-25: band lessons from lesson 48 in NGSL-Spoken 1.2 order
+status: proposed, the skill amended by ADR 039, chrome examples changed by ADR 040, the item data, the order, the frame rule, the stage and the holdout widened for units and later frames, and the next lesson after placement clarified, by ADR 044, check 7 delegated by its amendment of 2026-11-12, check 4 amended for a text by ADR 049, the holdout's comparison amended by ADR 057: a card, with its reviews and the reading it opens, against reading alone, the order and check 2 amended 2026-11-25: band lessons from lesson 48 in NGSL-Spoken 1.2 order, placement amended 2026-11-25: a band is sampled only when it is drafted and the next band has a lesson
 date: 2026-11-04
 ---
 # The NGSL curriculum and the content gate
@@ -347,6 +347,16 @@ A frame such as *This is my home.* passes: *this*, *is* (*be*) and *my*
   (Kalyuga et al. 2003). Once the player studies its lesson, its card
   rules it like any other.
 - **The result is stored**: per band, the score and the instant.
+
+**Amendment, 2026-11-25: when a band is placeable.** A player placed
+out of a band starts in the next one, so a band is sampled only when
+`isBandPlaceable` holds: every headword of the band, frame words
+aside, has a lexicon entry with an `es` gloss and a definition; the
+next band, if it has words, has a lesson; and at least 30 of the
+band's entered words are taught by no chrome lesson. The last band
+needs no next band. Bands are sampled in order up to the first that is
+not placeable, and when band 1 is not, placement is not offered. This
+adds the next-band condition to ADR 041's wait for band 1's drafting.
 
 ### The holdout
 
