@@ -340,7 +340,6 @@
   "android.school.school_lesson_word_then": "When the lesson ends, the reviews start.",
   "android.school.school_lesson_words": "{count, plural, =1 {1 word} other {{count, number,0} words}}",
   "android.school.school_lessons": "Lessons",
-  "android.school.school_level": "Level {level}",
   "android.school.school_loading": "Reading your town…",
   "android.school.school_next_holdout_check": "Word check for band {band}",
   "android.school.school_next_title": "What is next",

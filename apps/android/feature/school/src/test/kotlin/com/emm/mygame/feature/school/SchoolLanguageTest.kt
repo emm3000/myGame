@@ -122,11 +122,11 @@ class SchoolLanguageTest {
     fun `draws the school in Spanish in the Spanish phase`() {
         show(spanishPhase)
 
-        assertDrawn("Escuela", "Nivel 1", "Lección 1", "5 palabras · Habilidad: comida +5\u00A0%")
+        assertDrawn("Escuela", "Lección 1", "5 palabras · Habilidad: comida +5\u00A0%")
         assertDrawn("Estudiar la lección 1 · 2:30", "Palabras en aprendizaje: 0 de 10", "Lecciones", "5 palabras")
         assertDrawn("En estudio", "Ahora no hay ninguna lección en estudio.", "Tus habilidades")
         assertDrawn("Aún no tienes habilidades.")
-        assertNotDrawn("School", "Level 1", "Lesson 1", "Study lesson 1 · 2:30", "Lessons", "Your skills")
+        assertNotDrawn("School", "Lesson 1", "Study lesson 1 · 2:30", "Lessons", "Your skills")
         assertNotDrawn("Words in learning: 0 of 10", "No lesson now.", "You have no skills.", "5 words")
     }
 
@@ -135,7 +135,6 @@ class SchoolLanguageTest {
         show(bothPhase)
 
         assertEnglishOverSpanish("School", "Escuela")
-        assertEnglishOverSpanish("Level 1", "Nivel 1")
         assertEnglishOverSpanish("Lesson 1", "Lección 1")
         assertEnglishOverSpanish("5 words · food skill: +5\u00A0%", "5 palabras · Habilidad: comida +5\u00A0%")
         assertEnglishOverSpanish("Study lesson 1 · 2:30", "Estudiar la lección 1 · 2:30")
@@ -165,10 +164,10 @@ class SchoolLanguageTest {
     fun `draws the school in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("School", "Level 1", "Lesson 1", "5 words · food skill: +5\u00A0%", "Study lesson 1 · 2:30")
+        assertDrawn("School", "Lesson 1", "5 words · food skill: +5\u00A0%", "Study lesson 1 · 2:30")
         assertDrawn("Words in learning: 0 of 10", "Lessons", "5 words", "Studying", "No lesson now.")
         assertDrawn("Your skills", "You have no skills.")
-        assertNotDrawn("Escuela", "Nivel 1", "Lección 1", "Lecciones", "En estudio", "Tus habilidades")
+        assertNotDrawn("Escuela", "Lección 1", "Lecciones", "En estudio", "Tus habilidades")
     }
 
     @Test

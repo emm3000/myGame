@@ -48,7 +48,6 @@ class SchoolSlotTest {
     )
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
-        schoolLevel = 1,
         learning = SchoolUiState.LearningLine(
             inLearning = 0,
             cap = 10,

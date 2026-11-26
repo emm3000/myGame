@@ -132,6 +132,9 @@ internal fun townOf(
     readAt = readAt,
 )
 
+internal fun townWithCap(cap: Int): TownSnapshot =
+    townOf(learning = TownSnapshot.Learning(cap = cap, inLearning = 0, retainedWords = null, nextInLearningDueAt = null))
+
 internal val caughtUpCard: NextStepCard = townOf().nextStepCard()
 
 internal fun contentOf(viewModel: SchoolViewModel): SchoolUiState.Content =

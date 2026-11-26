@@ -50,12 +50,12 @@ class SchoolBackgroundTest {
     fun `reads the town once on return from the background`() = runTest {
         val viewModel: SchoolViewModel = schoolReading(townOf())
         viewModel.onIntent(SchoolIntent.ScreenHidden)
-        towns.answerRead(TownReadResult.Read(townOf(schoolLevel = 2)))
+        towns.answerRead(TownReadResult.Read(townWithCap(20)))
 
         viewModel.onIntent(SchoolIntent.ScreenShown)
         runCurrent()
 
-        assertEquals(2, contentOf(viewModel).schoolLevel)
+        assertEquals(20, contentOf(viewModel).learning.cap)
     }
 
     @Test
@@ -70,14 +70,14 @@ class SchoolBackgroundTest {
 
     @Test
     fun `keeps the last content when the read on return fails`() = runTest {
-        val viewModel: SchoolViewModel = schoolReading(townOf(schoolLevel = 3))
+        val viewModel: SchoolViewModel = schoolReading(townWithCap(30))
         viewModel.onIntent(SchoolIntent.ScreenHidden)
         towns.answerRead(TownReadResult.Unreachable)
 
         viewModel.onIntent(SchoolIntent.ScreenShown)
         runCurrent()
 
-        assertEquals(3, contentOf(viewModel).schoolLevel)
+        assertEquals(30, contentOf(viewModel).learning.cap)
     }
 
     @Test

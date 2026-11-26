@@ -107,7 +107,6 @@ class SchoolLookTest {
         SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 90.seconds, total = 150.seconds)
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
-        schoolLevel = 1,
         learning = SchoolUiState.LearningLine(
             inLearning = 0,
             cap = 10,

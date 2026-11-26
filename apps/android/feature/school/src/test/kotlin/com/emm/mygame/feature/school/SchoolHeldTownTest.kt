@@ -21,16 +21,16 @@ class SchoolHeldTownTest {
 
     @Test
     fun `draws the held town before the re-read answers`() = runTest {
-        towns.hold(HeldTown(townOf(schoolLevel = 3), gap = Duration.ZERO))
+        towns.hold(HeldTown(townWithCap(30), gap = Duration.ZERO))
 
         val viewModel: SchoolViewModel = schoolViewModelOf(towns)
 
-        assertEquals(3, contentOf(viewModel).schoolLevel)
+        assertEquals(30, contentOf(viewModel).learning.cap)
     }
 
     @Test
     fun `re-reads the town behind the held one`() = runTest {
-        towns.hold(HeldTown(townOf(schoolLevel = 3), gap = Duration.ZERO))
+        towns.hold(HeldTown(townWithCap(30), gap = Duration.ZERO))
 
         schoolViewModelOf(towns)
         runCurrent()
@@ -40,24 +40,24 @@ class SchoolHeldTownTest {
 
     @Test
     fun `replaces the held town with the re-read`() = runTest {
-        towns.hold(HeldTown(townOf(schoolLevel = 3), gap = Duration.ZERO))
+        towns.hold(HeldTown(townWithCap(30), gap = Duration.ZERO))
         val viewModel: SchoolViewModel = schoolViewModelOf(towns)
 
-        towns.answerRead(TownReadResult.Read(townOf(schoolLevel = 4)))
+        towns.answerRead(TownReadResult.Read(townWithCap(40)))
         runCurrent()
 
-        assertEquals(4, contentOf(viewModel).schoolLevel)
+        assertEquals(40, contentOf(viewModel).learning.cap)
     }
 
     @Test
     fun `keeps the held town when the re-read fails`() = runTest {
-        towns.hold(HeldTown(townOf(schoolLevel = 3), gap = Duration.ZERO))
+        towns.hold(HeldTown(townWithCap(30), gap = Duration.ZERO))
         val viewModel: SchoolViewModel = schoolViewModelOf(towns)
 
         towns.answerRead(TownReadResult.Unreachable)
         runCurrent()
 
-        assertEquals(3, contentOf(viewModel).schoolLevel)
+        assertEquals(30, contentOf(viewModel).learning.cap)
     }
 
     @Test

@@ -57,14 +57,14 @@ class SchoolRouteTest {
 
     @Test
     fun `reads the town once on return from the background`() {
-        towns.answerRead(TownReadResult.Read(townOf(schoolLevel = 1)))
+        towns.answerRead(TownReadResult.Read(townWithCap(10)))
         showRoute()
-        waitForLine("Nivel 1")
+        waitForLine("Palabras en aprendizaje: 0 de 10")
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.CREATED) }
-        towns.answerRead(TownReadResult.Read(townOf(schoolLevel = 2)))
+        towns.answerRead(TownReadResult.Read(townWithCap(20)))
 
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
-        waitForLine("Nivel 2")
+        waitForLine("Palabras en aprendizaje: 0 de 20")
 
         assertEquals(2, towns.readCount)
     }
@@ -73,9 +73,9 @@ class SchoolRouteTest {
     fun `reads nothing while the app stays in the foreground`() {
         towns.answerRead(TownReadResult.Read(townOf()))
         showRoute()
-        waitForLine("Nivel 1")
+        waitForLine("Palabras en aprendizaje: 0 de 10")
 
-        composeRule.onNodeWithText("Nivel 1").assertIsDisplayed()
+        composeRule.onNodeWithText("Palabras en aprendizaje: 0 de 10").assertIsDisplayed()
 
         assertEquals(1, towns.readCount)
     }

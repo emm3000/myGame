@@ -54,7 +54,6 @@ class SchoolLearningCapTest {
         readyLesson.copy(lesson = secondLesson, number = 2, theme = "Work and money")
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
-        schoolLevel = 1,
         learning = SchoolUiState.LearningLine(
             inLearning = 0,
             cap = 10,

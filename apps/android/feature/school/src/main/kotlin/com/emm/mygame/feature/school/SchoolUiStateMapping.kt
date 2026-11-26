@@ -28,7 +28,6 @@ internal fun TownSnapshot.contentAt(
     val lessonCards: List<SchoolUiState.LessonCard> =
         lessons.map { lesson: TownSnapshot.Lesson -> lesson.cardIn(this, busy) }
     return SchoolUiState.Content(
-        schoolLevel = schoolLevel(),
         learning = learningLineAt(now, gap, startable = lessonCards.nextOpenWith(selected)),
         slot = lessonSlot?.lineIn(this, now) ?: SchoolUiState.SlotLine.Idle,
         skills = skills.mapIndexed { index: Int, skill: TownSnapshot.EarnedSkill -> skill.lineAt(index, skills) },
