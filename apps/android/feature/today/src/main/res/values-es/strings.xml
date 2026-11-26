@@ -17,6 +17,7 @@
     <string name="today_job_coming_back">Tu equipo está volviendo, llega en</string>
     <string name="today_job_on_the_way">Tu equipo va en camino, llega en</string>
     <string name="today_job_working">Tu equipo está trabajando, termina en</string>
+    <string name="today_keep_going">Lee más</string>
     <string name="today_learning_cap">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="today_lesson_ready_in">Lección {number} lista en</string>
     <string name="today_lesson_title">Lección {number}</string>

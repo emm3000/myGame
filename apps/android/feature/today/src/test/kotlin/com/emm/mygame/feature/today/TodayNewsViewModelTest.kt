@@ -12,6 +12,7 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.news.TownNews
+import com.emm.mygame.core.testing.FakeKeepGoingRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -145,7 +146,8 @@ class TodayNewsViewModelTest {
     ): TodayViewModel {
         towns.answerRead(TownReadResult.Read(town))
         reports.answerRead(ReportReadResult.Read(reportOf(news)))
-        val viewModel: TodayViewModel = TodayViewModel(towns, reports, TestClock(testScheduler, readAt))
+        val viewModel: TodayViewModel =
+            TodayViewModel(towns, reports, FakeKeepGoingRepository(), TestClock(testScheduler, readAt))
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 awaitCancellation()

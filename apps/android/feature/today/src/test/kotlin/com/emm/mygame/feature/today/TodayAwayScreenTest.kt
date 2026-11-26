@@ -75,6 +75,7 @@ class TodayAwayScreenTest {
                         onHoldoutCheckOpen = { _, _ -> },
                         onMapOpen = {},
                         onNewsOpen = {},
+                        onTextOpen = {},
                         onNoTown = {},
                     ),
                 )
@@ -99,6 +100,7 @@ class TodayAwayScreenTest {
         locked = emptyList(),
         start = TodayUiState.LessonStart.Idle,
         build = StartStatus.Idle,
+        keepGoing = null,
     )
 
     private companion object {

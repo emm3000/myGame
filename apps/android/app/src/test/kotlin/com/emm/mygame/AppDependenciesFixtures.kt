@@ -4,6 +4,7 @@ import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.learning.KeepGoingRepository
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.reminder.ReminderNotifications
@@ -16,6 +17,7 @@ import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.network.platform.SessionEnds
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
+import com.emm.mygame.core.testing.FakeKeepGoingRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReminderNotifications
@@ -36,6 +38,7 @@ fun dependenciesOf(
     sessions: SessionRepository = FakeSessionRepository(),
     towns: TownRepository = FakeTownRepository(),
     texts: TownTextRepository = FakeTownTextRepository(),
+    keepGoing: KeepGoingRepository = FakeKeepGoingRepository(),
     learning: LearningRepository = FakeLearningRepository(),
     reports: ReportRepository = FakeReportRepository(),
     placements: PlacementRepository = FakePlacementRepository(),
@@ -51,6 +54,7 @@ fun dependenciesOf(
     override val sessions: SessionRepository = sessions
     override val towns: TownRepository = towns
     override val texts: TownTextRepository = texts
+    override val keepGoing: KeepGoingRepository = keepGoing
     override val learning: LearningRepository = learning
     override val reports: ReportRepository = reports
     override val placements: PlacementRepository = placements

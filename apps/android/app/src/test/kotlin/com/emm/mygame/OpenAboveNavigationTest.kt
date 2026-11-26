@@ -19,6 +19,9 @@ import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.guidance.CaughtUpReason
+import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
@@ -61,6 +64,16 @@ class OpenAboveNavigationTest {
 
     private val townWithANewestText: TownSnapshot = townOf(readAt, texts = listOf(newestText))
 
+    private val caughtUpWithTheNewestText: TownSnapshot = townOf(
+        readAt,
+        nextStep = NextStep.CaughtUp(
+            reason = CaughtUpReason.LessonsDone,
+            goal = null,
+            text = NextStepText(newestText.id, newestText.title),
+        ),
+        texts = listOf(newestText),
+    )
+
     private val nothingDue: TownReport =
         TownReport(dueCount = 0, readFirst = emptyList(), nextDueAt = null, news = emptyList(), readAt = readAt)
 
@@ -86,8 +99,17 @@ class OpenAboveNavigationTest {
         assertStackEndsWith(Destination.School, Destination.SchoolText(newestText.id))
     }
 
-    private fun showing(vararg destinations: Destination) {
-        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(townWithANewestText)) }
+    @Test
+    fun `opens the newest open text above Today from Read more`() {
+        showing(Destination.Today, town = caughtUpWithTheNewestText)
+
+        waitedForLink(newestText.title).performScrollTo().performClick()
+
+        assertStackEndsWith(Destination.Today, Destination.SchoolText(newestText.id))
+    }
+
+    private fun showing(vararg destinations: Destination, town: TownSnapshot = townWithANewestText) {
+        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
                 AppNavigation(

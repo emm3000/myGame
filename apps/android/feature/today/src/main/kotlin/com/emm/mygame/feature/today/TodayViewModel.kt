@@ -2,6 +2,7 @@ package com.emm.mygame.feature.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.learning.KeepGoingRepository
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.town.HeldTown
@@ -31,6 +32,7 @@ import kotlin.time.Instant
 class TodayViewModel(
     private val towns: TownRepository,
     private val reports: ReportRepository,
+    private val frames: KeepGoingRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -43,6 +45,9 @@ class TodayViewModel(
     val effects: Flow<TodayEffect> = _effects.receiveAsFlow()
 
     private val news: TodayNews = TodayNews(reports, viewModelScope, clock, ::draw)
+
+    private val keepGoing: TodayFrames =
+        TodayFrames(frames, viewModelScope, ::draw) { _effects.send(TodayEffect.NoTown) }
 
     private var held: HeldTown? = null
 
@@ -67,13 +72,16 @@ class TodayViewModel(
             is TodayIntent.StudyTapped -> study(intent.lesson)
             is TodayIntent.BuildTapped -> build(intent.building)
             TodayIntent.NewsCloseTapped -> news.close()
+            is TodayIntent.FrameWordTapped -> keepGoing.tap(intent.at)
         }
     }
 
     private fun show() {
         visit = visit.copy(isShown = true)
+        keepGoing.expire()
         read()
         news.read()
+        held?.let { shown: HeldTown -> keepGoing.read(shown.town.nextStep) }
         follow()
     }
 
@@ -148,6 +156,7 @@ class TodayViewModel(
             build = requests.build.takeIf { build: StartStatus -> build is StartStatus.Waiting } ?: StartStatus.Idle,
         )
         draw()
+        next?.let { shown: HeldTown -> keepGoing.read(shown.town.nextStep) }
         follow()
     }
 
@@ -180,7 +189,14 @@ class TodayViewModel(
     private fun draw() {
         val shown: HeldTown = held ?: return
         val gained: List<TownSnapshot.Cost> = visit.away?.gained.orEmpty()
-        _state.value = shown.town.todayAt(now(), shown.gap, requests, gained, news.whatHappened)
+        _state.value = shown.town.todayAt(
+            now = now(),
+            gap = shown.gap,
+            requests = requests,
+            gained = gained,
+            whatHappened = news.whatHappened,
+            keepGoing = keepGoing.offeredOn(shown.town.nextStep),
+        )
     }
 
     private fun now(): Instant = serverNow(clock, held?.gap ?: Duration.ZERO)

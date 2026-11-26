@@ -18,4 +18,6 @@ sealed interface TodayIntent {
     data object NewsCloseTapped : TodayIntent
 
     data class BuildTapped(val building: TownBuildingKind) : TodayIntent
+
+    data class FrameWordTapped(val at: TodayUiState.SpanAt) : TodayIntent
 }

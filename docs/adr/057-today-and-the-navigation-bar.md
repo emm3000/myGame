@@ -467,17 +467,18 @@ dock's. The slice that draws each owes it before its screenshots.
 - `.claude/rules/ui-components.md`: touch targets, the four states of a
   screen that loads, reduced motion.
 
-## Amendment (2026-11-26): two section titles content check 9 refuses
+## Amendment (2026-11-26): the section titles content check 9 refuses
 
 Content check 9 (`checkChrome.ts`, ADR 040) admits in the chrome only
 frame words and the words the chrome lessons teach
-(`docs/setting/chrome.md`). Two titles this ADR names hold words the
-chrome lessons do not teach, so neither can ship as written.
+(`docs/setting/chrome.md`). Three titles this ADR names hold words the
+chrome lessons do not teach, so none can ship as written.
 
 | Section | This ADR says | It becomes | Refused word |
 |---|---|---|---|
 | *What happened*'s events (#2011) | *What happened* | *Town News* | *happened* |
 | *What happened*'s gains (#2012) | *While you were away* | *What your town earned* | *while*, *away* |
+| *Keep going* (#2014) | *Keep going* | *Read more* | *keep* |
 
 - **The section keeps its name in this ADR.** *What happened* still
   names the second section of Today; only the titles drawn on screen
