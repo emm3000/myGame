@@ -4,7 +4,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameRegisteredRow
