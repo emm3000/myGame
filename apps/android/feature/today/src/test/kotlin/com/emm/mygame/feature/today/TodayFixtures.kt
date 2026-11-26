@@ -2,9 +2,14 @@ package com.emm.mygame.feature.today
 
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.testing.townOf
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -15,12 +20,34 @@ internal fun newTown(
     isFirstLessonStudied: Boolean = false,
     nextDueAt: Instant? = null,
     lessonSlot: TownSnapshot.LessonSlot? = null,
+    work: TownSnapshot.WorkItem? = null,
+    job: TownSnapshot.Job? = null,
 ): TownSnapshot = townOf(
     readAt,
     nextStep = nextStep,
     lessons = listOf(lessonOf(LessonId("lesson-1"), isStudied = isFirstLessonStudied)),
     lessonSlot = lessonSlot,
     nextDueAt = nextDueAt,
+).let { town: TownSnapshot -> town.copy(work = town.work.copy(slot = work), job = job) }
+
+internal fun farmWorkLasting(lasting: Duration): TownSnapshot.WorkItem = TownSnapshot.WorkItem(
+    building = TownBuildingKind.Farm,
+    level = 2,
+    startsAt = readAt,
+    finishesAt = readAt + lasting,
+)
+
+internal fun jobOnTheWayLasting(lasting: Duration): TownSnapshot.Job = TownSnapshot.Job(
+    site = TownSite(region = 1, area = 1, site = 3),
+    team = mapOf(TownHireKind.Worker to 3, TownHireKind.Truck to 1),
+    task = TownSnapshot.JobTask.Hours(hours = 2),
+    pay = mapOf(TownResourceKind.Money to 40L),
+    phase = TownSnapshot.JobPhase.Outbound,
+    sentAt = readAt,
+    arrivesAt = readAt + lasting,
+    leavesAt = readAt + lasting + 2.hours,
+    returnsAt = readAt + lasting + 2.hours + lasting,
+    calledBackAt = null,
 )
 
 private fun lessonOf(id: LessonId, isStudied: Boolean): TownSnapshot.Lesson = TownSnapshot.Lesson(

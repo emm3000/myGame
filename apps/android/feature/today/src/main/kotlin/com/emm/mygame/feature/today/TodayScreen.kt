@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
@@ -13,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameHeader
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSizes
@@ -22,6 +25,7 @@ import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTitleLine
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
@@ -94,23 +98,45 @@ private fun TodayContent(content: TodayUiState.Content, onIntent: (TodayIntent) 
                 onAct = { onIntent.actOn(card, navigation) },
             )
         }
-        content.running?.let { running: TodayUiState.RunningLesson ->
-            InProgress(running = running, copy = copy, onLessonOpen = { navigation.onLessonOpen(running.lesson) })
+        if (content.hasInProgress()) InProgress(content = content, copy = copy, navigation = navigation)
+    }
+}
+
+@Composable
+private fun InProgress(content: TodayUiState.Content, copy: PlayerCopy, navigation: TodayNavigation) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
+        MyGameSectionTitle(label = fixedLabel(copy.fixedCopy(R.string.today_in_progress)))
+        content.lesson?.let { running: TodayUiState.RunningLesson ->
+            MyGameNavRow(
+                title = copy.runningTitleOf(running.name),
+                status = copy.runningTimeOf(running),
+                onClick = { navigation.onLessonOpen(running.lesson) },
+            )
+        }
+        content.work?.let { work: TodayUiState.RunningWork ->
+            WorkRow(title = copy.workTitleOf(work), status = copy.workTimeOf(work))
+        }
+        content.job?.let { job: TodayUiState.JobOut ->
+            MyGameNavRow(title = copy.jobTitleOf(job), status = copy.jobTimeOf(job), onClick = navigation.onMapOpen)
         }
     }
 }
 
 @Composable
-private fun InProgress(running: TodayUiState.RunningLesson, copy: PlayerCopy, onLessonOpen: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
-        MyGameSectionTitle(label = fixedLabel(copy.fixedCopy(R.string.today_in_progress)))
-        MyGameNavRow(
-            title = copy.runningTitleOf(running.name),
-            status = copy.runningTimeOf(running),
-            onClick = onLessonOpen,
+private fun WorkRow(title: MyGameLabel, status: MyGameLabel) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        MyGameTitleLine(
+            title = title,
+            status = status,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MyGameSpacing.step2, vertical = MyGameSpacing.step3),
         )
+        MyGameHairline()
     }
 }
+
+private fun TodayUiState.Content.hasInProgress(): Boolean = lesson != null || work != null || job != null
 
 private fun ((TodayIntent) -> Unit).actOn(card: TodayUiState.FirstCard, navigation: TodayNavigation) {
     when (card) {

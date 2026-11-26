@@ -3,6 +3,8 @@ package com.emm.mygame.feature.today
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.model.town.LessonName
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.PlayerCopy
@@ -73,6 +75,32 @@ internal fun PlayerCopy.runningTitleOf(name: LessonName): MyGameLabel = when (na
 
 internal fun PlayerCopy.runningTimeOf(running: TodayUiState.RunningLesson): MyGameLabel =
     chrome { finishLabelOf(running.remaining, running.finishesAt, todayDurationCopy) }
+
+internal fun PlayerCopy.workTitleOf(work: TodayUiState.RunningWork): MyGameLabel = chrome {
+    text(R.string.today_work_ready_in, "place" to text(placeNameOf(work.building)), "level" to work.level.toString())
+}
+
+internal fun PlayerCopy.workTimeOf(work: TodayUiState.RunningWork): MyGameLabel =
+    chrome { finishLabelOf(work.remaining, work.finishesAt, todayDurationCopy) }
+
+internal fun PlayerCopy.jobTitleOf(job: TodayUiState.JobOut): MyGameLabel = when (job.phase) {
+    TownSnapshot.JobPhase.Outbound -> chrome(R.string.today_job_on_the_way)
+    TownSnapshot.JobPhase.Working -> chrome(R.string.today_job_working)
+    TownSnapshot.JobPhase.Returning -> chrome(R.string.today_job_coming_back)
+}
+
+internal fun PlayerCopy.jobTimeOf(job: TodayUiState.JobOut): MyGameLabel =
+    chrome { finishLabelOf(job.remaining, job.finishesAt, todayDurationCopy) }
+
+private fun placeNameOf(kind: TownBuildingKind): Int = when (kind) {
+    TownBuildingKind.Homes -> R.string.today_place_homes
+    TownBuildingKind.Farm -> R.string.today_place_farm
+    TownBuildingKind.Factory -> R.string.today_place_factory
+    TownBuildingKind.PowerStation -> R.string.today_place_power_station
+    TownBuildingKind.Storage -> R.string.today_place_storage
+    TownBuildingKind.School -> R.string.today_place_school
+    TownBuildingKind.Office -> R.string.today_place_office
+}
 
 internal fun PlayerCopy.startRefusalOf(start: TodayUiState.StartStatus): String? = when (start) {
     TodayUiState.StartStatus.Idle, TodayUiState.StartStatus.Starting -> null
