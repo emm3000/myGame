@@ -31,6 +31,7 @@ import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
+import mockwebserver3.SocketEffect
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -326,6 +327,20 @@ class LearningRepositoryTest {
         }
 
         assertEquals(refusals.values.map { refusal: ReviewRefusal -> ReviewAnswerResult.Refused(refusal) }, answered)
+    }
+
+    @Test
+    fun `sends an answer once when a pooled connection drops before the api answers`() = runTest {
+        api.enqueue(reviews(NO_REVIEWS))
+        api.enqueue(MockResponse.Builder().onResponseStart(SocketEffect.CloseSocket()).build())
+        api.enqueue(json(200, answerOf(NEAR_MISS)))
+        val learning: LearningRepository = learning()
+        learning.reviews()
+
+        val result: ReviewAnswerResult = learning.answer(WordId("lesson-1-2"), "school")
+
+        assertEquals(ReviewAnswerResult.Unreachable, result)
+        assertEquals(2, api.requestCount)
     }
 
     @Test
