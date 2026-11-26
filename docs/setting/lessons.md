@@ -720,6 +720,78 @@ The part also gives each of the 30 entries of lessons 42 to 47, `word-201` to `w
 | you see | phrase | phrase | It's my first day, you see. | It's my first day, ____ ____. | verás | said when explaining something to someone |
 | something like that | phrase | phrase | She works at the station, or something like that. | She works at the station, or ____ ____ ____. | algo así | or a thing close to it, when you are not sure |
 
+## Lessons 53 to 57
+
+Part 2 of the second content batch (ADR 049, its amendment of 2026-11-25, #2041), drafted by Claude Opus 5.5. It has 4 band 1 lessons in NGSL-Spoken 1.2 order and 1 unit lesson, as part 1 has. The heads are *though* (spoken 175), *anyway* (190), *pound* (201) and *issue* (202). Lesson 57 teaches PHaVE's ready phrasal verbs *sit down* (22), *take out* (24) and *come on* (25), and the PHRASE units *and all that* and *a lot*, in ADR 044's order of 2026-11-25. Every lesson asks for school level 1 and takes 300 s. Its skill follows from its position in `curriculum.json`.
+
+The part also gives each of `word-201` to `word-230` its second later frame, written for one of lessons 53 to 56 (ADR 044).
+
+- **Readiness.** *sit* is taught by lesson 54, *take* by lesson 18, *come* by lesson 4, *down* by lesson 28 and *lot* by lesson 24. *out*, *on*, *and*, *all*, *that* and *a* are frame words admitted at lesson 1.
+- **Order of the units.** *get up* (PHaVE 23) waits for the next unit lesson. It is the reverse move of *sit down*, so the two would form a pair whose frames each fill the other's gap (ADR 037, no semantic set). For the same reason, *that sort of thing* waits too. It comes after *and all that* among the ready PHRASE units marked `* * *` in speech and `X` in writing, and it means the same thing. So lesson 57 takes the next unit in order, *a lot* (`* * *` spoken, `*` written).
+- **Senses.** *pound* is taught as the American measure of weight, never the British money. *though* is taught as speech puts it, at the end of what is said. *anyway* is taught as 'even so', *pretty* as 'more than a little', and *guess* in *I guess*, 'suppose'. *idea*'s anchor frame, *I have no idea.*, teaches the PHRASE unit *no idea*. *sit down*, *take out* and *come on* are each taught in their PHaVE sense of the highest share: 'move to a sitting position' (100 %), 'remove something from somewhere' (50.5 %) and 'said to encourage someone' (50 %).
+- **Part of speech.** *though*, *anyway*, *pretty* and *together* are filed as adverbs, as *while* is. *sorry* and *enough* are filed as adjectives, and *everything* and *somebody* as nouns, as *something* is. *and all that* and *a lot* are filed as `phrase`.
+- **Shared glosses.** *morning* is glossed *la mañana*, so it shares no gloss with *tomorrow* (*mañana*). *sit down* shares *sentarse* with *sit* (lesson 54). *sit*'s gap holds one word, so *sit down* cannot fill it, and *sit down*'s gap holds two.
+
+### Lesson 53
+
+**Theme:** *A ride to work*, es *De camino al trabajo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| though | adverb | 227 | 175 | The pay isn't great, though. | The pay isn't great, ____. | pero | used at the end of what you say, to add something that does not go with what came before |
+| bad | adjective | 268 | 206 | The food here isn't bad. | The food here isn't ____. | malo | not good |
+| car | noun | 260 | 219 | We can go in my car. | We can go in my ____. | auto | a thing people drive to go from place to place |
+| understand | verb | 243 | 230 | I don't understand the question. | I don't ____ the question. | entender | to know what something means |
+| minute | noun | 366 | 213 | Can you wait a minute? | Can you wait a ____? | minuto | one of the 60 parts of an hour |
+
+### Lesson 54
+
+**Theme:** *A new class*, es *Una clase nueva*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| anyway | adverb | 893 | 190 | I don't need it, but I'll buy it anyway. | I don't need it, but I'll buy it ____. | de todos modos | even so; when something else is true but it does not change what you do |
+| student | noun | 248 | 216 | Are you a student here? | Are you a ____ here? | estudiante | a person who studies at a school |
+| everything | noun | 422 | 212 | Is everything okay? | Is ____ okay? | todo | all the things |
+| sit | verb | 356 | 220 | Come and sit with us. | Come and ____ with us. | sentarse | to rest your body on something, not standing |
+| guess | verb | 901 | 217 | I guess you're right. | I ____ you're right. | suponer | to think something is true when you are not sure |
+
+### Lesson 55
+
+**Theme:** *A busy morning*, es *Una mañana ocupada*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| pound | noun | 984 | 201 | I'll take a pound of that. | I'll take a ____ of that. | libra | a measure of weight, used when you buy food and other things |
+| morning | noun | 434 | 228 | I'll see you in the morning. | I'll see you in the ____. | la mañana | the early part of the day, before the middle of the day |
+| idea | noun | 251 | 233 | I have no idea. | I have no ____. | idea | a plan or a picture in your mind, or what you know |
+| sorry | adjective | 765 | 254 | Sorry I'm late. | ____ I'm late. | perdón | a word you say when you feel bad about something you did |
+| hard | adjective | 298 | 265 | Was the test hard? | Was the test ____? | difícil | not easy to do |
+
+### Lesson 56
+
+**Theme:** *A town meeting*, es *Una reunión del pueblo*. **Skill:** money, 5 %.
+
+| Lemma | Part of speech | NGSL 1.2 rank | NGSL-Spoken 1.2 rank | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|---|
+| issue | noun | 218 | 202 | Money is a big issue in this town. | Money is a big ____ in this town. | tema | a problem or subject that people talk about |
+| pretty | adverb | 637 | 235 | The food was pretty good. | The food was ____ good. | bastante | more than a little, but not very |
+| somebody | noun | 983 | 236 | Can somebody help me? | Can ____ help me? | alguien | a person, when you do not know or say who |
+| enough | adjective | 267 | 241 | Do we have enough food? | Do we have ____ food? | suficiente | as much as you need |
+| together | adverb | 294 | 270 | We can all go together. | We can all go ____. | juntos | with each other, at the same time and place |
+
+### Lesson 57
+
+**Theme:** *Class starts*, es *Empieza la clase*. **Skill:** money, 5 %. A unit lesson.
+
+| Unit | Source | Part of speech | Frame | Gapped form | es gloss | Definition |
+|---|---|---|---|---|---|---|
+| sit down | phave | verb | Come in and sit down. | Come in and ____ ____. | sentarse | to stop standing and rest your body on something |
+| take out | phave | verb | Okay, take out your books. | Okay, ____ ____ your books. | sacar | to move something out of the place where it is, such as a box |
+| come on | phave | verb | Come on, you can do it! | ____ ____, you can do it! | ¡vamos! | said to tell someone to try harder, or to go faster |
+| and all that | phrase | phrase | We talked about the kids and all that. | We talked about the kids ____ ____ ____. | y todo eso | and other things of the same kind |
+| a lot | phrase | phrase | I go to the market a lot. | I go to the market ____ ____. | mucho | often, or very much |
+
 ## Texts
 
 One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #1276). It holds every card word of its four band lessons, the band lessons up to and including its `fromLessonId` with unit lessons skipped, in any form the grammar admits, and no token unknown at its lesson. The gate checks both. Its length, 80 to 150 tokens in band 1 as `tokensOf` counts the title and the sentences, is checked by the review of check 7. Each text is told in the first person by someone who lives in the town and names no one.
@@ -753,3 +825,9 @@ One text closes every four band lessons, from lesson 31 on (ADR 049, #1273, #127
 **Title:** *Study Night*. **Band lessons:** 48 to 51. **Tokens:** 137. **In no card sense:** *one*, *just*, *got*, *end*, *last*.
 
 > My kids have a big test at school tomorrow, so we studied at home last night. They have to remember a lot of words, about half the book. One of them knows most of the words, but the other one isn't quite ready. After an hour, the other one asked if it was okay to stop for a bit. I said yes, and I asked if she needed anything else. She wasn't sure, so we just talked. After that, we got all our stuff and started again. It was sort of late when we stopped, but the kids said thank you. At the end of the night, I asked if they were ready, and they both said yeah. It was actually a nice night. They'll probably do well tomorrow. Maybe they'll even like the test.
+
+### text-6, lesson 56
+
+**Title:** *A Bad Morning*. **Band lessons:** 53 to 56. **Tokens:** 130. **In no card sense:** *there*, *help*.
+
+> This morning, there was a problem with my car. I don't understand cars, so I asked somebody for help. A student from the school came, and we looked at the car together. She was pretty sure it was a small issue. I had to sit and wait for a minute. Then she had an idea, but it was hard to do. I was late to the office, so I said sorry. I didn't have enough money for a new car, though. On the way home, I went to the market, where you can buy food by the pound. The student came back at night, and the car is okay now. Anyway, I guess everything is good now. It was a bad morning, but not a bad day.
