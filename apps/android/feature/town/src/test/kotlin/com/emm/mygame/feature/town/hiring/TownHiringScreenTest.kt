@@ -32,19 +32,20 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.hiring.TownHiringRefusal
-import com.emm.mygame.feature.town.ReadyTime
+import com.emm.mygame.core.projection.town.ReadyTime
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.Shortfall
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.TownScreen
 import com.emm.mygame.feature.town.TownUiState
 import com.emm.mygame.feature.town.bareOffice
-import com.emm.mygame.feature.town.building.CostLine
 import com.emm.mygame.feature.town.building.PeopleLine
-import com.emm.mygame.feature.town.building.Shortfall
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.readInstant
+import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -53,7 +54,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class TownHiringScreenTest {

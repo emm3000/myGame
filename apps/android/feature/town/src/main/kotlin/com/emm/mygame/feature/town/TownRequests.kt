@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town
 
-import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.feature.town.building.work.StopStatus
 import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
 import com.emm.mygame.feature.town.hiring.HiringStopStatus

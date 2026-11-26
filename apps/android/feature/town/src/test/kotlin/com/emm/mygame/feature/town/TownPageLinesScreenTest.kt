@@ -36,10 +36,12 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.feature.town.building.StartStatus
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -47,8 +49,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 
 @RunWith(RobolectricTestRunner::class)
 class TownPageLinesScreenTest {

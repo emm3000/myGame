@@ -1,8 +1,10 @@
 package com.emm.mygame.feature.town.building
 
+import com.emm.mygame.core.projection.town.ReadyTime
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.ui.CopyReader
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.readyTimeLabelOf
 import com.emm.mygame.feature.town.readyWordsOf
 

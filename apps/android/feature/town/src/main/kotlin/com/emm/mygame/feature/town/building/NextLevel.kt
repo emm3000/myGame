@@ -17,11 +17,16 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.projection.town.ReadyTime
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.Shortfall
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
-import com.emm.mygame.feature.town.ReadyTime
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.townDurationCopy
 import kotlin.time.Duration.Companion.hours

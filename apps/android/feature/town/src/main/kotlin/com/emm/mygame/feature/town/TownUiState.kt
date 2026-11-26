@@ -5,10 +5,10 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.building.work.SlotLine

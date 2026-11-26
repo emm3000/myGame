@@ -9,20 +9,15 @@ import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.projection.ResourceNeed
-import com.emm.mygame.core.projection.ResourceStock
 import com.emm.mygame.core.projection.countdownTo
-import com.emm.mygame.core.projection.readyMinuteOf
-import com.emm.mygame.feature.town.building.BlockReason
-import com.emm.mygame.feature.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.blockIn
+import com.emm.mygame.core.projection.town.building.lineWith
+import com.emm.mygame.core.projection.town.projected
 import com.emm.mygame.feature.town.building.FillTime
-import com.emm.mygame.feature.town.building.NextLevel
-import com.emm.mygame.feature.town.building.NextLevelLine
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.building.StockLine
-import com.emm.mygame.feature.town.building.WordNeedLine
 import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.building.work.WaitingLine
@@ -102,27 +97,6 @@ private fun NextStep.placeWith(goal: TownGoal?): TownBuildingKind = when (this) 
 private fun TownSnapshot.changesOnTheirOwn(): List<Instant> =
     listOfNotNull(work.slot?.finishesAt, lessonSlot?.finishesAt, hiring.order?.endsAt, seasonEndsAt, nextDueAt)
 
-internal fun List<CostLine>.shortfallsAgainst(
-    drawn: Map<TownResourceKind, Long>,
-): List<Shortfall> =
-    map { cost: CostLine -> Shortfall(cost.kind, cost.amount - drawn.getValue(cost.kind)) }
-        .filter { shortfall: Shortfall -> shortfall.amount > 0 }
-
-internal fun TownSnapshot.readyTimeOf(
-    costs: List<CostLine>,
-    now: Instant,
-    gap: Duration,
-): ReadyTime? {
-    val needs: List<ResourceNeed> = costs.map { cost: CostLine ->
-        val stock: TownSnapshot.Stock = stocks.first { held: TownSnapshot.Stock -> held.kind == cost.kind }
-        ResourceNeed(stock = stock.projected(), cost = cost.amount)
-    }
-    val ready: Instant = readyMinuteOf(needs, readAt) ?: return null
-    return ReadyTime(remaining = countdownTo(finishesAt = ready, now = now), readyAt = ready - gap)
-}
-
-private fun TownSnapshot.Stock.projected(): ResourceStock = ResourceStock(amount, ratePerHour, capacity)
-
 private fun TownSnapshot.Stock.lineAt(
     readAt: Instant,
     now: Instant,
@@ -191,35 +165,3 @@ private fun TownSnapshot.Building.cardWith(
 
 private fun TownSnapshot.isWorkingOn(kind: TownBuildingKind): Boolean =
     (listOfNotNull(work.slot) + work.waitingList).any { item: TownSnapshot.WorkItem -> item.building == kind }
-
-private fun TownSnapshot.NextLevel.lineWith(drawn: Map<TownResourceKind, Long>): NextLevelLine =
-    NextLevelLine(
-        level = level,
-        costs = costs.map { cost: TownSnapshot.Cost ->
-            CostLine(cost.kind, cost.amount, isShort = cost.amount > drawn.getValue(cost.kind))
-        },
-        duration = duration,
-        people = people,
-        wordsNeeded = wordsNeeded?.let { need: TownSnapshot.WordsNeeded ->
-            WordNeedLine(needed = need.count, held = need.held, standing = need.standing)
-        },
-    )
-
-private fun NextLevelLine.blockIn(
-    town: TownSnapshot,
-    drawn: Map<TownResourceKind, Long>,
-    now: Instant,
-    gap: Duration,
-): BlockReason? {
-    val work: TownSnapshot.Work = town.work
-    if (work.slot != null && work.waitingList.size >= work.cap) return BlockReason.WaitingListFull(work.cap)
-    if (work.slot == null && work.waitingList.isEmpty() && people > town.people.free) {
-        return BlockReason.PeopleShort(needed = people, free = town.people.free)
-    }
-    val shortfalls: List<Shortfall> = costs.shortfallsAgainst(drawn)
-    return if (shortfalls.isEmpty()) {
-        null
-    } else {
-        BlockReason.Resources(shortfalls, ready = town.readyTimeOf(costs, now, gap))
-    }
-}

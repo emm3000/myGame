@@ -9,6 +9,7 @@ val sharedCases: Map<String, RegularFile> = mapOf(
 )
 
 dependencies {
+    implementation(project(":core:model"))
     testImplementation(libs.kotlinx.serialization.json)
 }
 

@@ -14,7 +14,7 @@ private val jvmOnlyModules: Set<String> = setOf(":core:model", ":core:projection
 private val allowedCoreEdges: Map<String, Set<String>> = mapOf(
     ":core:model" to emptySet(),
     ":core:network" to setOf(":core:model"),
-    ":core:projection" to emptySet(),
+    ":core:projection" to setOf(":core:model"),
     ":core:designsystem" to emptySet(),
     ":core:ui" to setOf(":core:model", ":core:projection", ":core:designsystem"),
     ":core:testing" to setOf(":core:model", ":core:projection"),

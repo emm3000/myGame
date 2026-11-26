@@ -17,18 +17,18 @@ import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.feature.town.building.CostLine
-import com.emm.mygame.feature.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.feature.town.building.PeopleLine
 import com.emm.mygame.feature.town.building.PlaceCard
-import com.emm.mygame.feature.town.building.StartStatus
 import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.building.work.StopStatus
-import org.junit.Rule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import org.junit.Rule
 
 abstract class TownScreenFixture {
 

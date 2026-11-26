@@ -5,13 +5,17 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.projection.town.ReadyTime
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import com.emm.mygame.feature.town.building.BlockReason
-import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.hiring.HiringBlock
 import com.emm.mygame.feature.town.hiring.HiringCard
 import com.emm.mygame.feature.town.hiring.HiringForm
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -19,9 +23,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 
 class TownReadyMinuteViewModelTest {
 

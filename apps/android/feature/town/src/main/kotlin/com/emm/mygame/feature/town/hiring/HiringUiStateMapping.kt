@@ -5,12 +5,12 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.projection.countdownTo
+import com.emm.mygame.core.projection.town.building.CostLine
+import com.emm.mygame.core.projection.town.building.Shortfall
+import com.emm.mygame.core.projection.town.building.shortfallsAgainst
+import com.emm.mygame.core.projection.town.readyTimeOf
 import com.emm.mygame.feature.town.TownRequests
-import com.emm.mygame.feature.town.building.CostLine
-import com.emm.mygame.feature.town.building.Shortfall
 import com.emm.mygame.feature.town.hireMark
-import com.emm.mygame.feature.town.readyTimeOf
-import com.emm.mygame.feature.town.shortfallsAgainst
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
