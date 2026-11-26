@@ -327,14 +327,24 @@ class ReportScreenTest {
     }
 
     @Test
-    fun `keeps sign-out at the foot of the Report`() {
+    fun `draws no sign-out on the Report`() {
         show(contentWith(dueCount = 1, news = unreadFarm))
 
-        val signOutTop: Dp = unclippedTopOf("Salir")
+        composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
+    }
 
-        listOf("Repasos pendientes: 1", "NOTICIAS DEL PUEBLO", "Cerrar las noticias").forEach { line: String ->
-            assertTrue(unclippedTopOf(line) < signOutTop)
-        }
+    @Test
+    fun `draws no sign-out on a Report that failed to read`() {
+        show(ReportUiState.Failed)
+
+        composeRule.onAllNodesWithText("Salir").assertCountEquals(0)
+    }
+
+    @Test
+    fun `draws no reminder offer with nothing due and the reminder off`() {
+        show(contentWith(isReminderOn = false))
+
+        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
     }
 
     @Test
@@ -366,29 +376,12 @@ class ReportScreenTest {
     }
 
     @Test
-    fun `keeps sign-out on a Report that failed to read`() {
-        show(ReportUiState.Failed)
-
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-
-        assertEquals(listOf<ReportIntent>(ReportIntent.SignOutTapped), intents)
-    }
-
-    @Test
     fun `leaves the rows out while signing out`() {
         show(ReportUiState.SigningOut)
 
         listOf(NEWS_ALL, SETTINGS).forEach { label: String ->
             composeRule.onNodeWithText(label).assertDoesNotExist()
         }
-    }
-
-    @Test
-    fun `draws a text button while signing out, never an ink pill`() {
-        show(ReportUiState.SigningOut)
-
-        composeRule.onNodeWithText("Salir").assertIsDisplayed()
-        composeRule.onAllNodesWithTag(INK_PILL).assertCountEquals(0)
     }
 
     @Test
@@ -444,15 +437,6 @@ class ReportScreenTest {
     private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top
 
     @Test
-    fun `the reminder offer's nav row opens the settings`() {
-        show(contentWith(isReminderOn = false))
-
-        composeRule.onNode(navRowOf(REMINDER_OFFER), useUnmergedTree = true).performScrollTo().performClick()
-
-        assertEquals(1, settingsOpens)
-    }
-
-    @Test
     fun `ends in Town News, the reminder offer and Settings, in that order`() {
         show(contentWith(isReminderOn = false))
 
@@ -460,20 +444,6 @@ class ReportScreenTest {
             .map { line: String -> unclippedTopOf(line) }
 
         assertEquals(tops.sorted(), tops)
-    }
-
-    @Test
-    fun `offers the reminder only with nothing due and the reminder off`() {
-        val nothingDueReminderOff: ReportUiState.Content = contentWith(isReminderOn = false)
-        val shown: MutableState<ReportUiState> = mutableStateOf(nothingDueReminderOff)
-        showFollowing(shown)
-        assertTrue(unclippedTopOf("NOTICIAS DEL PUEBLO") < unclippedTopOf(REMINDER_OFFER))
-
-        shown.value = nothingDueReminderOff.copy(isReminderOn = true)
-        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
-
-        shown.value = nothingDueReminderOff.copy(dueCount = 2)
-        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
     }
 
     @Test

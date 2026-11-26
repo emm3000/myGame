@@ -6,4 +6,5 @@ internal val firstReminder: SettingsUiState.Reminder = SettingsUiState.Reminder(
     isOn = StudyReminderChoice.firstChoice.isOn,
     time = StudyReminderChoice.firstChoice.time,
     ask = SettingsUiState.NotificationAsk.Untouched,
+    isOffered = false,
 )

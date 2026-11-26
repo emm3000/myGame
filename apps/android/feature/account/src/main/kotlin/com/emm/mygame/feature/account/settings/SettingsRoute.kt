@@ -12,6 +12,7 @@ import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.reminder.ReminderNotifications
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
+import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.theme.ThemeSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
@@ -23,12 +24,13 @@ fun SettingsRoute(
     playerScaffold: StateFlow<PlayerScaffold?>,
     reminders: StudyReminderSettings,
     notifications: ReminderNotifications,
+    reports: ReportRepository,
     themes: ThemeSettings,
     rememberNotificationAsk: @Composable (onAnswer: (Boolean) -> Unit) -> () -> Unit,
     navigation: SettingsNavigation,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel {
-        SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
     },
 ) {
     val state: SettingsUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -36,11 +38,14 @@ fun SettingsRoute(
         viewModel.onIntent(SettingsIntent.NotificationsAnswered(isGranted))
     }
     val currentAsk: () -> Unit by rememberUpdatedState(askNotifications)
+    val currentNavigation: SettingsNavigation by rememberUpdatedState(navigation)
     LaunchedEffect(viewModel) {
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: SettingsEffect ->
                 when (effect) {
                     SettingsEffect.AskNotifications -> currentAsk()
+                    SettingsEffect.SigningOut -> currentNavigation.onSigningOut()
+                    SettingsEffect.SignedOut -> currentNavigation.onSignedOut()
                 }
             }
         }
