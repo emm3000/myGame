@@ -23,6 +23,7 @@ sealed interface TodayUiState {
     data class Content(
         val eyebrow: Eyebrow,
         val first: FirstCard?,
+        val gained: List<TownSnapshot.Cost>,
         val whatHappened: WhatHappened?,
         val lesson: RunningLesson?,
         val work: RunningWork?,

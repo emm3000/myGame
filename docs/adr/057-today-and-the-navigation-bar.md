@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted, the titles drawn in What happened amended to Town News and What your town earned by the amendment of 2026-11-26
 date: 2026-11-25
 ---
 # Today and the navigation bar, the Android shell
@@ -466,3 +466,26 @@ dock's. The slice that draws each owes it before its screenshots.
   #917, the skeleton.
 - `.claude/rules/ui-components.md`: touch targets, the four states of a
   screen that loads, reduced motion.
+
+## Amendment (2026-11-26): two section titles content check 9 refuses
+
+Content check 9 (`checkChrome.ts`, ADR 040) admits in the chrome only
+frame words and the words the chrome lessons teach
+(`docs/setting/chrome.md`). Two titles this ADR names hold words the
+chrome lessons do not teach, so neither can ship as written.
+
+| Section | This ADR says | It becomes | Refused word |
+|---|---|---|---|
+| *What happened*'s events (#2011) | *What happened* | *Town News* | *happened* |
+| *What happened*'s gains (#2012) | *While you were away* | *What your town earned* | *while*, *away* |
+
+- **The section keeps its name in this ADR.** *What happened* still
+  names the second section of Today; only the titles drawn on screen
+  change.
+- **The gains' title says what the away card says.** It names what the
+  town gained since the last overview read, as *earn* already does on
+  the skill earned, and it names no source and no time away: ADR 042's
+  *no count of days away, no streak* stands.
+- **Every criterion that names the old title reads the new one.** A
+  shot that "shows *While you were away*" shows the gains under *What
+  your town earned*.

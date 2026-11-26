@@ -361,6 +361,7 @@
   "android.today.today_finish_day": "{day} {time}",
   "android.today.today_finish_tomorrow": "mañana {time}",
   "android.today.today_finish_with_clock": "{timeLeft} · {clock}",
+  "android.today.today_gained_title": "Lo que ganó tu pueblo",
   "android.today.today_holdout_check": "Prueba de palabras de la banda {band}",
   "android.today.today_holdout_open": "Abrir la prueba",
   "android.today.today_in_progress": "En curso",

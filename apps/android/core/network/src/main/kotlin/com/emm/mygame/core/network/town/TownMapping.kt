@@ -13,6 +13,7 @@ import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.network.generated.models.ResourceAmounts
 import com.emm.mygame.core.network.generated.models.TownJob
 import com.emm.mygame.core.network.generated.models.TownOverview
+import com.emm.mygame.core.network.generated.models.TownOverviewAway
 import com.emm.mygame.core.network.generated.models.TownOverviewBandLinesInner
 import com.emm.mygame.core.network.generated.models.TownOverviewDueHoldoutChecksInner
 import com.emm.mygame.core.network.generated.models.TownOverviewLessonsInner
@@ -75,6 +76,7 @@ internal fun TownOverview.toSnapshot(): TownSnapshot? {
         nextStep = step,
         tip = tip?.toTipKind(),
         nextDueAt = nextDueAt?.toKotlinInstant(),
+        away = away?.toAway(),
         readAt = readAt.toKotlinInstant(),
     )
 }
@@ -157,3 +159,5 @@ internal fun ResourceAmounts.toCosts(): List<TownSnapshot.Cost> = listOf(
     TownSnapshot.Cost(TownResourceKind.Power, power.toLong()),
     TownSnapshot.Cost(TownResourceKind.Material, material.toLong()),
 ).filter { cost: TownSnapshot.Cost -> cost.amount > 0 }
+
+private fun TownOverviewAway.toAway(): TownSnapshot.Away = TownSnapshot.Away(gained.toCosts())

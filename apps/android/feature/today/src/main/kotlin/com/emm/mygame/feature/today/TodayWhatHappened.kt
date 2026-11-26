@@ -2,13 +2,20 @@ package com.emm.mygame.feature.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.TownNewsAchievement
 import com.emm.mygame.core.ui.TownNewsRow
@@ -16,13 +23,48 @@ import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun TodayWhatHappened(
-    whatHappened: TodayUiState.WhatHappened,
+    content: TodayUiState.Content,
     onIntent: (TodayIntent) -> Unit,
     onNewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
+        if (content.gained.isNotEmpty()) Gains(content = content)
+        content.whatHappened?.let { news: TodayUiState.WhatHappened ->
+            News(whatHappened = news, onIntent = onIntent, onNewsOpen = onNewsOpen)
+        }
+    }
+}
+
+@Composable
+private fun Gains(content: TodayUiState.Content) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
+        MyGameSectionTitle(label = copy.chrome(R.string.today_gained_title))
+        Column {
+            content.gained.forEach { gain: TownSnapshot.Cost ->
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    MyGameHairline()
+                    MyGameText(
+                        label = copy.gainOf(gain),
+                        style = MyGameTypography.body,
+                        color = MyGameTheme.colors.ink,
+                        modifier = Modifier.padding(vertical = MyGameSpacing.step3),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun News(
+    whatHappened: TodayUiState.WhatHappened,
+    onIntent: (TodayIntent) -> Unit,
+    onNewsOpen: () -> Unit,
+) {
+    val copy: PlayerCopy = rememberPlayerCopy()
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
         MyGameSectionTitle(label = copy.chrome(R.string.today_news_title))
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             whatHappened.events.forEach { event: TodayUiState.NewsEvent ->

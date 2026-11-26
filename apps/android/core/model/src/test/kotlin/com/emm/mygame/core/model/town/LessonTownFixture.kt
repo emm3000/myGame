@@ -42,6 +42,7 @@ abstract class LessonTownFixture {
         nextStep = step,
         tip = null,
         nextDueAt = null,
+        away = null,
         readAt = readAt,
     )
 

@@ -3,6 +3,7 @@ package com.emm.mygame.feature.today
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
@@ -101,6 +102,8 @@ private fun CopyReader.readyTimeLabelOf(ready: ReadyTime): String {
 
 private val ReadyTime.isWithinTheHour: Boolean
     get() = wholeSecondsOf(remaining).seconds < 1.hours
+
+internal fun PlayerCopy.gainOf(gain: TownSnapshot.Cost): MyGameLabel = chrome { amountLineOf(gain.kind, gain.amount) }
 
 private fun CopyReader.amountLineOf(cost: CostLine): String = amountLineOf(cost.kind, cost.amount)
 

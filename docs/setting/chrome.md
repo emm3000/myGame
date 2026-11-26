@@ -85,7 +85,7 @@ ADR 037's rule that a lesson is never a semantic set applies when #741 groups th
 | word | 217 | *5 words*, *Words in learning: 8 of 10* | palabra |
 | learn | 261 | *Words in learning* | aprender |
 | skill | 685 | *Food skill, level 1* | habilidad |
-| earn | 926 | *You earned the food skill, level 1.* | ganar |
+| earn | 926 | *You earned the food skill, level 1.*, *What your town earned* on Today | ganar |
 | review | 730 | *Reviews due: 3*, *Next review in 9 min* | repaso |
 | due | 574 | *Reviews due* | pendiente |
 | next | 151 | *Next review*, *Next goal*, *Next area* | siguiente |

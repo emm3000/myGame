@@ -110,8 +110,8 @@ private fun TodayContent(
                 onAct = { onIntent.actOn(card, navigation) },
             )
         }
-        content.whatHappened?.let { whatHappened: TodayUiState.WhatHappened ->
-            TodayWhatHappened(whatHappened = whatHappened, onIntent = onIntent, onNewsOpen = navigation.onNewsOpen)
+        if (content.hasWhatHappened()) {
+            TodayWhatHappened(content = content, onIntent = onIntent, onNewsOpen = navigation.onNewsOpen)
         }
         if (content.hasInProgress()) InProgress(content = content, copy = copy, navigation = navigation)
         TodayCanDo(content = content, onIntent = onIntent, placement = placement)
@@ -152,6 +152,8 @@ private fun WorkRow(title: MyGameLabel, status: MyGameLabel) {
         MyGameHairline()
     }
 }
+
+private fun TodayUiState.Content.hasWhatHappened(): Boolean = gained.isNotEmpty() || whatHappened != null
 
 private fun TodayUiState.Content.hasInProgress(): Boolean = lesson != null || work != null || job != null
 

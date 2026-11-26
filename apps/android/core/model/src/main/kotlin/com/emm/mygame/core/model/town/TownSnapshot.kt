@@ -42,8 +42,11 @@ data class TownSnapshot(
     val nextStep: NextStep,
     val tip: TipKind?,
     val nextDueAt: Instant?,
+    val away: Away?,
     val readAt: Instant,
 ) {
+
+    data class Away(val gained: List<Cost>)
 
     data class Stock(
         val kind: TownResourceKind,

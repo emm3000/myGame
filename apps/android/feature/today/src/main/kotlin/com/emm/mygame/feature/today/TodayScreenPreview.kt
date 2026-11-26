@@ -25,6 +25,11 @@ private val previewLesson: LessonId = LessonId("lesson-1")
 
 private val previewAt: Instant = Instant.parse("2026-11-18T23:15:00Z")
 
+private val previewGained: List<TownSnapshot.Cost> = listOf(
+    TownSnapshot.Cost(TownResourceKind.Money, 120),
+    TownSnapshot.Cost(TownResourceKind.Food, 45),
+)
+
 private val previewWhatHappened: TodayUiState.WhatHappened = TodayUiState.WhatHappened(
     events = listOf(
         TodayUiState.NewsEvent.Achievement(TownNews.BuildingWorkFinished(previewAt, TownBuildingKind.Farm, level = 2)),
@@ -60,6 +65,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
             first = TodayUiState.FirstCard.Study(previewLesson, number = 1),
+            gained = previewGained,
             whatHappened = previewWhatHappened,
             lesson = null,
             work = null,
@@ -78,6 +84,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
             first = null,
+            gained = emptyList(),
             whatHappened = null,
             lesson = TodayUiState.RunningLesson(previewLesson, LessonName.Shelved(1), 8.minutes, previewAt),
             work = TodayUiState.RunningWork(TownBuildingKind.Farm, level = 2, remaining = 40.minutes, previewAt),
@@ -93,6 +100,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
                 line = TodayUiState.CaughtUpLine.NoReviewsDue,
                 nextReview = TodayUiState.TimeAt(remaining = 3.hours, at = previewAt),
             ),
+            gained = emptyList(),
             whatHappened = null,
             lesson = null,
             work = null,
