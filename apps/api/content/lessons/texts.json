@@ -96,5 +96,25 @@
       "Maybe they'll even like the test."
     ],
     "noCardSense": ["one", "just", "got", "end", "last"]
+  },
+  {
+    "id": "text-6",
+    "fromLessonId": "lesson-56",
+    "title": "A Bad Morning",
+    "sentences": [
+      "This morning, there was a problem with my car.",
+      "I don't understand cars, so I asked somebody for help.",
+      "A student from the school came, and we looked at the car together.",
+      "She was pretty sure it was a small issue.",
+      "I had to sit and wait for a minute.",
+      "Then she had an idea, but it was hard to do.",
+      "I was late to the office, so I said sorry.",
+      "I didn't have enough money for a new car, though.",
+      "On the way home, I went to the market, where you can buy food by the pound.",
+      "The student came back at night, and the car is okay now.",
+      "Anyway, I guess everything is good now.",
+      "It was a bad morning, but not a bad day."
+    ],
+    "noCardSense": ["there", "help"]
   }
 ]

@@ -4934,6 +4934,11 @@
         "frame": "Do you want to come in for a bit?",
         "gappedFrame": "Do you want to ____ ____ for a bit?",
         "fromLessonId": "lesson-49"
+      },
+      {
+        "frame": "Come in, everything's ready.",
+        "gappedFrame": "____ ____, everything's ready.",
+        "fromLessonId": "lesson-55"
       }
     ],
     "gloss": {
@@ -4956,6 +4961,11 @@
         "gappedFrame": "She's probably going to ____ ____ more work.",
         "fromLessonId": "lesson-49",
         "noCardSense": ["work"]
+      },
+      {
+        "frame": "I guess I can take on the job if you don't want it.",
+        "gappedFrame": "I guess I can ____ ____ the job if you don't want it.",
+        "fromLessonId": "lesson-55"
       }
     ],
     "gloss": {
@@ -4977,6 +4987,11 @@
         "frame": "Don't give up the house, you love it.",
         "gappedFrame": "Don't ____ ____ the house, you love it.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "Why did you give up your car?",
+        "gappedFrame": "Why did you ____ ____ your car?",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -4998,6 +5013,11 @@
         "frame": "I'll be back in a few days.",
         "gappedFrame": "I'll be back in ____ ____ days.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "Can I talk to you for a few minutes?",
+        "gappedFrame": "Can I talk to you for ____ ____ minutes?",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5019,6 +5039,11 @@
         "frame": "We had a number of problems with the truck.",
         "gappedFrame": "We had ____ ____ ____ problems with the truck.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "I have a number of questions for you.",
+        "gappedFrame": "I have ____ ____ ____ questions for you.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5039,6 +5064,11 @@
         "frame": "Does that include the kids?",
         "gappedFrame": "Does that ____ the kids?",
         "fromLessonId": "lesson-49"
+      },
+      {
+        "frame": "Does the job include a car?",
+        "gappedFrame": "Does the job ____ a car?",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5060,6 +5090,11 @@
         "gappedFrame": "Okay, it's time to ____.",
         "fromLessonId": "lesson-51",
         "noCardSense": ["time"]
+      },
+      {
+        "frame": "The test will begin in a minute.",
+        "gappedFrame": "The test will ____ in a minute.",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5081,6 +5116,11 @@
         "gappedFrame": "Just ____ the river and you'll see the farm.",
         "fromLessonId": "lesson-48",
         "noCardSense": ["just"]
+      },
+      {
+        "frame": "Can you follow us in your car?",
+        "gappedFrame": "Can you ____ us in your car?",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5101,6 +5141,11 @@
         "frame": "What's that in your hand?",
         "gappedFrame": "What's that in your ____?",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "I can do it with one hand.",
+        "gappedFrame": "I can do it with one ____.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5122,6 +5167,11 @@
         "gappedFrame": "Can we ____ a time to meet tomorrow?",
         "fromLessonId": "lesson-48",
         "noCardSense": ["time", "meet"]
+      },
+      {
+        "frame": "Has the mayor set a day?",
+        "gappedFrame": "Has the mayor ____ a day?",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5143,6 +5193,11 @@
         "gappedFrame": "Bring a map, just in ____.",
         "fromLessonId": "lesson-48",
         "noCardSense": ["just"]
+      },
+      {
+        "frame": "It's different in my case.",
+        "gappedFrame": "It's different in my ____.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5163,6 +5218,11 @@
         "frame": "Run, or you'll be late!",
         "gappedFrame": "____, or you'll be late!",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "Don't run, we have time.",
+        "gappedFrame": "Don't ____, we have time.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5183,6 +5243,11 @@
         "frame": "I think the government should do more.",
         "gappedFrame": "I think the ____ should do more.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "Who's in the government now?",
+        "gappedFrame": "Who's in the ____ now?",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5203,6 +5268,12 @@
         "frame": "Do you have a plan for the summer?",
         "gappedFrame": "Do you have a ____ for the summer?",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "I have a plan, but I need your help.",
+        "gappedFrame": "I have a ____, but I need your help.",
+        "noCardSense": ["help"],
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5223,6 +5294,11 @@
         "frame": "Okay, now turn at the river.",
         "gappedFrame": "Okay, now ____ at the river.",
         "fromLessonId": "lesson-51"
+      },
+      {
+        "frame": "Turn at the station, and you'll see my car.",
+        "gappedFrame": "____ at the station, and you'll see my car.",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5243,6 +5319,11 @@
         "frame": "Your friends seem nice.",
         "gappedFrame": "Your friends ____ nice.",
         "fromLessonId": "lesson-50"
+      },
+      {
+        "frame": "Does the test seem hard to you?",
+        "gappedFrame": "Does the test ____ hard to you?",
+        "fromLessonId": "lesson-56"
       }
     ],
     "gloss": {
@@ -5263,6 +5344,12 @@
         "frame": "I know for a fact that she's right.",
         "gappedFrame": "I know for a ____ that she's right.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "Is that a fact, or is it just what you think?",
+        "gappedFrame": "Is that a ____, or is it just what you think?",
+        "noCardSense": ["just"],
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5283,6 +5370,11 @@
         "frame": "Where can I get information about the test?",
         "gappedFrame": "Where can I get ____ about the test?",
         "fromLessonId": "lesson-51"
+      },
+      {
+        "frame": "Thanks for the information.",
+        "gappedFrame": "Thanks for the ____.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5303,6 +5395,11 @@
         "frame": "What's going to happen now?",
         "gappedFrame": "What's going to ____ now?",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "I don't understand how it could happen.",
+        "gappedFrame": "I don't understand how it could ____.",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5323,6 +5420,11 @@
         "frame": "I can't believe you remember that.",
         "gappedFrame": "I can't ____ you remember that.",
         "fromLessonId": "lesson-49"
+      },
+      {
+        "frame": "Do you believe the student?",
+        "gappedFrame": "Do you ____ the student?",
+        "fromLessonId": "lesson-55"
       }
     ],
     "gloss": {
@@ -5343,6 +5445,11 @@
         "frame": "That's the kind of job I want.",
         "gappedFrame": "That's the ____ of job I want.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "Do you like this kind of test?",
+        "gappedFrame": "Do you like this ____ of test?",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5363,6 +5470,11 @@
         "frame": "Is the market open today?",
         "gappedFrame": "Is the ____ open today?",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "I'll see you at the market in the morning.",
+        "gappedFrame": "I'll see you at the ____ in the morning.",
+        "fromLessonId": "lesson-56"
       }
     ],
     "gloss": {
@@ -5383,6 +5495,11 @@
         "frame": "Did you buy anything for the kids?",
         "gappedFrame": "Did you ____ anything for the kids?",
         "fromLessonId": "lesson-50"
+      },
+      {
+        "frame": "We can't buy a new car.",
+        "gappedFrame": "We can't ____ a new car.",
+        "fromLessonId": "lesson-54"
       }
     ],
     "gloss": {
@@ -5403,6 +5520,11 @@
         "frame": "Yeah, I love going to the market.",
         "gappedFrame": "Yeah, I ____ going to the market.",
         "fromLessonId": "lesson-50"
+      },
+      {
+        "frame": "Do you love your new job?",
+        "gappedFrame": "Do you ____ your new job?",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5424,6 +5546,11 @@
         "gappedFrame": "Will you be ____ for long?",
         "fromLessonId": "lesson-48",
         "noCardSense": ["long"]
+      },
+      {
+        "frame": "Is the mayor away, or is she in the office?",
+        "gappedFrame": "Is the mayor ____, or is she in the office?",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5445,6 +5572,11 @@
         "frame": "Who set up the market?",
         "gappedFrame": "Who ____ ____ the market?",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "My family set up this business.",
+        "gappedFrame": "My family ____ ____ this business.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5466,6 +5598,11 @@
         "frame": "It'll probably turn out okay.",
         "gappedFrame": "It'll probably ____ ____ okay.",
         "fromLessonId": "lesson-51"
+      },
+      {
+        "frame": "I don't know how the test will turn out.",
+        "gappedFrame": "I don't know how the test will ____ ____.",
+        "fromLessonId": "lesson-53"
       }
     ],
     "gloss": {
@@ -5487,6 +5624,12 @@
         "frame": "Kids make up about half the town.",
         "gappedFrame": "Kids ____ ____ about half the town.",
         "fromLessonId": "lesson-51"
+      },
+      {
+        "frame": "How many students make up the school?",
+        "gappedFrame": "How many students ____ ____ the school?",
+        "noCardSense": ["how"],
+        "fromLessonId": "lesson-55"
       }
     ],
     "gloss": {
@@ -5508,6 +5651,11 @@
         "frame": "In fact, I remember that night really well.",
         "gappedFrame": "____ ____, I remember that night really well.",
         "fromLessonId": "lesson-50"
+      },
+      {
+        "frame": "I was there, and in fact, I saw everything.",
+        "gappedFrame": "I was there, and ____ ____, I saw everything.",
+        "fromLessonId": "lesson-55"
       }
     ],
     "gloss": {
@@ -5529,6 +5677,11 @@
         "frame": "That's not a problem at all.",
         "gappedFrame": "That's not a problem ____ ____.",
         "fromLessonId": "lesson-48"
+      },
+      {
+        "frame": "The morning wasn't bad at all.",
+        "gappedFrame": "The morning wasn't bad ____ ____.",
+        "fromLessonId": "lesson-56"
       }
     ],
     "gloss": {
@@ -5921,5 +6074,385 @@
       "es": "algo así"
     },
     "definition": "or a thing close to it, when you are not sure"
+  },
+  {
+    "id": "word-256",
+    "lemma": "though",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "The pay isn't great, though.",
+        "gappedFrame": "The pay isn't great, ____."
+      }
+    ],
+    "gloss": {
+      "es": "pero"
+    },
+    "definition": "used at the end of what you say, to add something that does not go with what came before"
+  },
+  {
+    "id": "word-257",
+    "lemma": "bad",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "The food here isn't bad.",
+        "gappedFrame": "The food here isn't ____."
+      }
+    ],
+    "gloss": {
+      "es": "malo"
+    },
+    "definition": "not good"
+  },
+  {
+    "id": "word-258",
+    "lemma": "car",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "We can go in my car.",
+        "gappedFrame": "We can go in my ____."
+      }
+    ],
+    "gloss": {
+      "es": "auto"
+    },
+    "definition": "a thing people drive to go from place to place"
+  },
+  {
+    "id": "word-259",
+    "lemma": "understand",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "I don't understand the question.",
+        "gappedFrame": "I don't ____ the question."
+      }
+    ],
+    "gloss": {
+      "es": "entender"
+    },
+    "definition": "to know what something means"
+  },
+  {
+    "id": "word-260",
+    "lemma": "minute",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Can you wait a minute?",
+        "gappedFrame": "Can you wait a ____?"
+      }
+    ],
+    "gloss": {
+      "es": "minuto"
+    },
+    "definition": "one of the 60 parts of an hour"
+  },
+  {
+    "id": "word-261",
+    "lemma": "anyway",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I don't need it, but I'll buy it anyway.",
+        "gappedFrame": "I don't need it, but I'll buy it ____."
+      }
+    ],
+    "gloss": {
+      "es": "de todos modos"
+    },
+    "definition": "even so; when something else is true but it does not change what you do"
+  },
+  {
+    "id": "word-262",
+    "lemma": "student",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Are you a student here?",
+        "gappedFrame": "Are you a ____ here?"
+      }
+    ],
+    "gloss": {
+      "es": "estudiante"
+    },
+    "definition": "a person who studies at a school"
+  },
+  {
+    "id": "word-263",
+    "lemma": "everything",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Is everything okay?",
+        "gappedFrame": "Is ____ okay?"
+      }
+    ],
+    "gloss": {
+      "es": "todo"
+    },
+    "definition": "all the things"
+  },
+  {
+    "id": "word-264",
+    "lemma": "sit",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Come and sit with us.",
+        "gappedFrame": "Come and ____ with us."
+      }
+    ],
+    "gloss": {
+      "es": "sentarse"
+    },
+    "definition": "to rest your body on something, not standing"
+  },
+  {
+    "id": "word-265",
+    "lemma": "guess",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "I guess you're right.",
+        "gappedFrame": "I ____ you're right."
+      }
+    ],
+    "gloss": {
+      "es": "suponer"
+    },
+    "definition": "to think something is true when you are not sure"
+  },
+  {
+    "id": "word-266",
+    "lemma": "pound",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I'll take a pound of that.",
+        "gappedFrame": "I'll take a ____ of that."
+      }
+    ],
+    "gloss": {
+      "es": "libra"
+    },
+    "definition": "a measure of weight, used when you buy food and other things"
+  },
+  {
+    "id": "word-267",
+    "lemma": "morning",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I'll see you in the morning.",
+        "gappedFrame": "I'll see you in the ____."
+      }
+    ],
+    "gloss": {
+      "es": "la mañana"
+    },
+    "definition": "the early part of the day, before the middle of the day"
+  },
+  {
+    "id": "word-268",
+    "lemma": "idea",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I have no idea.",
+        "gappedFrame": "I have no ____."
+      }
+    ],
+    "gloss": {
+      "es": "idea"
+    },
+    "definition": "a plan or a picture in your mind, or what you know"
+  },
+  {
+    "id": "word-269",
+    "lemma": "sorry",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "Sorry I'm late.",
+        "gappedFrame": "____ I'm late."
+      }
+    ],
+    "gloss": {
+      "es": "perdón"
+    },
+    "definition": "a word you say when you feel bad about something you did"
+  },
+  {
+    "id": "word-270",
+    "lemma": "hard",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "Was the test hard?",
+        "gappedFrame": "Was the test ____?"
+      }
+    ],
+    "gloss": {
+      "es": "difícil"
+    },
+    "definition": "not easy to do"
+  },
+  {
+    "id": "word-271",
+    "lemma": "issue",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Money is a big issue in this town.",
+        "gappedFrame": "Money is a big ____ in this town."
+      }
+    ],
+    "gloss": {
+      "es": "tema"
+    },
+    "definition": "a problem or subject that people talk about"
+  },
+  {
+    "id": "word-272",
+    "lemma": "pretty",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "The food was pretty good.",
+        "gappedFrame": "The food was ____ good."
+      }
+    ],
+    "gloss": {
+      "es": "bastante"
+    },
+    "definition": "more than a little, but not very"
+  },
+  {
+    "id": "word-273",
+    "lemma": "somebody",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Can somebody help me?",
+        "gappedFrame": "Can ____ help me?"
+      }
+    ],
+    "gloss": {
+      "es": "alguien"
+    },
+    "definition": "a person, when you do not know or say who"
+  },
+  {
+    "id": "word-274",
+    "lemma": "enough",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "Do we have enough food?",
+        "gappedFrame": "Do we have ____ food?"
+      }
+    ],
+    "gloss": {
+      "es": "suficiente"
+    },
+    "definition": "as much as you need"
+  },
+  {
+    "id": "word-275",
+    "lemma": "together",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "We can all go together.",
+        "gappedFrame": "We can all go ____."
+      }
+    ],
+    "gloss": {
+      "es": "juntos"
+    },
+    "definition": "with each other, at the same time and place"
+  },
+  {
+    "id": "word-276",
+    "lemma": "sit down",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Come in and sit down.",
+        "gappedFrame": "Come in and ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "sentarse"
+    },
+    "definition": "to stop standing and rest your body on something"
+  },
+  {
+    "id": "word-277",
+    "lemma": "take out",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Okay, take out your books.",
+        "gappedFrame": "Okay, ____ ____ your books."
+      }
+    ],
+    "gloss": {
+      "es": "sacar"
+    },
+    "definition": "to move something out of the place where it is, such as a box"
+  },
+  {
+    "id": "word-278",
+    "lemma": "come on",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Come on, you can do it!",
+        "gappedFrame": "____ ____, you can do it!"
+      }
+    ],
+    "gloss": {
+      "es": "¡vamos!"
+    },
+    "definition": "said to tell someone to try harder, or to go faster"
+  },
+  {
+    "id": "word-279",
+    "lemma": "and all that",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "We talked about the kids and all that.",
+        "gappedFrame": "We talked about the kids ____ ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "y todo eso"
+    },
+    "definition": "and other things of the same kind"
+  },
+  {
+    "id": "word-280",
+    "lemma": "a lot",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "I go to the market a lot.",
+        "gappedFrame": "I go to the market ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "mucho"
+    },
+    "definition": "often, or very much"
   }
 ]
