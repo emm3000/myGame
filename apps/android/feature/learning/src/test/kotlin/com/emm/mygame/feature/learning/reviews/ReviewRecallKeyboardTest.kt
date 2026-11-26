@@ -7,7 +7,7 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.designsystem.MyGameTheme
 import org.junit.Assert.assertEquals
