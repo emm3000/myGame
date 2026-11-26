@@ -1,5 +1,8 @@
 package com.emm.mygame.feature.account.settings
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -11,6 +14,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
+import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.account.PlayerScaffold
 import org.junit.Assert.assertEquals
@@ -85,5 +90,41 @@ class SettingsSignOutScreenTest {
 
         composeRule.onNodeWithText(SIGN_OUT, useUnmergedTree = true).assertIsDisplayed()
         composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `announces the sign-out as waiting while the session ends`() {
+        draw(SettingsUiState.SigningOut)
+
+        composeRule
+            .onNode(hasText(SIGN_OUT) and hasClickAction())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
+    }
+
+    @Test
+    fun `sends nothing from the sign-out while the session ends`() {
+        draw(SettingsUiState.SigningOut)
+
+        composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).performClick()
+
+        assertEquals(emptyList<SettingsIntent>(), sentIntents)
+    }
+
+    @Test
+    fun `holds the sign-out at the touch minimum in height`() {
+        draw(loaded)
+
+        val target: DpRect = composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).getUnclippedBoundsInRoot()
+
+        assertTrue(target.bottom - target.top >= MyGameSizes.control)
+    }
+
+    @Test
+    fun `holds the sign-out at the touch minimum in width`() {
+        draw(loaded)
+
+        val target: DpRect = composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).getUnclippedBoundsInRoot()
+
+        assertTrue(target.right - target.left >= MyGameSizes.control)
     }
 }
