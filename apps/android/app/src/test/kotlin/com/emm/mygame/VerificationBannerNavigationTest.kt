@@ -18,7 +18,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.NAVIGATION_BAR
@@ -28,11 +27,8 @@ import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.model.account.VerificationResendResult
-import com.emm.mygame.core.model.report.ReportReadResult
-import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.townOf
@@ -59,15 +55,12 @@ class VerificationBannerNavigationTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val reports: FakeReportRepository = FakeReportRepository()
-
     private val readLanguage: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
 
     private val dependencies: AppDependencies = dependenciesOf(
         playerLanguage = readLanguage,
         sessions = sessions,
         towns = towns,
-        reports = reports,
     )
 
     private val unverifiedSession: RestoreResult =
@@ -81,14 +74,6 @@ class VerificationBannerNavigationTest {
         )
 
     private val heldTown: TownSnapshot = townOf(Instant.parse("2026-11-05T10:00:00Z"))
-
-    private val nothingDue: TownReport = TownReport(
-        dueCount = 0,
-        readFirst = emptyList(),
-        nextDueAt = null,
-        news = emptyList(),
-        readAt = Instant.parse("2026-11-05T10:00:00Z"),
-    )
 
     @Test
     fun `draws the banner at the foot of the town home, under its header`() {
@@ -163,13 +148,12 @@ class VerificationBannerNavigationTest {
 
     @Test
     fun `draws no banner on sign-in once the unverified player signs out`() {
-        reports.answerRead(ReportReadResult.Read(nothingDue))
-        signedInOnTheReport(session = unverifiedSession)
+        signedInOnMe(session = unverifiedSession)
         waitForLine(BANNER_LINE)
-        sessions.answerSignOut()
-        sessions.answerRestore(RestoreResult.SignedOut)
 
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+        sessions.answerSignOut()
+        sessions.answerRestore(RestoreResult.SignedOut)
         waitForLine("Entrar")
 
         composeRule.onAllNodesWithText(BANNER_LINE).assertCountEquals(0)
@@ -197,30 +181,20 @@ class VerificationBannerNavigationTest {
                 AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
             }
         }
-        if (town is TownReadResult.Read) openTheTownTab()
+        if (town is TownReadResult.Read) openTab("Pueblo")
     }
 
-    private fun signedInOnTheReport(session: RestoreResult) {
-        sessions.answerRestore(session)
-        repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(heldTown)) }
-        composeRule.setContent {
-            MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.Report),
-                )
-            }
-        }
-        waitForLine("NOTICIAS DEL PUEBLO")
+    private fun signedInOnMe(session: RestoreResult) {
+        signedIn(session = session, town = TownReadResult.Read(heldTown))
+        openTab("Yo")
+        waitForLine("Salir")
     }
 
-    private fun openTheTownTab() {
-        val townTab: SemanticsMatcher =
-            hasContentDescription("Pueblo").and(hasAnyAncestor(hasTestTag(NAVIGATION_BAR))).and(hasClickAction())
-        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(townTab).fetchSemanticsNodes().isNotEmpty() }
-        composeRule.onNode(townTab).performClick()
+    private fun openTab(label: String) {
+        val tab: SemanticsMatcher =
+            hasContentDescription(label).and(hasAnyAncestor(hasTestTag(NAVIGATION_BAR))).and(hasClickAction())
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(tab).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.onNode(tab).performClick()
     }
 
     private fun waitForLine(line: String) {

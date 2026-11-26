@@ -193,8 +193,8 @@ class SettingsNavigationTest {
             activity.onBackPressedDispatcher.onBackPressed()
         }
 
-        waitForLine("Sign out")
-        waitWithout("Salir")
+        waitForLine("Read all the news")
+        waitWithout("Leer todas las noticias")
         composeRule.onAllNodesWithText("Report").assertCountEquals(1)
     }
 

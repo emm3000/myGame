@@ -8,8 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.model.account.SessionRepository
-import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.town.TownReader
 import kotlin.time.Clock
@@ -20,12 +18,10 @@ import kotlinx.coroutines.withContext
 fun ReportRoute(
     reports: ReportRepository,
     towns: TownReader,
-    sessions: SessionRepository,
-    reminders: StudyReminderSettings,
     clock: Clock,
     navigation: ReportNavigation,
     modifier: Modifier = Modifier,
-    viewModel: ReportViewModel = viewModel { ReportViewModel(reports, towns, sessions, reminders, clock) },
+    viewModel: ReportViewModel = viewModel { ReportViewModel(reports, towns, clock) },
 ) {
     val state: ReportUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: ReportNavigation by rememberUpdatedState(navigation)
@@ -33,8 +29,6 @@ fun ReportRoute(
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: ReportEffect ->
                 when (effect) {
-                    ReportEffect.SigningOut -> currentNavigation.onSigningOut()
-                    ReportEffect.SignedOut -> currentNavigation.onSignedOut()
                     ReportEffect.NewsClosed -> currentNavigation.onNewsClosed()
                 }
             }

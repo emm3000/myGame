@@ -39,7 +39,6 @@ class ReportSkeletonTest {
         nextReview = null,
         news = ReportUiState.ReportNews.None,
         receivedAt = readInstant,
-        isReminderOn = true,
     )
 
     @Test
@@ -133,15 +132,6 @@ class ReportSkeletonTest {
         composeRule.onNodeWithText(FAILED_LINE).assertExists()
     }
 
-    @Test
-    fun `offers the sign out under the skeleton`() {
-        drawLoading()
-
-        composeRule.mainClock.advanceTimeBy(pastReveal)
-
-        composeRule.onNodeWithText(SIGN_OUT).assertExists()
-    }
-
     private fun drawLoading() {
         composeRule.mainClock.autoAdvance = false
         composeRule.setContent {
@@ -173,7 +163,6 @@ class ReportSkeletonTest {
         const val NOTHING_DUE: String = "No tienes repasos pendientes ahora."
         const val FAILED_LINE: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val RETRY: String = "Volver a intentarlo"
-        const val SIGN_OUT: String = "Salir"
         const val BLOCKS: Int = 4
         const val FRAME_MARGIN: Long = 50
         val beforeReveal: Long = MyGameTransitions.REVEAL_MILLIS - FRAME_MARGIN

@@ -37,14 +37,12 @@
     <string name="report_place_school">School</string>
     <string name="report_place_storage">Storage</string>
     <string name="report_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
-    <string name="report_reminder_offer">Turn on a study reminder</string>
     <string name="report_resource_food">food</string>
     <string name="report_resource_material">material</string>
     <string name="report_resource_money">money</string>
     <string name="report_resource_power">power</string>
     <string name="report_reviews_due">Reviews due: {count}</string>
     <string name="report_settings">Settings</string>
-    <string name="report_sign_out">Sign out</string>
     <string name="report_title">Report</string>
     <string name="report_today">Today, {time}</string>
     <string name="report_try_again">Try again</string>

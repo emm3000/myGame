@@ -13,6 +13,7 @@ import com.emm.mygame.feature.account.password.ForgotPasswordRoute
 import com.emm.mygame.feature.account.password.ResetPasswordRoute
 import com.emm.mygame.feature.account.settings.SettingsNavigation
 import com.emm.mygame.feature.account.settings.SettingsRoute
+import com.emm.mygame.feature.account.settings.SettingsSources
 import com.emm.mygame.feature.account.signin.SignInRoute
 import com.emm.mygame.feature.account.signup.SignUpRoute
 import com.emm.mygame.feature.account.verification.VerifyEmailRoute
@@ -70,12 +71,14 @@ internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
         ) {
             val context: Context = LocalContext.current
             SettingsRoute(
-                sessions = dependencies.sessions,
-                playerScaffold = dependencies.playerScaffold,
-                reminders = dependencies.studyReminders,
-                notifications = dependencies.reminderNotifications,
-                reports = dependencies.reports,
-                themes = dependencies.themes,
+                sources = SettingsSources(
+                    sessions = dependencies.sessions,
+                    playerScaffold = dependencies.playerScaffold,
+                    reminders = dependencies.studyReminders,
+                    notifications = dependencies.reminderNotifications,
+                    reports = dependencies.reports,
+                    themes = dependencies.themes,
+                ),
                 rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
                 navigation = SettingsNavigation(
                     onNotificationSettingsOpen = { context.openNotificationSettings() },

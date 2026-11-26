@@ -13,7 +13,6 @@ import com.emm.mygame.core.ui.fixedCopyResource
 
 @Composable
 internal fun ReportRows(
-    isReminderOffered: Boolean,
     onNewsOpen: () -> Unit,
     onSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
@@ -21,9 +20,6 @@ internal fun ReportRows(
     Column(modifier = modifier.fillMaxWidth()) {
         MyGameHairline()
         MyGameNavRow(title = chromeResource(R.string.report_news_all), onClick = onNewsOpen)
-        if (isReminderOffered) {
-            MyGameNavRow(title = fixedCopyLabel(R.string.report_reminder_offer), onClick = onSettingsOpen)
-        }
         MyGameNavRow(title = fixedCopyLabel(R.string.report_settings), onClick = onSettingsOpen)
     }
 }

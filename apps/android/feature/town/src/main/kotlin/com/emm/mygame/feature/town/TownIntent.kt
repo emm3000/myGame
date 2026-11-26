@@ -32,6 +32,4 @@ sealed interface TownIntent {
     data class TipClosed(val tip: TipKind) : TownIntent
 
     data object GoalClosed : TownIntent
-
-    data object SignOutTapped : TownIntent
 }

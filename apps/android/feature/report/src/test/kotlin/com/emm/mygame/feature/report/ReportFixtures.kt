@@ -1,14 +1,11 @@
 package com.emm.mygame.feature.report
 
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.testing.FakeReportRepository
-import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import kotlinx.coroutines.CoroutineStart
@@ -43,16 +40,12 @@ internal fun unreadOf(viewModel: ReportViewModel): ReportUiState.ReportNews.Unre
 
 internal fun TestScope.reportViewModelOf(
     reports: FakeReportRepository,
-    sessions: FakeSessionRepository = FakeSessionRepository(),
     start: Instant = readInstant,
-    reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice),
     towns: FakeTownRepository = FakeTownRepository(),
 ): ReportViewModel {
     val viewModel: ReportViewModel = ReportViewModel(
         reports = reports,
         towns = towns,
-        sessions = sessions,
-        reminders = reminders,
         clock = TestClock(testScheduler, start),
     )
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {

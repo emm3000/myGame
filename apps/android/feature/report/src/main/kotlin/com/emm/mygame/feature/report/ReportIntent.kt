@@ -9,6 +9,4 @@ sealed interface ReportIntent {
     data object RetryTapped : ReportIntent
 
     data object CloseTapped : ReportIntent
-
-    data object SignOutTapped : ReportIntent
 }

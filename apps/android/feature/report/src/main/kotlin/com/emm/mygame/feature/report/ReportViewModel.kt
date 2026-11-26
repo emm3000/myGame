@@ -2,9 +2,6 @@ package com.emm.mygame.feature.report
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.model.account.SessionRepository
-import com.emm.mygame.core.model.reminder.StudyReminderChoice
-import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.report.ReportCloseResult
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.ReportRepository
@@ -17,7 +14,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -31,8 +27,6 @@ import kotlinx.coroutines.launch
 class ReportViewModel(
     private val reports: ReportRepository,
     private val towns: TownReader,
-    private val sessions: SessionRepository,
-    private val reminders: StudyReminderSettings,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -56,18 +50,15 @@ class ReportViewModel(
 
     init {
         open()
-        viewModelScope.launch { reminders.choice.collect { choice: StudyReminderChoice -> drawReminder(choice.isOn) } }
         viewModelScope.launch { towns.town.collect(::holdLessonEnd) }
     }
 
     fun onIntent(intent: ReportIntent) {
-        if (_state.value == ReportUiState.SigningOut) return
         when (intent) {
             ReportIntent.ScreenShown -> show()
             ReportIntent.ScreenHidden -> hide()
             ReportIntent.RetryTapped -> if (_state.value == ReportUiState.Failed) open()
             ReportIntent.CloseTapped -> close()
-            ReportIntent.SignOutTapped -> signOut()
         }
     }
 
@@ -76,7 +67,6 @@ class ReportViewModel(
         isShown = true
         when (_state.value) {
             ReportUiState.Loading -> open()
-            ReportUiState.SigningOut -> Unit
             ReportUiState.Failed, is ReportUiState.Content -> readAgain()
         }
         awaitLessonEnd()
@@ -145,16 +135,6 @@ class ReportViewModel(
         }
     }
 
-    private fun signOut() {
-        viewModelScope.coroutineContext.cancelChildren()
-        _state.value = ReportUiState.SigningOut
-        viewModelScope.launch {
-            _effects.send(ReportEffect.SigningOut)
-            sessions.signOut()
-            _effects.send(ReportEffect.SignedOut)
-        }
-    }
-
     private fun drawClosed() {
         val wasReading: Boolean = reading?.isActive == true
         reading?.cancel()
@@ -171,12 +151,6 @@ class ReportViewModel(
         }
     }
 
-    private fun drawReminder(isOn: Boolean) {
-        _state.update { current: ReportUiState ->
-            if (current is ReportUiState.Content) current.copy(isReminderOn = isOn) else current
-        }
-    }
-
     private fun unreadNews(): ReportUiState.ReportNews.Unread? =
         (_state.value as? ReportUiState.Content)?.news as? ReportUiState.ReportNews.Unread
 
@@ -186,7 +160,6 @@ class ReportViewModel(
             nextReview = report.nextDueAt,
             news = newsOf(report),
             receivedAt = clock.now(),
-            isReminderOn = reminders.choice.value.isOn,
         )
         awaitNextReview(report)
     }

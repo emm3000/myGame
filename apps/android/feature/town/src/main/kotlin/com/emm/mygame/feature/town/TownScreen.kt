@@ -20,7 +20,6 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.ui.chromeResource
@@ -88,13 +87,8 @@ private fun TownState(
                 actionLabel = chromeResource(R.string.town_try_again),
                 onAction = { onIntent(TownIntent.RetryTapped) },
             )
-            SignOut(isBusy = false, onIntent = onIntent)
         }
-        TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
-        is TownUiState.Naming -> {
-            NamingSection(naming = state, onIntent = onIntent)
-            SignOut(isBusy = false, onIntent = onIntent)
-        }
+        is TownUiState.Naming -> NamingSection(naming = state, onIntent = onIntent)
         is TownUiState.Content -> home(state)
     }
 }
@@ -108,17 +102,6 @@ private val townBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(
         MyGameSizes.thumbnail,
     ),
 )
-
-@Composable
-private fun SignOut(isBusy: Boolean, onIntent: (TownIntent) -> Unit, modifier: Modifier = Modifier) {
-    MyGameTextLink(
-        label = fixedCopyResource(R.string.town_sign_out),
-        isBusy = isBusy,
-        busyDescription = chromeResource(R.string.town_waiting).spoken,
-        onClick = { onIntent(TownIntent.SignOutTapped) },
-        modifier = modifier,
-    )
-}
 
 @Composable
 private fun TownHome(

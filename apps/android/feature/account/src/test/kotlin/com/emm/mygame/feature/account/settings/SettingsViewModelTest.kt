@@ -33,7 +33,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `draws loading until the session is read`() = runTest {
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
+        val viewModel: SettingsViewModel = settings()
 
         assertEquals(SettingsUiState.Loading, viewModel.state.value)
     }
@@ -49,7 +49,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session cannot be read`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
+        val viewModel: SettingsViewModel = settings()
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -58,7 +58,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session names a scaffold the client does not know`() = runTest {
         sessions.answerRestore(sessionWith(scaffold = null))
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
+        val viewModel: SettingsViewModel = settings()
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -66,7 +66,7 @@ class SettingsViewModelTest {
     @Test
     fun `reads the session again on retry`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
+        val viewModel: SettingsViewModel = settings()
         sessions.answerRestore(sessionWith(scaffold = PlayerScaffold.None))
 
         viewModel.onIntent(SettingsIntent.RetryTapped)
@@ -262,9 +262,12 @@ class SettingsViewModelTest {
         assertEquals(listOf(PlayerScaffold.None, PlayerScaffold.Spanish), sessions.scaffoldChanges)
     }
 
+    private fun settings(): SettingsViewModel =
+        SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
+
     private fun loaded(scaffold: PlayerScaffold): SettingsViewModel {
         sessions.answerRestore(sessionWith(scaffold))
-        return SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
+        return settings()
     }
 
     private fun stored(scaffold: PlayerScaffold): SettingsUiState =

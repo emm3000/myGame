@@ -3,11 +3,7 @@ package com.emm.mygame.feature.town
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -17,7 +13,6 @@ import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
-import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.hiringOf
 import org.junit.Assert.assertEquals
@@ -37,12 +32,6 @@ class TownRouteTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val sessions: FakeSessionRepository = FakeSessionRepository()
-
-    private var signingOuts: Int = 0
-
-    private var signedOuts: Int = 0
-
     private val screenOwner: ScreenOwner = ScreenOwner()
 
     private fun showHome() {
@@ -51,14 +40,11 @@ class TownRouteTest {
                 MyGameTheme {
                     TownRoute(
                         towns = towns,
-                        sessions = sessions,
                         clock = Clock.System,
                         navigation = TownNavigation(
                             onSchoolOpen = {},
                             onMapOpen = {},
                             onTextOpen = {},
-                            onSigningOut = {},
-                            onSignedOut = {},
                             onUnnamed = {},
                             onNamed = {},
                         ),
@@ -99,71 +85,6 @@ class TownRouteTest {
         waitForLine("2 de 3 contratados")
 
         assertEquals(2, towns.readCount)
-    }
-
-    private fun tapSignOutFromTheNamingForm(): StateRestorationTester {
-        towns.answerRead(TownReadResult.NoTown)
-        val frozenClock: Clock = object : Clock {
-            override fun now(): Instant = readInstant
-        }
-        val viewModel: TownViewModel = TownViewModel(towns, sessions, frozenClock)
-        val restoration: StateRestorationTester = StateRestorationTester(composeRule)
-        restoration.setContent {
-            MyGameTheme {
-                TownRoute(
-                    towns = towns,
-                    sessions = sessions,
-                    clock = frozenClock,
-                    navigation = TownNavigation(
-                        onSchoolOpen = {},
-                        onMapOpen = {},
-                        onTextOpen = {},
-                        onSigningOut = { signingOuts += 1 },
-                        onSignedOut = { signedOuts += 1 },
-                        onUnnamed = {},
-                        onNamed = {},
-                    ),
-                    viewModel = viewModel,
-                )
-            }
-        }
-        composeRule.waitUntil { composeRule.onAllNodes(hasText("Salir")).fetchSemanticsNodes().isNotEmpty() }
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-        composeRule.waitForIdle()
-        return restoration
-    }
-
-    @Test
-    fun `tells the navigation the session is ending`() {
-        tapSignOutFromTheNamingForm()
-
-        assertEquals(1, signingOuts)
-    }
-
-    @Test
-    fun `tells the navigation once when the screen is rebuilt mid-sign-out`() {
-        val restoration: StateRestorationTester = tapSignOutFromTheNamingForm()
-
-        restoration.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
-
-        assertEquals(1, signingOuts)
-    }
-
-    @Test
-    fun `keeps the player here until the session has ended`() {
-        tapSignOutFromTheNamingForm()
-
-        assertEquals(0, signedOuts)
-    }
-
-    @Test
-    fun `tells the navigation the session has ended`() {
-        tapSignOutFromTheNamingForm()
-
-        sessions.answerSignOut()
-
-        composeRule.waitUntil { signedOuts == 1 }
     }
 
     private class ScreenOwner : LifecycleOwner {

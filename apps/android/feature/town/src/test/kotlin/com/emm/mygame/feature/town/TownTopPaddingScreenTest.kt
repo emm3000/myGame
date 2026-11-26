@@ -58,13 +58,6 @@ class TownTopPaddingScreenTest : TownScreenFixture() {
         )
     }
 
-    @Test
-    fun `sets signing out under the larger top padding`() {
-        show(TownUiState.SigningOut)
-
-        assertEquals(MyGameSpacing.step8.value, topOf("Salir").value, PIXEL_TOLERANCE)
-    }
-
     private fun topOf(text: String): Dp =
         composeRule.onAllNodesWithText(text).onFirst().getUnclippedBoundsInRoot().top
 

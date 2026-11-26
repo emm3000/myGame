@@ -209,7 +209,7 @@ Setup: none; the app signed out, the phone in English
 Source: PRD M1; ADR 046, *What the reminder is*
 Setup: SMK-01's account, the reminder on (REM-01)
 
-1. Open the Report and sign out from its foot.
+1. Open Me and sign out from its foot.
 2. Verify the sign-in screen shows, with no `android.account.sign_in_session_ended` line.
 3. Verify `dumpsys alarm` holds no alarm for `com.emm.mygame`.
 4. Sign in with the same email and password.
@@ -372,11 +372,11 @@ Setup: a fresh `none` account; homes at 7; 49 retained cards not due, and 1 reta
 Source: ADR 046, *What the reminder is*
 Setup: SMK-01's `es` account, notifications never asked
 
-1. Open the Report while nothing is due. Verify the row `android.report.report_reminder_offer`, *Activa un recordatorio de estudio*.
-2. Open Settings. Verify the study reminder, `android.account.settings_reminder_title`, *Recordatorio de estudio*, is off, and no permission dialog showed before this step.
+1. Open Me while nothing is due. Verify the link `android.account.settings_reminder_offer`, *Activa un recordatorio de estudio*.
+2. Verify the study reminder, `android.account.settings_reminder_title`, *Recordatorio de estudio*, is off, and no permission dialog showed before this step.
 3. Turn the reminder on. Verify the system dialog asks for permission to send notifications.
 4. Allow it. Verify the switch is on and the time reads *19:00*. On a `none` account it reads *7:00 PM*.
-5. Go back to the Report. Verify the offer row is gone.
+5. Verify the offer link is gone.
 
 #### REM-01 A denied permission leaves the switch off, with the way to the phone's settings · P0 · full
 
@@ -477,7 +477,7 @@ Setup: SMK-07's account, the reminder on, reviews due
 Source: ADR 046, *What the reminder is*
 Setup: SMK-07's account, the reminder posted and still in the shade
 
-1. Open the Report and sign out.
+1. Open Me and sign out.
 2. Verify the posted reminder is gone, `dumpsys alarm` holds no alarm for `com.emm.mygame`, and `adb shell pm dump com.emm.mygame` lists `com.emm.mygame.StudyReminderReceiver` among the disabled components.
 3. Reboot. Verify no alarm comes back.
 

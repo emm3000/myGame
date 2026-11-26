@@ -66,6 +66,16 @@ class PlayerLanguageNavigationTest {
     )
 
     private fun showReport(language: PlayerLanguage) {
+        show(language, Destination.Today, Destination.Town, Destination.Report)
+        waitForLine("Settings", "Ajustes")
+    }
+
+    private fun showMe(language: PlayerLanguage) {
+        show(language, Destination.Today, Destination.Settings)
+        waitForLine("Sign out", "Salir")
+    }
+
+    private fun show(language: PlayerLanguage, vararg destinations: Destination) {
         latestRead.value = language
         reports.answerRead(ReportReadResult.Read(nothingDue))
         composeRule.setContent {
@@ -74,11 +84,10 @@ class PlayerLanguageNavigationTest {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.Report),
+                    backStack = rememberNavBackStack(*destinations),
                 )
             }
         }
-        waitForLine("Sign out", "Salir")
     }
 
     private fun showSignIn() {
@@ -140,29 +149,29 @@ class PlayerLanguageNavigationTest {
     }
 
     @Test
-    fun `keeps sign-out in Spanish for an es player in the English phase`() {
+    fun `keeps the settings row in Spanish for an es player in the English phase`() {
         showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English))
 
-        composeRule.onAllNodesWithText("Salir").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Sign out").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Ajustes").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
     }
 
     @Test
-    fun `keeps the Report in the player's language while it signs out`() {
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+    fun `keeps Me in the player's language while it signs out`() {
+        showMe(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()
         latestRead.value = null
         composeRule.waitForIdle()
 
-        composeRule.onAllNodesWithText("Informe").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Report").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Ajustes").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
     }
 
     @Test
     fun `keeps every link open after a sign-out that forgets the player's language`() {
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+        showMe(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()
@@ -183,7 +192,7 @@ class PlayerLanguageNavigationTest {
     fun `draws the next player's banner in the phone's English before any language read answers`() {
         val unverifiedEnglishPlayer: SignedInPlayer =
             SignedInPlayer("noah@example.com", isEmailVerified = false, scaffold = PlayerScaffold.None)
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+        showMe(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
         composeRule.waitForIdle()

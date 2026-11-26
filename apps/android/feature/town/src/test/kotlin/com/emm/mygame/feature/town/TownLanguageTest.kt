@@ -282,24 +282,23 @@ class TownLanguageTest {
         show(noScaffold, blankNameRefused)
 
         assertDrawn("Name your town", "You are the mayor.", "Town name", "Start", "Write a name for your town.")
-        assertDrawn("Sign out")
-        assertNotDrawn("Ponle nombre a tu pueblo", "Empezar", "Escribe un nombre para tu pueblo.", "Salir")
+        assertNotDrawn("Ponle nombre a tu pueblo", "Empezar", "Escribe un nombre para tu pueblo.")
     }
 
     @Test
     fun `draws the fixed copy in Spanish for an es player in the English phase`() {
         show(englishPhase, blankNameRefused)
 
-        assertDrawn("Name your town", "Start", "Escribe un nombre para tu pueblo.", "Salir")
-        assertNotDrawn("Write a name for your town.", "Sign out")
+        assertDrawn("Name your town", "Start", "Escribe un nombre para tu pueblo.")
+        assertNotDrawn("Write a name for your town.")
     }
 
     @Test
     fun `draws the fixed copy in Spanish alone in the both phase`() {
         show(bothPhase, TownUiState.Failed)
 
-        assertDrawn("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.", "Salir")
-        assertNotDrawn("We could not reach the server. Try again in a moment.", "Sign out")
+        assertDrawn("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
+        assertNotDrawn("We could not reach the server. Try again in a moment.")
     }
 
     @Test

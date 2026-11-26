@@ -28,7 +28,6 @@ import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
@@ -77,29 +76,14 @@ internal fun ReportScreen(
         ) {
             ReportState(state = state, onIntent = onIntent)
         }
-        if (state != ReportUiState.SigningOut) {
-            ReportRows(
-                isReminderOffered = isReminderOffered(state),
-                onNewsOpen = onNewsOpen,
-                onSettingsOpen = onSettingsOpen,
-            )
-        }
-        MyGameTextLink(
-            label = fixedCopyResource(R.string.report_sign_out),
-            isBusy = state == ReportUiState.SigningOut,
-            busyDescription = chromeResource(R.string.report_waiting).spoken,
-            onClick = { onIntent(ReportIntent.SignOutTapped) },
-        )
+        ReportRows(onNewsOpen = onNewsOpen, onSettingsOpen = onSettingsOpen)
     }
 }
-
-private fun isReminderOffered(state: ReportUiState): Boolean =
-    state is ReportUiState.Content && state.dueCount == 0 && !state.isReminderOn
 
 @Composable
 private fun ReportState(state: ReportUiState, onIntent: (ReportIntent) -> Unit) {
     when (state) {
-        ReportUiState.Loading, ReportUiState.SigningOut -> Unit
+        ReportUiState.Loading -> Unit
         ReportUiState.Failed -> MyGameErrorBanner(
             message = fixedCopyResource(R.string.report_refusal_unexpected),
             actionLabel = chromeResource(R.string.report_try_again),

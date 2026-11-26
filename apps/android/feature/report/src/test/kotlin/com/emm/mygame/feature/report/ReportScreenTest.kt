@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.report
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -97,13 +96,11 @@ class ReportScreenTest {
         news: ReportUiState.ReportNews = ReportUiState.ReportNews.None,
         nextReview: Instant? = null,
         receivedAt: Instant = readInstant,
-        isReminderOn: Boolean = true,
     ): ReportUiState.Content = ReportUiState.Content(
         dueCount = dueCount,
         nextReview = nextReview,
         news = news,
         receivedAt = receivedAt,
-        isReminderOn = isReminderOn,
     )
 
     @Test
@@ -342,13 +339,13 @@ class ReportScreenTest {
 
     @Test
     fun `draws no reminder offer with nothing due and the reminder off`() {
-        show(contentWith(isReminderOn = false))
+        show(contentWith(dueCount = 0))
 
         composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
     }
 
     @Test
-    fun `opens the settings from its nav row beside sign-out`() {
+    fun `opens the settings from its nav row`() {
         show(contentWith(news = unreadFarm))
 
         composeRule.onNode(navRowOf(SETTINGS), useUnmergedTree = true).performScrollTo().performClick()
@@ -366,22 +363,10 @@ class ReportScreenTest {
     }
 
     @Test
-    fun `sets the settings beside sign-out at the foot of the Report`() {
+    fun `sets the settings at the foot of the Report`() {
         show(contentWith(dueCount = 1, news = unreadFarm))
 
-        val settingsTop: Dp = unclippedTopOf("Ajustes")
-
-        assertTrue(unclippedTopOf("Cerrar las noticias") < settingsTop)
-        assertTrue(settingsTop < unclippedTopOf("Salir"))
-    }
-
-    @Test
-    fun `leaves the rows out while signing out`() {
-        show(ReportUiState.SigningOut)
-
-        listOf(NEWS_ALL, SETTINGS).forEach { label: String ->
-            composeRule.onNodeWithText(label).assertDoesNotExist()
-        }
+        assertTrue(unclippedTopOf("Cerrar las noticias") < unclippedTopOf("Ajustes"))
     }
 
     @Test
@@ -424,23 +409,23 @@ class ReportScreenTest {
         val news = ReportUiState.ReportNews.Unread(listOf(finishedFarm, finishedFarm), ReportUiState.CloseRequest.Idle)
         show(contentWith(news = news))
 
-        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2 + ROW_HAIRLINES_WITH_THE_REMINDER_ON)
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(2 + ROW_HAIRLINES)
     }
 
     @Test
     fun `sets the empty news on a hairline row`() {
         show(contentWith(news = ReportUiState.ReportNews.None))
 
-        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1 + ROW_HAIRLINES_WITH_THE_REMINDER_ON)
+        composeRule.onAllNodesWithTag(HAIRLINE).assertCountEquals(1 + ROW_HAIRLINES)
     }
 
     private fun unclippedTopOf(line: String): Dp = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot().top
 
     @Test
-    fun `ends in Town News, the reminder offer and Settings, in that order`() {
-        show(contentWith(isReminderOn = false))
+    fun `ends in Town News then Settings, in that order`() {
+        show(contentWith())
 
-        val tops: List<Dp> = listOf("No hay noticias.", NEWS_ALL, REMINDER_OFFER, SETTINGS, "Salir")
+        val tops: List<Dp> = listOf("No hay noticias.", NEWS_ALL, SETTINGS)
             .map { line: String -> unclippedTopOf(line) }
 
         assertEquals(tops.sorted(), tops)
@@ -457,10 +442,10 @@ class ReportScreenTest {
 
     @Test
     fun `each row is one target at least 48 dp tall`() {
-        show(contentWith(isReminderOn = false))
+        show(contentWith())
 
         val lineWidth: Dp = composeRule.onAllNodesWithTag(HAIRLINE)[0].getUnclippedBoundsInRoot().width
-        listOf(NEWS_ALL, REMINDER_OFFER, SETTINGS).forEach { label: String ->
+        listOf(NEWS_ALL, SETTINGS).forEach { label: String ->
             val target: DpRect = composeRule.onNode(hasText(label) and hasClickAction()).getUnclippedBoundsInRoot()
             assertTrue(target.height >= 48.dp)
             assertEquals(lineWidth, target.width)
@@ -471,6 +456,6 @@ class ReportScreenTest {
         const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
         const val NEWS_ALL: String = "Leer todas las noticias"
         const val SETTINGS: String = "Ajustes"
-        const val ROW_HAIRLINES_WITH_THE_REMINDER_ON: Int = 3
+        const val ROW_HAIRLINES: Int = 3
     }
 }
