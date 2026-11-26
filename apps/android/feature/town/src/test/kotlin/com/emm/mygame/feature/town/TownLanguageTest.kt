@@ -1,8 +1,5 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
@@ -15,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownFoundRefusal
 import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownResourceKind
@@ -42,8 +38,6 @@ import com.emm.mygame.feature.town.hiring.HiringPlaceStatus
 import com.emm.mygame.feature.town.hiring.HiringStopStatus
 import com.emm.mygame.feature.town.hiring.HiringTarget
 import com.emm.mygame.feature.town.naming.NamingStatus
-import com.emm.mygame.feature.town.status.TownStatus
-import com.emm.mygame.feature.town.status.TownStatusUiState
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -163,16 +157,6 @@ class TownLanguageTest {
                         onMapOpen = {},
                         onTextOpen = {},
                     )
-                }
-            }
-        }
-    }
-
-    private fun showStatus(language: CopyLanguage, state: TownStatusUiState) {
-        composeRule.setContent {
-            ProvideCopyLanguage(language = language) {
-                MyGameTheme {
-                    TownStatus(state = state, onNoticeClose = {})
                 }
             }
         }
@@ -411,38 +395,6 @@ class TownLanguageTest {
 
         assertDrawn("Farm", "Este edificio ya está en su nivel más alto, el 5.")
         assertNotDrawn("This building is already at its top level, 5.")
-    }
-
-    @Test
-    fun `draws the lesson status English over Spanish in the both phase`() {
-        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2))
-
-        showStatus(bothPhase, TownStatusUiState(running = null, notice = notice))
-
-        assertEnglishOverSpanish("Lesson 2 is done.", "La lección 2 terminó.")
-        assertEnglishOverSpanish("Close", "Cerrar")
-    }
-
-    @Test
-    fun `announces both lines of the finish notice in the both phase`() {
-        val notice = TownStatusUiState.FinishNotice(LessonName.Shelved(2))
-
-        showStatus(bothPhase, TownStatusUiState(running = null, notice = notice))
-
-        composeRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion))
-            .assert(hasText("Lesson 2 is done."))
-            .assert(hasText("La lección 2 terminó."))
-    }
-
-    @Test
-    fun `draws the lesson countdown in English in the English phase`() {
-        val running =
-            TownStatusUiState.RunningLesson(LessonName.Shelved(3), remaining = 5.minutes, finishesAt = readInstant)
-
-        showStatus(englishPhase, TownStatusUiState(running = running, notice = null))
-
-        assertDrawn("Lesson 3 ready in")
-        assertNotDrawn("Lección 3 lista en")
     }
 
     private fun unreachableLines(): Int =

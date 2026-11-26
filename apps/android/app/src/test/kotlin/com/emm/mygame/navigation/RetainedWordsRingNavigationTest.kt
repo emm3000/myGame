@@ -102,7 +102,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
     }
 
     @Test
-    fun `draws a count fallen back on the way home from the Report`() {
+    fun `draws a count fallen back on a screen that reads none`() {
         repeat(SESSION_READS) { sessions.answerRestore(verifiedSession) }
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(playedTown(retainedWords = threeOfFive))) }
         composeRule.setContent {
@@ -111,11 +111,9 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
             }
         }
         waitForRing(THREE_OF_FIVE)
-        tab("Pueblo").performClick()
-        waitForLine(TOWN_HEADER)
         towns.answerRead(TownReadResult.Read(playedTown(retainedWords = RetainedWords(count = 2, total = 5))))
 
-        openReport(threeDue)
+        tab("Yo").performClick()
 
         waitForRing("2 de 5 palabras aprendidas")
     }

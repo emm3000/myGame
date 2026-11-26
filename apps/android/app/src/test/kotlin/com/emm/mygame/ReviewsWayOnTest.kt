@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w360dp-h640dp", fontScale = 2f)
-class ReviewsWayOnTest : DockFrameFixture() {
+class ReviewsWayOnTest : SignedInScreenFixture() {
 
     private val schoolRecognition: DueReview.Recognition = DueReview.Recognition(
         wordId = WordId("lesson-1-2"),

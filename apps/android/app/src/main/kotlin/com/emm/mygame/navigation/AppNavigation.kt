@@ -34,15 +34,12 @@ import com.emm.mygame.PlayerLanguageIntent
 import com.emm.mygame.PlayerLanguageUiState
 import com.emm.mygame.PlayerLanguageViewModel
 import com.emm.mygame.SignedInChrome
+import com.emm.mygame.TownFollowIntent
+import com.emm.mygame.TownFollowViewModel
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute
-import com.emm.mygame.feature.town.status.TownStatus
-import com.emm.mygame.feature.town.status.TownStatusIntent
-import com.emm.mygame.feature.town.status.TownStatusScreen
-import com.emm.mygame.feature.town.status.TownStatusUiState
-import com.emm.mygame.feature.town.status.TownStatusViewModel
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -52,7 +49,7 @@ internal fun AppNavigation(
     mailedLinks: Flow<Destination.MailedLink>,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
-    status: TownStatusViewModel = viewModel { TownStatusViewModel(dependencies.towns, dependencies.clock) },
+    follow: TownFollowViewModel = viewModel { TownFollowViewModel(dependencies.towns, dependencies.clock) },
     bannerLanguage: PlayerLanguageViewModel = viewModel { PlayerLanguageViewModel(dependencies.playerLanguage) },
 ) {
     val links: NavigationLinks = retain { NavigationLinks() }
@@ -67,13 +64,9 @@ internal fun AppNavigation(
         mailedLinks.collect(navigator::openMailedLink)
     }
     val shown: NavKey? = backStack.lastOrNull()
-    LifecycleStartEffect(status, shown) {
-        status.onIntent(TownStatusIntent.ScreenShown(shown.statusScreen()))
-        onStopOrDispose { status.onIntent(TownStatusIntent.ScreenHidden) }
-    }
-    val statusState: State<TownStatusUiState> = status.state.collectAsStateWithLifecycle()
-    val townStatus: @Composable () -> Unit = {
-        TownStatus(state = statusState.value, onNoticeClose = { status.onIntent(TownStatusIntent.NoticeClosed) })
+    LifecycleStartEffect(follow, shown) {
+        follow.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = shown.isLessonFinishFollowed()))
+        onStopOrDispose { follow.onIntent(TownFollowIntent.ScreenHidden) }
     }
     Column(
         modifier = modifier
@@ -86,11 +79,15 @@ internal fun AppNavigation(
             navigator = navigator,
             backStack = backStack,
             chrome = { navigator: Navigator ->
-                SignedInChrome(dependencies, navigator, statusState, status::onIntent, townStatus)
+                SignedInChrome(
+                    dependencies = dependencies,
+                    navigator = navigator,
+                    onTaskAnswered = { follow.onIntent(TownFollowIntent.TaskAnswered) },
+                )
             },
             modifier = Modifier.weight(1f),
         )
-        val isSessionOpen: Boolean = shown.statusScreen() != TownStatusScreen.Outside
+        val isSessionOpen: Boolean = shown.isSignedIn()
         LaunchedEffect(bannerLanguage, isSessionOpen) {
             if (isSessionOpen) return@LaunchedEffect
             bannerLanguage.onIntent(PlayerLanguageIntent.SessionClosed)
@@ -145,24 +142,48 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     reviewEntry(chrome)
 }
 
-private fun NavKey?.statusScreen(): TownStatusScreen = when (val destination: Destination? = this as? Destination) {
+private fun NavKey?.isSignedIn(): Boolean = when (this as? Destination) {
     null,
     is Destination.SignIn,
     Destination.SignUp,
     Destination.ForgotPassword,
     is Destination.MailedLink,
-    -> TownStatusScreen.Outside
-    Destination.Naming -> TownStatusScreen.ReadsNoTown
-    Destination.Today -> TownStatusScreen.ReadsTown
-    Destination.Town -> TownStatusScreen.ReadsTown
-    Destination.School -> TownStatusScreen.School
-    Destination.Map -> TownStatusScreen.ReadsTown
-    is Destination.LessonWords -> TownStatusScreen.LessonWords(destination.lesson)
-    is Destination.SchoolText -> TownStatusScreen.ReadsNoTown
-    Destination.Review -> TownStatusScreen.Reviews
-    Destination.Report -> TownStatusScreen.Report
-    Destination.News -> TownStatusScreen.ReadsNoTown
-    Destination.Settings -> TownStatusScreen.ReadsNoTown
-    Destination.Placement -> TownStatusScreen.ReadsNoTown
-    is Destination.HoldoutCheck -> TownStatusScreen.ReadsNoTown
+    -> false
+    Destination.Naming,
+    Destination.Today,
+    Destination.Town,
+    Destination.School,
+    Destination.Map,
+    is Destination.LessonWords,
+    is Destination.SchoolText,
+    Destination.Review,
+    Destination.Report,
+    Destination.News,
+    Destination.Settings,
+    Destination.Placement,
+    is Destination.HoldoutCheck,
+    -> true
+}
+
+private fun NavKey?.isLessonFinishFollowed(): Boolean = when (this as? Destination) {
+    Destination.Naming,
+    is Destination.SchoolText,
+    Destination.Review,
+    Destination.Report,
+    Destination.News,
+    Destination.Settings,
+    Destination.Placement,
+    is Destination.HoldoutCheck,
+    -> true
+    null,
+    is Destination.SignIn,
+    Destination.SignUp,
+    Destination.ForgotPassword,
+    is Destination.MailedLink,
+    Destination.Today,
+    Destination.Town,
+    Destination.School,
+    Destination.Map,
+    is Destination.LessonWords,
+    -> false
 }

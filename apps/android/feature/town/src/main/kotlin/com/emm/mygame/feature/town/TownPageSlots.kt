@@ -5,7 +5,6 @@ import com.emm.mygame.core.model.learning.TextId
 
 internal class TownPageSlots(
     val ring: @Composable () -> Unit,
-    val status: @Composable () -> Unit,
     val placement: @Composable () -> Unit,
     val onSchoolOpen: () -> Unit,
     val onMapOpen: () -> Unit,

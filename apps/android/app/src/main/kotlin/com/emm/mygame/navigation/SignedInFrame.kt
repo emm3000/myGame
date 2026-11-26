@@ -10,9 +10,7 @@ import com.emm.mygame.FramedScreen
 import com.emm.mygame.InPlayerLanguage
 import com.emm.mygame.PlayerLanguageUiState
 import com.emm.mygame.PlayerLanguageViewModel
-import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
-import com.emm.mygame.core.designsystem.MyGameDockGo
 
 @Composable
 internal fun SignedInFrame(
@@ -20,10 +18,8 @@ internal fun SignedInFrame(
     doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
-    isDockWithheld: Boolean = false,
-    studyInPlace: @Composable (Int) -> MyGameDockGo? = { null },
     frameLanguage: PlayerLanguageViewModel = viewModel { PlayerLanguageViewModel(chrome.dependencies.playerLanguage) },
-    content: @Composable (ScreenFrame) -> Unit,
+    content: @Composable () -> Unit,
 ) {
     val framed: PlayerLanguageUiState by frameLanguage.state.collectAsStateWithLifecycle()
     InPlayerLanguage(language = framed.language) {
@@ -32,8 +28,6 @@ internal fun SignedInFrame(
             doesScreenReadTown = doesScreenReadTown,
             chrome = chrome,
             modifier = modifier,
-            isDockWithheld = isDockWithheld,
-            studyInPlace = studyInPlace,
             content = content,
         )
     }

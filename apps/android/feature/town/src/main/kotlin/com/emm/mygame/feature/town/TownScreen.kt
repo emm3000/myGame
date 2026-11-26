@@ -12,11 +12,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +25,6 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.naming.NamingSection
 import kotlinx.coroutines.CoroutineScope
@@ -45,17 +39,10 @@ internal fun TownScreen(
     onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
-    status: @Composable () -> Unit = {},
-    foldedDock: @Composable () -> Unit = {},
-    reportRow: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
-    val placedFoldedDock: @Composable () -> Unit = remember(foldedDock) { movableContentOf(foldedDock) }
-    val placedReportRow: @Composable () -> Unit = remember(reportRow) { movableContentOf(reportRow) }
-    val drawnHeaders: MutableIntState = remember { mutableIntStateOf(0) }
     val slots: TownPageSlots = TownPageSlots(
         ring = ring,
-        status = status,
         placement = placement,
         onSchoolOpen = onSchoolOpen,
         onMapOpen = onMapOpen,
@@ -68,7 +55,6 @@ internal fun TownScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .joinsFrameTraversal()
             .then(if (isHome) Modifier else Modifier.verticalScroll(rememberScrollState()))
             .then(if (isHome) Modifier else Modifier.padding(horizontal = MyGameSpacing.step4))
             .padding(
@@ -76,56 +62,15 @@ internal fun TownScreen(
                 bottom = if (isHome) MyGameSpacing.step2 else MyGameSpacing.step8,
             ),
     ) {
-        when {
-            !isHome -> {
-                placedFoldedDock()
-                placedReportRow()
-            }
-            drawnHeaders.intValue == 0 -> HomeTopBeforeHeader(placedFoldedDock, placedReportRow)
-        }
         MyGameSkeleton(
             isLoading = state == TownUiState.Loading,
             loadingLabel = chromeResource(R.string.town_loading).spoken,
             blocks = townBlocks,
         ) {
             TownState(state = state, onIntent = onIntent) { content: TownUiState.Content ->
-                TownHome(
-                    content = content,
-                    onIntent = onIntent,
-                    slots = slots,
-                    top = TownPageTop(
-                        foldedDock = {
-                            DrawnWhen(isDrawn = drawnHeaders.intValue > 0, content = placedFoldedDock)
-                            DisposableEffect(Unit) {
-                                drawnHeaders.intValue += 1
-                                onDispose { drawnHeaders.intValue -= 1 }
-                            }
-                        },
-                        reportRow = { DrawnWhen(isDrawn = drawnHeaders.intValue > 0, content = placedReportRow) },
-                    ),
-                )
+                TownHome(content = content, onIntent = onIntent, slots = slots)
             }
         }
-    }
-}
-
-@Composable
-private fun DrawnWhen(isDrawn: Boolean, content: @Composable () -> Unit) {
-    if (isDrawn) content()
-}
-
-@Composable
-private fun HomeTopBeforeHeader(
-    foldedDock: @Composable () -> Unit,
-    reportRow: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
-        modifier = modifier.padding(horizontal = MyGameSpacing.step4),
-    ) {
-        foldedDock()
-        reportRow()
     }
 }
 
@@ -145,7 +90,7 @@ private fun TownState(
             )
             SignOut(isBusy = false, onIntent = onIntent)
         }
-        is TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
+        TownUiState.SigningOut -> SignOut(isBusy = true, onIntent = onIntent)
         is TownUiState.Naming -> {
             NamingSection(naming = state, onIntent = onIntent)
             SignOut(isBusy = false, onIntent = onIntent)
@@ -180,7 +125,6 @@ private fun TownHome(
     content: TownUiState.Content,
     onIntent: (TownIntent) -> Unit,
     slots: TownPageSlots,
-    top: TownPageTop,
     modifier: Modifier = Modifier,
 ) {
     val pager: PagerState = rememberPagerState(initialPage = content.openingPage()) { content.places.size }
@@ -190,14 +134,13 @@ private fun TownHome(
             state = pager,
             key = { index: Int -> content.places[index].kind },
             verticalAlignment = Alignment.Top,
-            modifier = Modifier.weight(1f).joinsFrameTraversal(),
+            modifier = Modifier.weight(1f),
         ) { index: Int ->
             TownPage(
                 content = content,
                 place = content.places[index],
                 onIntent = onIntent,
                 slots = slots,
-                top = if (index == pager.currentPage) top else TownPageTop.none,
                 modifier = Modifier.fillMaxSize().padding(horizontal = MyGameSpacing.step4),
             )
         }

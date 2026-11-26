@@ -25,7 +25,6 @@ fun ReportRoute(
     clock: Clock,
     navigation: ReportNavigation,
     modifier: Modifier = Modifier,
-    foldedDock: @Composable () -> Unit = {},
     viewModel: ReportViewModel = viewModel { ReportViewModel(reports, towns, sessions, reminders, clock) },
 ) {
     val state: ReportUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -51,6 +50,5 @@ fun ReportRoute(
         onNewsOpen = navigation.onNewsOpen,
         onSettingsOpen = navigation.onSettingsOpen,
         modifier = modifier,
-        foldedDock = foldedDock,
     )
 }

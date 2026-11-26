@@ -120,11 +120,12 @@ class SchoolStepLessonTest {
     }
 
     @Test
-    fun `draws no study button for the step's lesson`() {
+    fun `studies the step's lesson from its own button`() {
         show(stepSchool)
 
-        showing("Lección 1")
-        composeRule.onAllNodesWithText("Estudiar la lección 1 · 2:30").assertCountEquals(0)
+        composeRule.onNodeWithText("Estudiar la lección 1 · 2:30").performScrollTo().performClick()
+
+        assertEquals(listOf<SchoolIntent>(SchoolIntent.StudyTapped(firstLesson)), intents)
     }
 
     @Test

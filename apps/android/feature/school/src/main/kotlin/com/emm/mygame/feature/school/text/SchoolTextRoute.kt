@@ -19,7 +19,6 @@ fun SchoolTextRoute(
     onNoTown: () -> Unit,
     onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    foldedDock: @Composable () -> Unit = {},
     viewModel: SchoolTextViewModel = viewModel { SchoolTextViewModel(text, texts) },
 ) {
     val state: SchoolTextUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -38,6 +37,5 @@ fun SchoolTextRoute(
         onIntent = viewModel::onIntent,
         onSchoolOpen = onSchoolOpen,
         modifier = modifier,
-        foldedDock = foldedDock,
     )
 }

@@ -25,7 +25,6 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.account.PlayerScaffold
-import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.rememberRevealOnce
 import com.emm.mygame.feature.account.R
 import com.emm.mygame.feature.account.scaffold.ScaffoldChoice
@@ -36,7 +35,6 @@ internal fun SettingsScreen(
     onIntent: (SettingsIntent) -> Unit,
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    foldedDock: @Composable () -> Unit = {},
     themeChoice: @Composable () -> Unit = {},
 ) {
     val title: String = stringResource(R.string.settings_title)
@@ -46,7 +44,6 @@ internal fun SettingsScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(
                 start = MyGameSpacing.step4,
@@ -55,7 +52,6 @@ internal fun SettingsScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        foldedDock()
         MyGameText(
             text = title,
             style = MyGameTypography.display,

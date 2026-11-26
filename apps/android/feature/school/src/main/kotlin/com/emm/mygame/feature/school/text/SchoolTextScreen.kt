@@ -29,7 +29,6 @@ import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.joinsFrameTraversal
 import com.emm.mygame.core.ui.toMyGameFrame
 import com.emm.mygame.core.ui.toMyGameSupport
 import com.emm.mygame.feature.school.R
@@ -40,7 +39,6 @@ internal fun SchoolTextScreen(
     onIntent: (SchoolTextIntent) -> Unit,
     onSchoolOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    foldedDock: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -48,11 +46,9 @@ internal fun SchoolTextScreen(
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .joinsFrameTraversal()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step8),
     ) {
-        foldedDock()
         MyGameSkeleton(
             isLoading = state == SchoolTextUiState.Loading,
             loadingLabel = chromeResource(R.string.school_loading).spoken,

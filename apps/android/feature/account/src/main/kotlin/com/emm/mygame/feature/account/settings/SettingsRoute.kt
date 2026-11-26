@@ -27,7 +27,6 @@ fun SettingsRoute(
     rememberNotificationAsk: @Composable (onAnswer: (Boolean) -> Unit) -> () -> Unit,
     navigation: SettingsNavigation,
     modifier: Modifier = Modifier,
-    foldedDock: @Composable () -> Unit = {},
     viewModel: SettingsViewModel = viewModel {
         SettingsViewModel(sessions, playerScaffold, reminders, notifications)
     },
@@ -55,7 +54,6 @@ fun SettingsRoute(
         onIntent = viewModel::onIntent,
         onNotificationSettingsOpen = navigation.onNotificationSettingsOpen,
         modifier = modifier,
-        foldedDock = foldedDock,
         themeChoice = { ThemeChoiceRoute(themes) },
     )
 }

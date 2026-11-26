@@ -3,10 +3,8 @@ package com.emm.mygame.navigation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasAnyAncestor
-import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
@@ -48,10 +46,7 @@ import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.dependenciesOf
-import com.emm.mygame.feature.town.status.TOWN_DOCK
-import com.emm.mygame.feature.town.status.TOWN_STATUS
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
@@ -64,11 +59,9 @@ import kotlin.time.Instant
 internal const val TOWN_HEADER: String = "Riverton · Pueblo"
 internal const val LESSON_ONE_READY: String = "Lección 1 lista en"
 internal const val STUDYING_REFUND: String = "Si lo paras, la lección queda por estudiar y puedes volver a empezarla."
-internal const val LESSON_ONE_DONE: String = "La lección 1 terminó."
 internal const val THREE_OF_FIVE: String = "3 de 5 palabras aprendidas"
 internal const val READS_AVAILABLE: Int = 5
-internal const val READS_ON_ARRIVAL: Int = 2
-internal const val READS_ON_ARRIVAL_ON_A_TEXT: Int = 1
+internal const val READS_ON_ARRIVAL: Int = 1
 internal const val SESSION_READS: Int = 2
 internal val NEAR_FINISH: Duration = 30.seconds
 internal const val WAIT_MILLIS: Long = 5_000
@@ -181,20 +174,10 @@ abstract class AppNavigationFixture {
 
     protected fun link(label: String): SemanticsNodeInteraction = waitedFor(hasText(label).and(hasClickAction()))
 
-    protected fun wayToTheReport(): SemanticsNodeInteraction =
-        waitedFor(hasClickAction().and(hasText("Informe").or(hasContentDescription("Ir al informe", substring = true))))
-
     protected fun wayOn(label: String): SemanticsNodeInteraction {
         val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasText(label)).and(hasAnyAncestor(hasScrollAction()))
         composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(go).fetchSemanticsNodes().isNotEmpty() }
         return composeRule.onNode(go).performScrollTo()
-    }
-
-    protected fun dockGo(label: String): SemanticsNodeInteraction {
-        val go: SemanticsMatcher = hasTestTag(INK_PILL).and(hasContentDescription(label, substring = true))
-            .and(hasAnyAncestor(hasTestTag(TOWN_DOCK)))
-        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(go).fetchSemanticsNodes().isNotEmpty() }
-        return composeRule.onNode(go)
     }
 
     protected fun assertLinksBackToTheTown() {
@@ -217,9 +200,10 @@ abstract class AppNavigationFixture {
         }
     }
 
-    protected fun openReport(report: TownReport) {
+    protected fun showingTheReport(report: TownReport, town: TownSnapshot = playedTown()) {
+        sessions.answerRestore(verifiedSession)
         reports.answerRead(ReportReadResult.Read(report))
-        wayToTheReport().performClick()
+        showingStack(*onTheReport, town = town)
         waitForLine("NOTICIAS DEL PUEBLO")
     }
 
@@ -227,51 +211,9 @@ abstract class AppNavigationFixture {
         playedTown(nextStep = NextStep.LessonRunning(goal = null, text = null))
             .copy(lessonSlot = TownSnapshot.LessonSlot(firstLesson, readAt, readAt + lasting))
 
-    protected fun finishedTown(readFirst: List<LessonId>): TownSnapshot = playedTown(
-        lessons = listOf(
-            lessonOf(firstLesson, listOf(waterWord)).copy(isStudied = true),
-            lessonOf(secondLesson, listOf(townWord)),
-        ),
-        nextStep = NextStep.Reviews(count = 3, readFirst = readFirst),
-    )
-
-    protected fun assertStatusShown() {
-        composeRule.waitUntil(WAIT_MILLIS) {
-            composeRule.onAllNodes(statusLine()).fetchSemanticsNodes().isNotEmpty()
-        }
-    }
-
-    protected fun statusLine(): SemanticsMatcher =
-        hasTestTag(TOWN_STATUS).and(hasAnyDescendant(hasText(LESSON_ONE_READY)))
-
-    protected fun assertCloseIsTheNoticeOnlyControl() {
-        val noticeControl: SemanticsMatcher = hasClickAction() and hasAnyAncestor(hasTestTag(TOWN_STATUS))
-        composeRule.onAllNodes(noticeControl).assertCountEquals(1)
-        composeRule.onNode(noticeControl).assert(hasText("Cerrar"))
-    }
-
-    protected fun asLessonOneFinishes(finished: TownSnapshot, vararg stack: Destination = onTheReport) {
-        reports.answerRead(ReportReadResult.Read(nothingDue))
-        repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(runningTown())) }
-        composeRule.setContent {
-            MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*stack),
-                )
-            }
-        }
-        assertStatusShown()
-        towns.answerRead(TownReadResult.Read(finished))
-        runBlocking { towns.read() }
-        waitForLine(LESSON_ONE_DONE)
-    }
-
     protected fun onLessonOneNearItsFinish(vararg destinations: Destination) {
         showLessonOneNearItsFinish(*destinations)
-        assertStatusShown()
+        composeRule.waitUntil(WAIT_MILLIS) { towns.town.value != null }
     }
 
     protected fun showLessonOneNearItsFinish(vararg destinations: Destination) {
@@ -288,21 +230,12 @@ abstract class AppNavigationFixture {
         }
     }
 
-    protected fun assertStudyingShownWithoutStatus() {
-        waitForLine(STUDYING_REFUND)
-        composeRule.onAllNodes(statusLine()).assertCountEquals(0)
-    }
-
-    protected fun passingTheFinish(readsOnArrival: Int = READS_ON_ARRIVAL) {
+    protected fun passingTheFinish() {
         movableClock.passed += NEAR_FINISH + 1.seconds
         ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
-        composeRule.waitUntil(WAIT_MILLIS) { towns.readCount > readsOnArrival }
+        composeRule.waitUntil(WAIT_MILLIS) { towns.readCount > READS_ON_ARRIVAL }
         ShadowLooper.idleMainLooper(2, TimeUnit.SECONDS)
         composeRule.waitForIdle()
-    }
-
-    protected fun assertNoStatus() {
-        composeRule.onAllNodes(hasTestTag(TOWN_STATUS)).assertCountEquals(0)
     }
 
     protected fun ring(name: String): SemanticsNodeInteraction = composeRule.onNodeWithText(name)
@@ -318,8 +251,12 @@ abstract class AppNavigationFixture {
             listOf(lessonOf(firstLesson, listOf(waterWord)), lessonOf(secondLesson, secondReadings))
         repeat(2) { learning.answerRead(walkReviews) }
         val unreadFirst: NextStep = NextStep.Reviews(count = 3, readFirst = listOf(firstLesson, secondLesson))
-        signedInAtTown(town = playedTown(lessons = lessons, nextStep = unreadFirst))
-        dockGo("Leer las palabras").performClick()
+        showingStack(
+            Destination.Today,
+            Destination.Town,
+            Destination.LessonWords(firstLesson, walked = emptyList()),
+            town = playedTown(lessons = lessons, nextStep = unreadFirst),
+        )
         waitForLine("I drink water.")
     }
 }

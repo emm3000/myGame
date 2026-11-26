@@ -36,7 +36,7 @@ internal fun ShownLesson(
     val running: SchoolUiState.SlotLine.Running? = content.slot as? SchoolUiState.SlotLine.Running
     val state: SchoolUiState.LessonState = card.state
     val isStep: Boolean = content.isStepLesson(card)
-    val open: SchoolUiState.LessonState.Open? = (state as? SchoolUiState.LessonState.Open)?.takeUnless { isStep }
+    val open: SchoolUiState.LessonState.Open? = state as? SchoolUiState.LessonState.Open
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
         LessonBlock(card = card, isStep = isStep)
         if (open != null) StudyAction(card = card, block = open.block, content = content, onIntent = onIntent)

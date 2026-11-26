@@ -5,7 +5,6 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
-import com.emm.mygame.ScreenFrame
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.holdout.HoldoutCheckRoute
 
@@ -16,12 +15,12 @@ internal fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome
             kind = FrameKind.Task,
             doesScreenReadTown = false,
             chrome = chrome,
-        ) { frame: ScreenFrame ->
+        ) {
             HoldoutCheckRoute(
                 holdoutChecks = dependencies.holdoutChecks,
                 band = check.band,
                 week = check.week,
-                onEnd = frame.onAnswered,
+                onEnd = chrome.onTaskAnswered,
                 onDone = chrome.navigator::back,
             )
         }

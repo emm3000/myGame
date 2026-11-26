@@ -22,7 +22,7 @@ paths:
 | `core:network` | The generated OpenAPI client, in its build directory; one package per feature, named as `core:model`'s (`account`, `town.jobs`), holding the `Api*` adapters that implement that feature's ports and their `*Mapping` files; and `platform`, holding what names no game word: the endpoint and the HTTP client builder it carries, the bearer, the token store, and `ApiRepositories`, which builds every `Api*` adapter |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads |
 | `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
-| `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown); its `testFixtures` hold the test stand-in of the task frame that reads its dock (`TaskFrameStandIn`) |
+| `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown); its `testFixtures` hold the matchers the task screens' tests share (`hasCopy`, `assertAskingProgressDrawnOnce`) |
 | `core:testing` | Pure Kotlin, JVM only: fakes of the `core:model` interfaces, the test clock |
 | `core:uitesting` | Android, read only by a test configuration: the Compose test helpers the features' tests share (`navRowOf`, `textStyleOf`) |
 
