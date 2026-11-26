@@ -47,9 +47,6 @@ sealed interface Destination : NavKey {
     data object School : Destination
 
     @Serializable
-    data object Report : Destination
-
-    @Serializable
     data object News : Destination
 
     @Serializable

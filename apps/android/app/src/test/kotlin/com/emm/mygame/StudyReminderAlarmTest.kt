@@ -13,7 +13,6 @@ import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts
-import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.core.testing.FakeTownRepository
 import java.time.LocalTime
 import java.time.ZoneOffset
@@ -95,7 +94,7 @@ class StudyReminderAlarmTest {
 
         assertEquals(
             Pair(
-                listOf(PostedLine("Your words are ready.", "Open the Report to study them.")),
+                listOf(PostedLine("Your words are ready.", "Open Today to review them.")),
                 listOf(wakeUpAt("2026-11-18T19:00:00Z")),
             ),
             Pair(postedLines(), alarms.scheduledAlarms.map(::seenAlarmOf)),
@@ -107,7 +106,7 @@ class StudyReminderAlarmTest {
         firingAlarm.fire(onAtSevenPm, wordsWaiting, spanishScaffold)
 
         assertEquals(
-            listOf(PostedLine("Tus palabras están listas.", "Abre el informe para estudiarlas.")),
+            listOf(PostedLine("Tus palabras están listas.", "Abre Hoy para repasarlas.")),
             postedLines(),
         )
     }
@@ -175,13 +174,13 @@ class StudyReminderAlarmTest {
     }
 
     @Test
-    fun `a tap on the reminder opens the app on its line`() {
+    fun `a tap on the reminder opens the app as a reminder's tap`() {
         firingAlarm.fire(onAtSevenPm, wordsWaiting, englishOnly)
 
         val opened: Intent = shadowOf(notifications.allNotifications.single().contentIntent).savedIntent
         assertEquals(
-            Pair(MainActivity::class.java.name, StudyReminderLine.Cards.name),
-            Pair(opened.component?.className, opened.getStringExtra(MainActivity.STUDY_REMINDER_LINE)),
+            Pair(MainActivity::class.java.name, true),
+            Pair(opened.component?.className, opened.getBooleanExtra(MainActivity.STUDY_REMINDER_TAP, false)),
         )
     }
 

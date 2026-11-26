@@ -1,20 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="report_loading">Estamos leyendo tu informe…</string>
-    <string name="report_news_all">Leer todas las noticias</string>
-    <string name="report_news_close">Cerrar las noticias</string>
-    <string name="report_news_closed">Cerraste las noticias.</string>
     <string name="report_news_loading">Estamos leyendo las noticias…</string>
     <string name="report_news_none">No hay noticias.</string>
     <string name="report_news_title">Noticias del pueblo</string>
-    <string name="report_next_review">Siguiente repaso:</string>
-    <string name="report_next_review_day">{day} {time}</string>
-    <string name="report_next_review_tomorrow">mañana {time}</string>
-    <string name="report_no_reviews_due">No tienes repasos pendientes ahora.</string>
     <string name="report_refusal_unexpected">No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.</string>
-    <string name="report_reviews_due">Repasos pendientes: {count}</string>
-    <string name="report_settings">Ajustes</string>
-    <string name="report_title">Informe</string>
     <string name="report_try_again">Volver a intentarlo</string>
-    <string name="report_waiting">Enviando…</string>
 </resources>

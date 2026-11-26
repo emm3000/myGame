@@ -6,7 +6,6 @@ import com.emm.mygame.NavigationLinks
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.projection.StudyReminderLine
 import kotlinx.coroutines.flow.Flow
 
 internal class Navigator(private val backStack: MutableList<NavKey>, private val links: NavigationLinks) {
@@ -62,14 +61,11 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
 
     fun signedIn() {
         if (backStack.lastOrNull() is Destination.MailedLink) return
-        val shownAboveToday: Destination? = links.reminderLineOnSignIn?.shownAboveToday()
-        links.reminderLineOnSignIn = null
-        backStack.showAlone(listOfNotNull(Destination.Today, shownAboveToday))
+        backStack.showAlone(listOf(Destination.Today))
     }
 
     fun signedOut(isSessionEnded: Boolean) {
         links.areEnabled = true
-        links.reminderLineOnSignIn = null
         backStack.showAlone(listOf(Destination.SignIn(isSessionEnded = isSessionEnded)))
     }
 
@@ -94,7 +90,7 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
         if (!areLinksEnabled) return
         val words: Destination.LessonWords = Destination.LessonWords(lesson, walked)
         when (backStack.lastOrNull()) {
-            Destination.Today, Destination.Town, Destination.Report, Destination.School -> backStack.add(words)
+            Destination.Today, Destination.Town, Destination.School -> backStack.add(words)
             is Destination.LessonWords, Destination.Review -> backStack[backStack.lastIndex] = words
             else -> Unit
         }
@@ -122,19 +118,15 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     fun openReviews() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.Today, Destination.Town, Destination.Report, Destination.School, is Destination.LessonWords ->
+            Destination.Today, Destination.Town, Destination.School, is Destination.LessonWords ->
                 backStack.add(Destination.Review)
             else -> Unit
         }
     }
 
-    fun openReminder(line: StudyReminderLine) {
-        if (!backStack.isSignedIn()) {
-            links.reminderLineOnSignIn = line
-            return
-        }
-        if (!areLinksEnabled) return
-        backStack.showAlone(listOfNotNull(Destination.Today, line.shownAboveToday()))
+    fun openReminder() {
+        if (!areLinksEnabled || !backStack.isSignedIn()) return
+        backStack.showAlone(listOf(Destination.Today))
     }
 
     fun openTown() {
@@ -147,11 +139,6 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
 }
 
 private fun Tab.rootAboveToday(): Destination? = root.takeIf { this != Tab.Today }
-
-private fun StudyReminderLine.shownAboveToday(): Destination? = when (this) {
-    StudyReminderLine.Cards -> Destination.Report
-    StudyReminderLine.Check, StudyReminderLine.Lesson -> null
-}
 
 private fun List<NavKey>.isSignedIn(): Boolean = firstOrNull() == Destination.Today
 

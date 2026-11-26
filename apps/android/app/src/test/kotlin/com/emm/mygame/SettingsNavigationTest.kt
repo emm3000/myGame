@@ -2,6 +2,8 @@ package com.emm.mygame
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -113,27 +115,22 @@ class SettingsNavigationTest {
         composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(hasText(line)).fetchSemanticsNodes().isNotEmpty() }
     }
 
-    private fun waitWithout(line: String) {
-        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(hasText(line)).fetchSemanticsNodes().isEmpty() }
-    }
-
     @Test
-    fun `opens the settings from the Report`() {
-        show(Destination.Today, Destination.Town, Destination.Report)
-        waitForLine("Ajustes")
+    fun `opens the settings from the Me tab`() {
+        show(Destination.Today)
+        composeRule.waitUntil(WAIT_MILLIS) {
+            composeRule.onAllNodes(hasContentDescription("Yo") and hasClickAction()).fetchSemanticsNodes().isNotEmpty()
+        }
 
-        composeRule.onNodeWithText("Ajustes").performScrollTo().performClick()
+        composeRule.onNode(hasContentDescription("Yo") and hasClickAction()).performClick()
 
         waitForLine("Idioma de ayuda")
-        assertEquals(
-            listOf(Destination.Today, Destination.Town, Destination.Report, Destination.Settings),
-            shownBackStack,
-        )
+        assertEquals(listOf(Destination.Today, Destination.Settings), shownBackStack)
     }
 
     @Test
     fun `stores the theme tapped in the settings`() {
-        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Settings)
         waitForLine("Oscuro")
 
         composeRule.onNodeWithText("Oscuro").performScrollTo().performClick()
@@ -144,7 +141,7 @@ class SettingsNavigationTest {
 
     @Test
     fun `stores the theme tapped while the settings cannot be read`() {
-        showReading(RestoreResult.Unreachable, Destination.Town, Destination.Report, Destination.Settings)
+        showReading(RestoreResult.Unreachable, Destination.Today, Destination.Settings)
         waitForLine("No hemos podido cargar tus ajustes.")
         waitForLine("Oscuro")
 
@@ -156,7 +153,7 @@ class SettingsNavigationTest {
 
     @Test
     fun `keeps the old language while the change waits`() {
-        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
 
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
@@ -168,7 +165,7 @@ class SettingsNavigationTest {
 
     @Test
     fun `draws the new scaffold's language after a change`() {
-        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
+        show(Destination.Today, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
 
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
@@ -177,25 +174,25 @@ class SettingsNavigationTest {
         waitForLine("Saved.")
         composeRule.onAllNodesWithText("Settings").assertCountEquals(1)
         composeRule.onAllNodesWithText("Ajustes").assertCountEquals(0)
-        composeRule.onAllNodesWithText("Town").assertCountEquals(1)
+        composeRule.onAllNodes(hasContentDescription("Town") and hasClickAction()).assertCountEquals(1)
     }
 
     @Test
-    fun `draws the Report in English on the way back from a change to none`() {
-        show(Destination.Today, Destination.Town, Destination.Report, Destination.Settings)
+    fun `draws Today in English on the way back from a change to none`() {
+        show(Destination.Today, Destination.Settings)
         waitForLine(NONE_OPTION_IN_SPANISH)
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
         waitForLine("Saved.")
-        reports.answerRead(ReportReadResult.Read(nothingDue))
 
         composeRule.activityRule.scenario.onActivity { activity: ComponentActivity ->
             activity.onBackPressedDispatcher.onBackPressed()
         }
 
-        waitForLine("Read all the news")
-        waitWithout("Leer todas las noticias")
-        composeRule.onAllNodesWithText("Report").assertCountEquals(1)
+        composeRule.waitUntil(WAIT_MILLIS) {
+            composeRule.onAllNodes(hasContentDescription("Reading your town…")).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onAllNodes(hasContentDescription("Estamos leyendo tu pueblo…")).assertCountEquals(0)
     }
 
     private fun sessionWith(scaffold: PlayerScaffold): RestoreResult = RestoreResult.SignedIn(playerWith(scaffold))

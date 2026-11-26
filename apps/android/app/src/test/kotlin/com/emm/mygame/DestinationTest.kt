@@ -20,7 +20,6 @@ class DestinationTest {
             Destination.Town,
             Destination.Place(TownBuildingKind.Farm),
             Destination.School,
-            Destination.Report,
             Destination.News,
             Destination.Settings,
             Destination.Map,
@@ -51,7 +50,6 @@ class DestinationTest {
             "com.emm.mygame.Destination.Town",
             "com.emm.mygame.Destination.Place",
             "com.emm.mygame.Destination.School",
-            "com.emm.mygame.Destination.Report",
             "com.emm.mygame.Destination.News",
             "com.emm.mygame.Destination.Settings",
             "com.emm.mygame.Destination.Map",
@@ -78,7 +76,6 @@ class DestinationTest {
             "com.emm.mygame.Destination\$Town",
             "com.emm.mygame.Destination\$Place",
             "com.emm.mygame.Destination\$School",
-            "com.emm.mygame.Destination\$Report",
             "com.emm.mygame.Destination\$News",
             "com.emm.mygame.Destination\$Settings",
             "com.emm.mygame.Destination\$Map",
@@ -95,6 +92,13 @@ class DestinationTest {
 
         assertEquals(emptyList<String>(), notDestinations)
         assertEquals(destinationSerialNames().size, pinned.size)
+    }
+
+    @Test
+    fun `keeps no Report among the destinations`() {
+        val reports: List<String> = destinationSerialNames().filter { name: String -> name.endsWith(".Report") }
+
+        assertEquals(emptyList<String>(), reports)
     }
 
     private fun destinationSerialNames(): List<String> =

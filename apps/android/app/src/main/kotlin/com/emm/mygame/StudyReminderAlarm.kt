@@ -63,7 +63,7 @@ class StudyReminderAlarm(private val context: Context, private val clock: Clock,
             .setSmallIcon(DesignSystemR.drawable.designsystem_reminder)
             .setContentTitle(copy.fixedCopy(words.title))
             .setContentText(copy.fixedCopy(words.text))
-            .setContentIntent(tapping(line))
+            .setContentIntent(tapping())
             .setAutoCancel(true)
             .build()
         notifications.notify(STUDY_REMINDER_ID, reminder)
@@ -86,11 +86,11 @@ class StudyReminderAlarm(private val context: Context, private val clock: Clock,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
-    private fun tapping(line: StudyReminderLine): PendingIntent = PendingIntent.getActivity(
+    private fun tapping(): PendingIntent = PendingIntent.getActivity(
         context,
         STUDY_REMINDER_ID,
         Intent(context, MainActivity::class.java)
-            .putExtra(MainActivity.STUDY_REMINDER_LINE, line.name)
+            .putExtra(MainActivity.STUDY_REMINDER_TAP, true)
             .addFlags(ON_TOP_OF_THE_APP),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )

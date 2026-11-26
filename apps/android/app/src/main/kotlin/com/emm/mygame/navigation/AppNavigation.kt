@@ -38,14 +38,13 @@ import com.emm.mygame.TownFollowIntent
 import com.emm.mygame.TownFollowViewModel
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.HeldTown
-import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 internal fun AppNavigation(
     dependencies: AppDependencies,
-    reminderTaps: Flow<StudyReminderLine>,
+    reminderTaps: Flow<Unit>,
     mailedLinks: Flow<Destination.MailedLink>,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(Destination.SignIn(isSessionEnded = false)),
@@ -58,7 +57,7 @@ internal fun AppNavigation(
         navigator.followSessionEnds(dependencies.sessionEnds.ended)
     }
     LaunchedEffect(navigator) {
-        reminderTaps.collect(navigator::openReminder)
+        reminderTaps.collect { navigator.openReminder() }
     }
     LaunchedEffect(navigator) {
         mailedLinks.collect(navigator::openMailedLink)
@@ -132,7 +131,6 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     townEntry(chrome)
     placeEntry(chrome)
     schoolEntry(chrome)
-    reportEntry(chrome)
     newsEntry(chrome)
     settingsEntry(chrome)
     jobsEntry(chrome)
@@ -159,7 +157,6 @@ private fun NavKey?.isSignedIn(): Boolean = when (this as? Destination) {
     is Destination.LessonWords,
     is Destination.SchoolText,
     Destination.Review,
-    Destination.Report,
     Destination.News,
     Destination.Settings,
     Destination.Placement,
@@ -171,7 +168,6 @@ private fun NavKey?.isLessonFinishFollowed(): Boolean = when (this as? Destinati
     Destination.Naming,
     is Destination.SchoolText,
     Destination.Review,
-    Destination.Report,
     Destination.News,
     Destination.Settings,
     Destination.Placement,

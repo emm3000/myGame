@@ -106,7 +106,7 @@ Change the selected values for the other kinds, and the `position` range for the
 | Stable, not retained, due for the recall that retains it | 8 | now − 9 days | NULL | yes |
 | Retained, due | 8 | now − 9 days | `last_review_at` | yes |
 
-The day-2 figures come from ADR 045's *Context*. A recall made 7 or more whole days after the last review retains the word (`retainedAtOf`). After seeding, open the Report. A card the table marks due must be counted in `android.report.report_reviews_due`, *Reviews due: {count}*. If it is not, move its `last_review_at` back by one more day and look again. The recall's answer is the word itself. Find it with `rg -n '"<word_id>"' apps/api/content/lessons/words.json`.
+The day-2 figures come from ADR 045's *Context*. A recall made 7 or more whole days after the last review retains the word (`retainedAtOf`). After seeding, open Today. A card the table marks due must be counted in `android.today.today_reviews_due`, *Reviews due: {count}*. If it is not, move its `last_review_at` back by one more day and look again. The recall's answer is the word itself. Find it with `rg -n '"<word_id>"' apps/api/content/lessons/words.json`.
 
 ### Recipe: shift the server's time
 
@@ -214,14 +214,14 @@ Setup: SMK-01's account, the reminder on (REM-01)
 3. Verify `dumpsys alarm` holds no alarm for `com.emm.mygame`.
 4. Sign in with the same email and password.
 5. Verify the town home opens on the same town, with its levels kept.
-6. Open Settings from the Report. Verify the study reminder is off, so signing out cleared the switch.
+6. Open Me. Verify the study reminder is off, so signing out cleared the switch.
 
 #### SES-02 A scaffold change redraws the frame and keeps the words · P1 · full
 
 Source: ADR 038, *The setting*; PRD N6
 Setup: a `none` account with lesson 1 studied
 
-1. Open Settings from the Report and choose Spanish as the help language.
+1. Open Me and choose Spanish as the help language.
 2. Verify `android.account.settings_saved`, *Guardado.*, and `android.account.settings_cards_kept`, *Tus palabras y tu progreso no cambian.*, both in Spanish.
 3. Go back to the town. Verify its frame is drawn in Spanish.
 4. Verify `players.scaffold_version` went up by 1 and the player's card count did not change.
@@ -232,11 +232,11 @@ Setup: a `none` account with lesson 1 studied
 Source: PRD M1
 Setup: any account with a town
 
-1. Open Settings from the Report.
+1. Open Me.
 2. Send the app to the background, then kill its process: `adb shell am kill com.emm.mygame`.
 3. Reopen the app from Recents.
-4. Verify Settings shows, with no sign-in screen in between.
-5. Go back. Verify the Report shows, then the town.
+4. Verify Me shows, with no sign-in screen in between.
+5. Go back. Verify Today shows.
 
 ### The acceptance criterion
 
@@ -251,7 +251,7 @@ Setup: a fresh `none` account with a named town, and a bearer for it
 4. Open the app.
 5. Verify the farm reads level 1, and the food rate is higher than it was before the work.
 6. Verify each of the four stocks drawn matches `GET /town`'s `amount` for that resource, read with the bearer in the same minute, to within one minute's `ratePerHour`.
-7. Open the Report. Verify its news holds `android.ui.ui_news_building_work_finished`, *Farm: now level 1.* (the place's name as the catalog writes it).
+7. Open Today. Verify *What happened* holds `android.ui.ui_news_building_work_finished`, *Farm: now level 1.* (the place's name as the catalog writes it).
 
 ### Lessons
 
@@ -264,7 +264,7 @@ Setup: a fresh `none` account with a named town
 2. Study lesson 1.
 3. Verify a countdown of at most 5 minutes runs: `android.town.town_next_lesson_ready_in`, *Lesson 1 ready in*, or the school's own.
 4. Read its words. Verify they show one at a time, with `android.school.school_lesson_word_position`, *Word 1 of 5*.
-5. Let the lesson finish, then open the Report. Verify `android.report.report_reviews_due`, *Reviews due: 5*.
+5. Let the lesson finish, then open Today. Verify `android.today.today_reviews_due`, *Reviews due: 5*.
 
 #### LES-01 A rotation in the last minute keeps the countdown going · P1 · full
 
@@ -282,18 +282,18 @@ Setup: a fresh `none` account with a named town
 1. Start lesson 1, then send the app to the background.
 2. Wait until the lesson's finish has passed.
 3. Bring the app back.
-4. Verify the lesson reads finished without a tap, and the Report reads `android.report.report_reviews_due`, *Reviews due: 5*.
+4. Verify the lesson reads finished without a tap, and Today reads `android.today.today_reviews_due`, *Reviews due: 5*.
 
 ### Reviews
 
-#### SMK-04 The first recognitions are answered and the Report empties · P0 · smoke
+#### SMK-04 The first recognitions are answered and Today has none due · P0 · smoke
 
 Source: ADR 036, *The rules*, rules 2 and 5; PRD S22
 Setup: SMK-03's account, with its 5 reviews due
 
 1. Start the reviews and answer each recognition with its right meaning.
 2. Verify each verdict reads `android.learning.review_correct`, *Correct.*
-3. Go back to the Report. Verify `android.report.report_no_reviews_due`, *No reviews due now.*, with a next review within 10 minutes (the learning step).
+3. Go back to Today. Verify `android.today.today_no_reviews_due`, *No reviews due now.*, with `android.today.today_next_review`, *Next review:*, within 10 minutes (the learning step).
 
 #### REV-01 The recall's field takes the real keyboard as typed · P1 · full
 
@@ -383,24 +383,24 @@ Setup: SMK-01's `es` account, notifications never asked
 Source: ADR 046, *What the reminder is*
 Setup: a fresh `es` account, notifications never asked
 
-1. Open Settings from the Report and turn the reminder on.
+1. Open Me and turn the reminder on.
 2. Deny the permission.
 3. Verify the switch is off, with `android.account.settings_reminder_denied`, *Las notificaciones de Townword están desactivadas en los ajustes del teléfono.*, and the link `android.account.settings_reminder_open_settings`, *Abrir los ajustes de notificaciones*.
 4. Follow the link. Verify the phone's notification settings for Townword open.
 5. Allow notifications there and come back. Verify the denied line is gone.
 6. Turn the reminder on. Verify it turns on with no dialog.
 
-#### SMK-07 It fires with words waiting, and the tap opens the Report · P0 · smoke
+#### SMK-07 It fires with words waiting, and the tap opens Today · P0 · smoke
 
 Source: ADR 046, *When it fires*, *How Android schedules it*, *What it says*
 Setup: an `es` account with the reminder on and reviews due (SMK-03 and SMK-06's steps, in Spanish)
 
 1. Read the alarm. Verify one `RTC_WAKEUP` alarm for `com.emm.mygame` at the chosen time today, or tomorrow if that has passed.
 2. Send the app to the background, set the device clock 90 seconds before the alarm and wait for it to fire (*Recipe: the device clock and the alarm*).
-3. Verify one notification is posted: `android.app.reminder_cards_title`, *Tus palabras están listas.*, over `android.app.reminder_cards_text`, *Abre el informe para estudiarlas.*, on the channel `android.app.reminder_channel`, *Recordatorios de estudio*.
+3. Verify one notification is posted: `android.app.reminder_cards_title`, *Tus palabras están listas.*, over `android.app.reminder_cards_text`, *Abre Hoy para repasarlas.*, on the channel `android.app.reminder_channel`, *Recordatorios de estudio*.
 4. Verify the next alarm is at the chosen time on the following day.
-5. Tap the notification. Verify the Report opens with `android.report.report_reviews_due`, *Repasos pendientes: {count}*, and the notification is gone.
-6. Go back. Verify the town shows.
+5. Tap the notification. Verify Today opens alone with `android.today.today_reviews_due`, *Repasos pendientes: {count}*, and the notification is gone.
+6. Go back. Verify the app closes, since Today is the only screen.
 7. Put the clock back (*Recipe: the device clock and the alarm*).
 
 #### REM-02 A lesson ready, with nothing due, fires that day with the lesson line · P1 · full

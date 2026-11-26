@@ -130,14 +130,14 @@ class NavigatorSessionTest : NavigatorFixture() {
     }
 
     @Test
-    fun `stays on the Report on a back gesture while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
+    fun `stays on the school on a back gesture while signing out`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.School)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.back()
 
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today, Destination.Town, Destination.School), backStack)
     }
 
     @Test
@@ -171,7 +171,7 @@ class NavigatorSessionTest : NavigatorFixture() {
 
     @Test
     fun `returns to sign-in alone once signed out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Map)
 
         Navigator(backStack, NavigationLinks()).signedOut(isSessionEnded = false)
 
@@ -195,9 +195,9 @@ class NavigatorSessionTest : NavigatorFixture() {
         navigator.signedOut(isSessionEnded = false)
 
         navigator.signedIn()
-        navigator.openOnTab(Destination.Report)
+        navigator.openTab(Tab.Learn)
 
-        assertEquals(true to listOf(Destination.Today, Destination.Report), navigator.areLinksEnabled to backStack)
+        assertEquals(true to listOf(Destination.Today, Destination.School), navigator.areLinksEnabled to backStack)
     }
 
     @Test
@@ -205,7 +205,7 @@ class NavigatorSessionTest : NavigatorFixture() {
         val signedInStacks: List<MutableList<NavKey>> = listOf(
             mutableListOf(Destination.Today, Destination.Town),
             mutableListOf(Destination.Today, Destination.Town),
-            mutableListOf(Destination.Today, Destination.Town, Destination.Report),
+            mutableListOf(Destination.Today, Destination.Town, Destination.Map),
             mutableListOf(Destination.Today, Destination.Town, Destination.School),
         )
 

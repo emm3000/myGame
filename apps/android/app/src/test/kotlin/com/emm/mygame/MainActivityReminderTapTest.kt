@@ -13,7 +13,6 @@ import androidx.compose.ui.test.performClick
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
-import com.emm.mygame.core.projection.StudyReminderLine
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,25 +44,25 @@ class MainActivityReminderTapTest {
     }
 
     @Test
-    fun `a tap of the words reminder opens the Report above Today`() {
-        Robolectric.buildActivity(MainActivity::class.java, tapOf(StudyReminderLine.Cards)).setup()
+    fun `a tap of a reminder opens Today alone`() {
+        Robolectric.buildActivity(MainActivity::class.java, reminderTap()).setup()
 
-        waitForLine(TODAY_LINK)
+        assertOnTodayAlone()
     }
 
     @Test
-    fun `a tap that reaches the open app opens its line`() {
+    fun `a tap that reaches the open app opens Today alone`() {
         val activity: ActivityController<MainActivity> = Robolectric.buildActivity(MainActivity::class.java).setup()
-        waitFor(townLoading)
+        openMe()
 
-        activity.newIntent(tapOf(StudyReminderLine.Cards))
+        activity.newIntent(reminderTap())
 
-        waitForLine(TODAY_LINK)
+        assertOnTodayAlone()
     }
 
     @Test
     fun `a launch from Recents opens no reminder line`() {
-        val replayed: Intent = tapOf(StudyReminderLine.Cards).addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
+        val replayed: Intent = reminderTap().addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
 
         Robolectric.buildActivity(MainActivity::class.java, replayed).setup()
 
@@ -73,18 +72,22 @@ class MainActivityReminderTapTest {
     @Test
     fun `a recreated activity opens no reminder line again`() {
         val activity: ActivityController<MainActivity> =
-            Robolectric.buildActivity(MainActivity::class.java, tapOf(StudyReminderLine.Cards)).setup()
-        waitFor(hasText(TODAY_LINK).and(hasClickAction()))
-        composeRule.onNode(hasText(TODAY_LINK).and(hasClickAction())).performClick()
-        waitFor(townLoading)
+            Robolectric.buildActivity(MainActivity::class.java, reminderTap()).setup()
+        openMe()
 
         composeRule.runOnIdle { activity.recreate() }
 
-        assertOnTodayAlone()
+        waitForLine(DARK_PICK)
     }
 
-    private fun tapOf(line: StudyReminderLine): Intent =
-        Intent(application, MainActivity::class.java).putExtra(MainActivity.STUDY_REMINDER_LINE, line.name)
+    private fun openMe() {
+        waitFor(hasContentDescription(ME_TAB).and(hasClickAction()))
+        composeRule.onNode(hasContentDescription(ME_TAB).and(hasClickAction())).performClick()
+        waitForLine(DARK_PICK)
+    }
+
+    private fun reminderTap(): Intent =
+        Intent(application, MainActivity::class.java).putExtra(MainActivity.STUDY_REMINDER_TAP, true)
 
     private fun waitForLine(line: String) {
         waitFor(hasText(line))
@@ -108,6 +111,8 @@ class MainActivityReminderTapTest {
     private companion object {
         const val WAIT_MILLIS: Long = 5_000
         const val TODAY_LINK: String = "Hoy"
+        const val ME_TAB: String = "Yo"
+        const val DARK_PICK: String = "Oscuro"
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
     }
 }

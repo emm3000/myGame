@@ -5,7 +5,7 @@
     <string name="navigation_me">Me</string>
     <string name="navigation_today">Today</string>
     <string name="navigation_town">Town</string>
-    <string name="reminder_cards_text">Open the Report to study them.</string>
+    <string name="reminder_cards_text">Open Today to review them.</string>
     <string name="reminder_cards_title">Your words are ready.</string>
     <string name="reminder_channel">Study reminders</string>
     <string name="reminder_check_text">Open it from the town.</string>

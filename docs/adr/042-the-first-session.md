@@ -1,5 +1,5 @@
 ---
-status: proposed, the shell and the art of its screens drawn by ADR 043, the skill's worth and the running lesson's producer amended by ADR 045, the learning cap's line in `caughtUp` by ADR 048, a word read after its first review amended by ADR 057: it is read again only in Keep going, a day or more before its next review, the return visit amended by ADR 057: it may say what the town gained, with no count of days away and no streak
+status: proposed, the shell and the art of its screens drawn by ADR 043, the skill's worth and the running lesson's producer amended by ADR 045, the learning cap's line in `caughtUp` by ADR 048, a word read after its first review amended by ADR 057: it is read again only in Keep going, a day or more before its next review, the return visit amended by ADR 057: it may say what the town gained, with no count of days away and no streak, the Report amended by ADR 057: the Android client draws none and the api's routes stay
 date: 2026-11-05
 ---
 # The first session

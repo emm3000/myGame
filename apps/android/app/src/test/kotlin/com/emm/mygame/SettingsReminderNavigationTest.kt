@@ -98,8 +98,6 @@ class SettingsReminderNavigationTest {
                     mailedLinks = emptyFlow(),
                     backStack = rememberNavBackStack(
                         Destination.Today,
-                        Destination.Town,
-                        Destination.Report,
                         Destination.Settings,
                     ),
                 )

@@ -11,7 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.emm.mygame.core.model.theme.ThemePick
-import com.emm.mygame.core.projection.StudyReminderLine
 import com.emm.mygame.navigation.AppNavigation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private val reminderTaps: Channel<StudyReminderLine> = Channel(Channel.BUFFERED)
+    private val reminderTaps: Channel<Unit> = Channel(Channel.BUFFERED)
 
     private val mailedLinks: Channel<Destination.MailedLink> = Channel(Channel.BUFFERED)
 
@@ -29,7 +28,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) take(intent)
         val dependencies: AppDependencies = application as AppDependencies
-        val taps: Flow<StudyReminderLine> = reminderTaps.receiveAsFlow()
+        val taps: Flow<Unit> = reminderTaps.receiveAsFlow()
         val links: Flow<Destination.MailedLink> = mailedLinks.receiveAsFlow()
         lifecycleScope.launch { dependencies.themes.pick.collect(::followNightMode) }
         setContent {
@@ -52,19 +51,12 @@ class MainActivity : ComponentActivity() {
 
     private fun take(intent: Intent) {
         if (intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) return
-        sendReminderTap(intent)
+        if (intent.getBooleanExtra(STUDY_REMINDER_TAP, false)) reminderTaps.trySend(Unit)
         mailedLinkOf(intent)?.let(mailedLinks::trySend)
     }
 
-    private fun sendReminderTap(intent: Intent) {
-        val tapped: String = intent.getStringExtra(STUDY_REMINDER_LINE) ?: return
-        val line: StudyReminderLine =
-            StudyReminderLine.entries.firstOrNull { line: StudyReminderLine -> line.name == tapped } ?: return
-        reminderTaps.trySend(line)
-    }
-
     companion object {
-        const val STUDY_REMINDER_LINE: String = "study_reminder_line"
+        const val STUDY_REMINDER_TAP: String = "study_reminder_tap"
     }
 }
 

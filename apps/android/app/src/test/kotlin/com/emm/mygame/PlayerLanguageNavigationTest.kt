@@ -25,6 +25,7 @@ import com.emm.mygame.core.model.account.SignInResult
 import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.navigation.AppNavigation
@@ -65,9 +66,10 @@ class PlayerLanguageNavigationTest {
         readAt = Instant.parse("2026-11-05T10:00:00Z"),
     )
 
-    private fun showReport(language: PlayerLanguage) {
-        show(language, Destination.Today, Destination.Town, Destination.Report)
-        waitForLine("Settings", "Ajustes")
+    private fun showNews(language: PlayerLanguage) {
+        reports.answerNews(TownNewsReadResult.Read(emptyList()))
+        show(language, Destination.Today, Destination.Town, Destination.News)
+        waitForLine("No news.", "No hay noticias.")
     }
 
     private fun showMe(language: PlayerLanguage) {
@@ -111,11 +113,11 @@ class PlayerLanguageNavigationTest {
     private fun countOf(line: String): Int = composeRule.onAllNodesWithText(line).fetchSemanticsNodes().size
 
     @Test
-    fun `draws the Report in Spanish on an English phone in the Spanish phase`() {
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+    fun `draws the news in Spanish on an English phone in the Spanish phase`() {
+        showNews(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
-        composeRule.onAllNodesWithText("Informe").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Report").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Noticias del pueblo").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Town News").assertCountEquals(0)
         composeRule.onAllNodesWithText("Pueblo").assertCountEquals(1)
     }
 
@@ -127,7 +129,7 @@ class PlayerLanguageNavigationTest {
             ),
         )
 
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English))
+        showNews(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English))
 
         waitForLine("Confirma tu correo")
         composeRule.onAllNodesWithText("Confirm your email").assertCountEquals(0)
@@ -135,25 +137,17 @@ class PlayerLanguageNavigationTest {
 
     @Test
     fun `draws the phase of the latest read over the one before it`() {
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+        showNews(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
         latestRead.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Both)
-        waitForLine("Report")
+        waitForLine("Town News")
 
-        composeRule.onAllNodesWithText("Report").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Informe").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Town News").assertCountEquals(1)
+        composeRule.onAllNodesWithText("Noticias del pueblo").assertCountEquals(1)
         latestRead.value = PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English)
-        composeRule.waitUntil(WAIT_MILLIS) { countOf("Informe") == 0 }
-        composeRule.onAllNodesWithText("Report").assertCountEquals(1)
+        composeRule.waitUntil(WAIT_MILLIS) { countOf("Noticias del pueblo") == 0 }
+        composeRule.onAllNodesWithText("Town News").assertCountEquals(1)
         composeRule.onAllNodesWithText("Town").assertCountEquals(1)
-    }
-
-    @Test
-    fun `keeps the settings row in Spanish for an es player in the English phase`() {
-        showReport(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.English))
-
-        composeRule.onAllNodesWithText("Ajustes").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
     }
 
     @Test

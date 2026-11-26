@@ -1,7 +1,0 @@
-package com.emm.mygame.feature.report
-
-data class ReportNavigation(
-    val onNewsOpen: () -> Unit,
-    val onSettingsOpen: () -> Unit,
-    val onNewsClosed: () -> Unit,
-)

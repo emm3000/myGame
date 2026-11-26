@@ -66,7 +66,7 @@ class NavigatorTabTest : NavigatorFixture() {
     @Test
     fun `the open tab is read from the stack`() {
         assertEquals(Tab.Town, listOf(Destination.Today, Destination.Town, Destination.Map).openTab())
-        assertEquals(Tab.Today, listOf(Destination.Today, Destination.Report).openTab())
+        assertEquals(Tab.Today, listOf<NavKey>(Destination.Today).openTab())
         assertEquals(Tab.Me, listOf(Destination.Today, Destination.Settings).openTab())
     }
 

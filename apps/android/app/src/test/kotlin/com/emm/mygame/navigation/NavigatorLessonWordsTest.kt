@@ -18,12 +18,12 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
     }
 
     @Test
-    fun `opens a lesson's words above the Report`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
+    fun `opens a lesson's words above Today`() {
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today)
 
         Navigator(backStack, NavigationLinks()).openLesson(firstLesson, walked = emptyList())
 
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report, firstWords), backStack)
+        assertEquals(listOf(Destination.Today, firstWords), backStack)
     }
 
     @Test
@@ -39,14 +39,12 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
     fun `takes the place of the lesson it walks on from`() {
         val backStack: MutableList<NavKey> = mutableListOf(
             Destination.Today,
-            Destination.Town,
-            Destination.Report,
             firstWords,
         )
 
         Navigator(backStack, NavigationLinks()).openLesson(secondLesson, walked = listOf(firstLesson))
 
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report, secondWords), backStack)
+        assertEquals(listOf(Destination.Today, secondWords), backStack)
     }
 
     @Test
@@ -65,28 +63,26 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
 
     @Test
     fun `opens no lesson while signing out`() {
-        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today, Destination.Town, Destination.Report)
+        val backStack: MutableList<NavKey> = mutableListOf(Destination.Today)
         val navigator: Navigator = Navigator(backStack, NavigationLinks())
         navigator.signingOut()
 
         navigator.openLesson(firstLesson, walked = emptyList())
 
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
+        assertEquals(listOf(Destination.Today), backStack)
     }
 
     @Test
     fun `opens the reviews above a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(
             Destination.Today,
-            Destination.Town,
-            Destination.Report,
             firstWords,
         )
 
         Navigator(backStack, NavigationLinks()).openReviews()
 
         assertEquals(
-            listOf(Destination.Today, Destination.Town, Destination.Report, firstWords, Destination.Review),
+            listOf(Destination.Today, firstWords, Destination.Review),
             backStack,
         )
     }
@@ -95,8 +91,6 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
     fun `goes back to the school from a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(
             Destination.Today,
-            Destination.Town,
-            Destination.Report,
             firstWords,
         )
 
@@ -117,19 +111,5 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
         Navigator(backStack, NavigationLinks()).openTown()
 
         assertEquals(listOf(Destination.Today, Destination.Town), backStack)
-    }
-
-    @Test
-    fun `opens the Report tab from a lesson's words`() {
-        val backStack: MutableList<NavKey> = mutableListOf(
-            Destination.Today,
-            Destination.Town,
-            Destination.School,
-            firstWords,
-        )
-
-        Navigator(backStack, NavigationLinks()).openOnTab(Destination.Report)
-
-        assertEquals(listOf(Destination.Today, Destination.Town, Destination.Report), backStack)
     }
 }

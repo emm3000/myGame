@@ -180,7 +180,6 @@ const fixedCopyKeyList = [
   'android.placement.placement_title',
   'android.placement.placement_unreachable',
   'android.report.report_refusal_unexpected',
-  'android.report.report_settings',
   'android.school.school_band_line',
   'android.school.school_continue',
   'android.school.school_holdout_note',

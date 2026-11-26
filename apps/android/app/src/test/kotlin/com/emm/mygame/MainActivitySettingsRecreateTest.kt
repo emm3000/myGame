@@ -1,7 +1,8 @@
 package com.emm.mygame
 
-import android.content.Intent
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeTestRule
@@ -14,7 +15,6 @@ import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.TownReport
-import com.emm.mygame.core.projection.StudyReminderLine
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,9 +54,10 @@ class MainActivitySettingsRecreateTest {
     @Test
     fun `picking a theme in the settings keeps the settings open with the new pick after the activity recreates`() {
         val activity: ActivityController<MainActivity> =
-            Robolectric.buildActivity(MainActivity::class.java, reportTap()).setup()
-        waitForLine(SETTINGS_LINK)
-        composeRule.onNodeWithText(SETTINGS_LINK).performScrollTo().performClick()
+            Robolectric.buildActivity(MainActivity::class.java).setup()
+        val meTab: SemanticsMatcher = hasContentDescription(ME_TAB).and(hasClickAction())
+        composeRule.waitUntil(WAIT_MILLIS) { composeRule.onAllNodes(meTab).fetchSemanticsNodes().isNotEmpty() }
+        composeRule.onNode(meTab).performClick()
         waitForLine(DARK_PICK)
         composeRule.onNodeWithText(DARK_PICK).performScrollTo().performClick()
         composeRule.waitForIdle()
@@ -66,15 +67,10 @@ class MainActivitySettingsRecreateTest {
         waitForLine(DARK_PICK)
         composeRule.onNodeWithText(DARK_PICK).assertIsSelected()
         composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
-        waitForLine(REPORT_NO_NEWS)
-        composeRule.runOnIdle { activity.get().onBackPressedDispatcher.onBackPressed() }
         composeRule.waitUntil(WAIT_MILLIS) {
             composeRule.onAllNodes(hasContentDescription(TOWN_LOADING)).fetchSemanticsNodes().isNotEmpty()
         }
     }
-
-    private fun reportTap(): Intent = Intent(application, MainActivity::class.java)
-        .putExtra(MainActivity.STUDY_REMINDER_LINE, StudyReminderLine.Cards.name)
 
     private fun waitForLine(line: String) {
         composeRule.waitUntil(WAIT_MILLIS) {
@@ -86,9 +82,8 @@ class MainActivitySettingsRecreateTest {
         const val WAIT_MILLIS: Long = 5_000
         const val SESSION_READS: Int = 6
         const val REPORT_READS: Int = 3
-        const val SETTINGS_LINK: String = "Ajustes"
+        const val ME_TAB: String = "Yo"
         const val DARK_PICK: String = "Oscuro"
-        const val REPORT_NO_NEWS: String = "No hay noticias."
         const val TOWN_LOADING: String = "Estamos leyendo tu pueblo…"
     }
 }

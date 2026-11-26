@@ -42,18 +42,13 @@ class FrameLinkNavigationTest : SignedInScreenFixture() {
     }
 
     @Test
-    fun `the Report's header draws the link that opens the town`() {
-        assertHeaderLinkOpensTown(Destination.Report)
-    }
-
-    @Test
     fun `the news' header draws the link that opens the town`() {
-        assertHeaderLinkOpensTown(Destination.Report, Destination.News)
+        assertHeaderLinkOpensTown(Destination.News)
     }
 
     @Test
     fun `the settings' header draws the link that opens the town`() {
-        assertHeaderLinkOpensTown(Destination.Report, Destination.Settings)
+        assertHeaderLinkOpensTown(Destination.Settings)
     }
 
     @Test
@@ -63,18 +58,18 @@ class FrameLinkNavigationTest : SignedInScreenFixture() {
 
     @Test
     fun `the system back button still pops one entry from a place screen`() {
-        showing(Destination.Today, Destination.Town, Destination.Report, Destination.News)
+        showing(Destination.Today, Destination.Town, Destination.News)
         headerLink()
 
         composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeRule.waitForIdle()
 
-        assertEquals(listOf<NavKey>(Destination.Today, Destination.Town, Destination.Report), shownStack?.toList())
+        assertEquals(listOf<NavKey>(Destination.Today, Destination.Town), shownStack?.toList())
     }
 
     @Test
     fun `the header's link opens the town while no town is read yet`() {
-        showing(Destination.Today, Destination.Town, Destination.Report, townReads = 0)
+        showing(Destination.Today, Destination.Town, Destination.News, townReads = 0)
 
         headerLink().performClick()
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(playedTown())) }
