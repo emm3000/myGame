@@ -48,7 +48,7 @@ class MyGameApplicationTest {
         application.studyReminderStore.fold {
             StudyReminderFacts(cardsWaitingFrom = Instant.parse("2100-01-01T00:00:00Z"))
         }
-        alarms.scheduledAlarms.mapNotNull { scheduled -> scheduled.operation }.forEach(alarmManager::cancel)
+        alarmManager.cancelAll()
 
         nextProcessOf(application).onCreate()
 
