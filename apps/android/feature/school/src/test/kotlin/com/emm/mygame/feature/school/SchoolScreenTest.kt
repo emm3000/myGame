@@ -449,7 +449,12 @@ class SchoolScreenTest {
     fun `marks a running lesson and offers no button`() {
         show(
             idleSchool.copy(
-                slot = SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 1.minutes, total = 150.seconds),
+                slot = SchoolUiState.SlotLine.Busy(
+                    lesson = firstLesson,
+                    name = firstLessonName,
+                    remaining = 1.minutes,
+                    total = 150.seconds,
+                ),
                 lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Studying)),
             ),
         )

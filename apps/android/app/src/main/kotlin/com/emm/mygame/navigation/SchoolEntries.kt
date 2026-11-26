@@ -10,6 +10,7 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.feature.holdout.HoldoutCheckRow
 import com.emm.mygame.feature.holdout.HoldoutCheckRowsRoute
+import com.emm.mygame.feature.placement.PlacementOfferRoute
 import com.emm.mygame.feature.school.words.LessonWalk
 import com.emm.mygame.feature.school.words.LessonWordsNavigation
 import com.emm.mygame.feature.school.words.LessonWordsRoute
@@ -36,6 +37,12 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
                     HoldoutCheckRowsRoute(
                         holdoutChecks = dependencies.holdoutChecks,
                         onHoldoutCheckOpen = { row: HoldoutCheckRow -> navigator.openHoldoutCheck(row.band, row.week) },
+                    )
+                },
+                placement = {
+                    PlacementOfferRoute(
+                        placements = dependencies.placements,
+                        onPlacementOpen = { navigator.openOnTab(Destination.Placement) },
                     )
                 },
             )
