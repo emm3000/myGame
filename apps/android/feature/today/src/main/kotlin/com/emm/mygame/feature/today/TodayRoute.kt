@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.today
 
+import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,9 +38,12 @@ fun TodayRoute(
             }
         }
     }
+    val activity: Activity? = LocalActivity.current
     LifecycleStartEffect(viewModel) {
         viewModel.onIntent(TodayIntent.ScreenShown)
-        onStopOrDispose { viewModel.onIntent(TodayIntent.ScreenHidden) }
+        onStopOrDispose {
+            if (activity?.isChangingConfigurations != true) viewModel.onIntent(TodayIntent.ScreenHidden)
+        }
     }
     TodayScreen(
         state = state,

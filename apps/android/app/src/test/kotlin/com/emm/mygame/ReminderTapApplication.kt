@@ -10,7 +10,6 @@ import com.emm.mygame.core.model.reminder.ReminderNotifications
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
 import com.emm.mygame.core.model.theme.ThemePick
-import com.emm.mygame.core.model.town.TownRepository
 import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.network.platform.SessionEnds
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
@@ -39,7 +38,7 @@ class ReminderTapApplication : Application(), AppDependencies {
 
     override val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    override val towns: TownRepository = FakeTownRepository()
+    override val towns: FakeTownRepository = FakeTownRepository()
 
     override val texts: TownTextRepository = FakeTownTextRepository()
 
