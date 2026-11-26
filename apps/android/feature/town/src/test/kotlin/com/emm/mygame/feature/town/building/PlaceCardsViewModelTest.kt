@@ -14,6 +14,7 @@ import com.emm.mygame.feature.town.townOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import com.emm.mygame.core.projection.town.building.BlockReason
 
 class PlaceCardsViewModelTest : TownViewModelFixture() {
 
@@ -31,13 +32,16 @@ class PlaceCardsViewModelTest : TownViewModelFixture() {
     }
 
     @Test
-    fun `blocks no level on the words it needs`() = runTest {
+    fun `blocks a level the api says is short of words with the words needed and held`() = runTest {
         val need: TownSnapshot.WordsNeeded = TownSnapshot.WordsNeeded(10, NeededWordKind.Stable, held = 0)
         val farm: TownSnapshot.Building =
             TownSnapshot.Building(TownBuildingKind.Farm, level = 2, next = nextLevelOf(level = 3, wordsNeeded = need))
         val viewModel: TownViewModel = homeViewModel(townOf(places = placesOf(farm)))
 
-        assertEquals(null, placeOf(viewModel, TownBuildingKind.Farm).block)
+        assertEquals(
+            BlockReason.WordsShort(needed = 10, held = 0, standing = NeededWordKind.Stable),
+            placeOf(viewModel, TownBuildingKind.Farm).block,
+        )
     }
 
     @Test

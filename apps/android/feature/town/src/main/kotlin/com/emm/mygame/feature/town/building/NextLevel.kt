@@ -28,6 +28,7 @@ import com.emm.mygame.core.ui.durationLabelOf
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.town.R
 import com.emm.mygame.feature.town.TownIntent
+import com.emm.mygame.feature.town.neededWordSelectorOf
 import com.emm.mygame.feature.town.townDurationCopy
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -86,6 +87,12 @@ private fun PlayerCopy.blockLineOf(block: BlockReason): MyGameLabel = when (bloc
     )
     is BlockReason.PeopleShort ->
         chrome(R.string.town_people_short, "needed" to block.needed.toString(), "free" to block.free)
+    is BlockReason.WordsShort -> chrome(
+        R.string.town_words_needed,
+        "standing" to neededWordSelectorOf(block.standing),
+        "held" to block.held.toString(),
+        "needed" to block.needed.toString(),
+    )
     is BlockReason.Resources -> chrome { shortfallLineOf(block) }
 }
 

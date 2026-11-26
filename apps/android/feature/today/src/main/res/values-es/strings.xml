@@ -64,5 +64,6 @@
     <string name="today_waiting">Enviando…</string>
     <string name="today_what_is_next">Tu siguiente paso</string>
     <string name="today_while_you_wait">Mientras esperas</string>
+    <string name="today_words_short">{standing, select, stable {Necesita {needed} palabras fuera de aprendizaje: {held} de {needed}} retained {Necesita {needed} palabras aprendidas: {held} de {needed}} other {Necesita {needed} palabras aprendidas: {held} de {needed}}}</string>
     <string name="today_work_ready_in">{place}, nivel {level}, termina en</string>
 </resources>

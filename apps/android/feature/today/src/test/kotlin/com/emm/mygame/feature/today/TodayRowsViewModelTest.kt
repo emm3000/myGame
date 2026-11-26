@@ -3,6 +3,7 @@ package com.emm.mygame.feature.today
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal
 import com.emm.mygame.core.model.town.building.TownWorkResult
@@ -90,6 +91,20 @@ class TodayRowsViewModelTest {
 
         assertEquals(
             listOf<BlockReason>(BlockReason.PeopleShort(needed = 5, free = 4)),
+            contentOf(viewModel).locked.map(TodayUiState.Locked::block),
+        )
+    }
+
+    @Test
+    fun `a next level short of words is Locked with the words needed and held`() = runTest {
+        val shortOfWords: TownSnapshot.WordsNeeded = TownSnapshot.WordsNeeded(5, NeededWordKind.Retained, held = 2)
+
+        val viewModel: TodayViewModel = shownOn(
+            townWith(nextLevelOf(TownBuildingKind.Homes, money = 50, wordsNeeded = shortOfWords)),
+        )
+
+        assertEquals(
+            listOf<BlockReason>(BlockReason.WordsShort(needed = 5, held = 2, standing = NeededWordKind.Retained)),
             contentOf(viewModel).locked.map(TodayUiState.Locked::block),
         )
     }
