@@ -72,6 +72,30 @@ class MyGameColorsContrastTest {
     }
 
     @Test
+    fun `on-block reads on an achievement's block-peach at twelve to one in both themes`() {
+        assertEquals(
+            listOf("light $ACHIEVEMENT_TEXT 12.04", "dark $ACHIEVEMENT_TEXT 12.04"),
+            measuredRatiosOf(PairKind.Text, ACHIEVEMENT_TEXT),
+        )
+    }
+
+    @Test
+    fun `on-block-muted reads on an achievement's block-peach at six to one in both themes`() {
+        assertEquals(
+            listOf("light $ACHIEVEMENT_MUTED 6.32", "dark $ACHIEVEMENT_MUTED 6.32"),
+            measuredRatiosOf(PairKind.Text, ACHIEVEMENT_MUTED),
+        )
+    }
+
+    @Test
+    fun `an achievement's seal reads as a graphic on block-peach in both themes`() {
+        assertEquals(
+            listOf("light $ACHIEVEMENT_SEAL 12.04", "dark $ACHIEVEMENT_SEAL 12.04"),
+            measuredRatiosOf(PairKind.Graphic, ACHIEVEMENT_SEAL),
+        )
+    }
+
+    @Test
     fun `exempts only a pair that falls under its minimum in some theme`() {
         val needlessExemptions: List<String> = pairs
             .filter { pair: ColorPair -> pair.exemption != null }
@@ -112,6 +136,12 @@ private const val GO_ON_DOCK: String = "the go button on the dock"
 private const val GO_ON_SUNKEN: String = "the go button on a sunken ground"
 
 private const val NEXT_STEP_DOT: String = "the next step's dot on the strip"
+
+private const val ACHIEVEMENT_TEXT: String = "an achievement's text"
+
+private const val ACHIEVEMENT_MUTED: String = "an achievement's muted text"
+
+private const val ACHIEVEMENT_SEAL: String = "an achievement's seal"
 
 private const val OUTLINED_ON_PAGE: String = "MyGameOutlinedButton edge on the page"
 
@@ -194,6 +224,9 @@ private val pairs: List<ColorPair> = listOf(
     ColorPair(PairKind.Boundary, { it.go }, { it.surfaceRaised }, GO_ON_DOCK),
     ColorPair(PairKind.Boundary, { it.go }, { it.surfaceSunken }, GO_ON_SUNKEN),
     ColorPair(PairKind.Graphic, { it.go }, { it.surface }, NEXT_STEP_DOT),
+    ColorPair(PairKind.Text, { it.onBlock }, { it.blockPeach }, ACHIEVEMENT_TEXT),
+    ColorPair(PairKind.Text, { it.onBlockMuted }, { it.blockPeach }, ACHIEVEMENT_MUTED),
+    ColorPair(PairKind.Graphic, { it.onBlock }, { it.blockPeach }, ACHIEVEMENT_SEAL),
     ColorPair(PairKind.Boundary, { it.action }, { it.surface }, "MyGameSwitchRow track, on"),
     ColorPair(PairKind.Graphic, { it.onAction }, { it.action }, "MyGameSwitchRow thumb, on"),
     ColorPair(PairKind.Boundary, { it.lineStrong }, { it.surface }, "MyGameSwitchRow track and thumb, off"),
