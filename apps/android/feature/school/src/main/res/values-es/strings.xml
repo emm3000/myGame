@@ -62,7 +62,6 @@
     <string name="school_skills">Tus habilidades</string>
     <string name="school_skills_none">Aún no tienes habilidades.</string>
     <string name="school_slot_done">La lección está lista. Estamos leyendo tu pueblo otra vez…</string>
-    <string name="school_slot_idle">Ahora no hay ninguna lección en estudio.</string>
     <string name="school_slot_refund">Si lo paras, la lección queda por estudiar y puedes volver a empezarla.</string>
     <string name="school_slot_stop">Parar el estudio</string>
     <string name="school_slot_stop_of">Parar el estudio de la lección {number}</string>

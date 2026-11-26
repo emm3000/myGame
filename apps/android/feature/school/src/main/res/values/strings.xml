@@ -62,7 +62,6 @@
     <string name="school_skills">Your skills</string>
     <string name="school_skills_none">You have no skills.</string>
     <string name="school_slot_done">The lesson is done. Reading your town again…</string>
-    <string name="school_slot_idle">No lesson now.</string>
     <string name="school_slot_refund">Stop it and you can study it again.</string>
     <string name="school_slot_stop">Stop studying</string>
     <string name="school_slot_stop_of">Stop studying lesson {number}</string>

@@ -447,7 +447,12 @@ class SchoolScreenTest {
 
     @Test
     fun `marks a running lesson and offers no button`() {
-        show(idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Studying))))
+        show(
+            idleSchool.copy(
+                slot = SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 1.minutes, total = 150.seconds),
+                lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Studying)),
+            ),
+        )
 
         composeRule.onAllNodesWithText("Estudiar la lección 1", substring = true).assertCountEquals(0)
         composeRule.onAllNodesWithText("En estudio").assertCountEquals(2)

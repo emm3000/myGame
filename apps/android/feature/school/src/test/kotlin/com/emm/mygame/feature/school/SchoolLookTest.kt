@@ -428,7 +428,9 @@ class SchoolLookTest {
     fun `opens the running lesson from the nav row under another lesson's block`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).performClick()
+        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
 
         assertEquals(listOf(firstLesson), lessonOpens)
     }
