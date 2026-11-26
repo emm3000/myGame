@@ -29,6 +29,7 @@ import retrofit2.Response
 
 internal class ApiLearningRepository(
     private val api: DefaultApi,
+    private val answeringApi: DefaultApi,
     private val studyAnswers: StudyAnswers,
     private val ioDispatcher: CoroutineDispatcher,
 ) : LearningRepository {
@@ -57,7 +58,7 @@ internal class ApiLearningRepository(
     override suspend fun answer(word: WordId, answer: String): ReviewAnswerResult =
         withContext(ioDispatcher) {
             try {
-                val response: Response<ReviewAnswer> = api.reviewsWordIdAnswerPost(
+                val response: Response<ReviewAnswer> = answeringApi.reviewsWordIdAnswerPost(
                     wordId = word.value,
                     reviewAnswerRequest = ReviewAnswerRequest(answer = answer),
                 )

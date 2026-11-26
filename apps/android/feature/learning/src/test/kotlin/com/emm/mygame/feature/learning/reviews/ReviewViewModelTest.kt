@@ -395,15 +395,55 @@ class ReviewViewModelTest {
         val learning: FakeLearningRepository = FakeLearningRepository()
         val viewModel: ReviewViewModel = openReview(learning)
         learning.answerRead(dueNow(homeRecall))
-        learning.answerReview(ReviewAnswerResult.Refused(ReviewRefusal.ReviewNotDue))
+        learning.answerReview(ReviewAnswerResult.Refused(ReviewRefusal.WordNotHeld))
 
         viewModel.state.test {
             awaitReviewing()
             viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
             viewModel.onIntent(ReviewIntent.CheckTapped)
             assertEquals(
-                ReviewUiState.ReviewStep.Refused(ReviewRefusal.ReviewNotDue),
+                ReviewUiState.ReviewStep.Refused(ReviewRefusal.WordNotHeld),
                 awaitStep { it is ReviewUiState.ReviewStep.Refused }.step,
+            )
+        }
+    }
+
+    @Test
+    fun `rereads the reviews and draws the next due card when the api answers the card is not due`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Refused(ReviewRefusal.ReviewNotDue))
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it == ReviewUiState.ReviewStep.Checking }
+            val next: ReviewUiState.Reviewing = awaitReviewing()
+            assertEquals(schoolRecognition.wordId, next.card.wordId)
+            assertEquals(ReviewUiState.ReviewStep.Answering, next.step)
+        }
+        assertEquals(2, learning.readCount)
+    }
+
+    @Test
+    fun `rereads the reviews and draws the end when the api answers the last card is not due`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall))
+        learning.answerReview(ReviewAnswerResult.Refused(ReviewRefusal.ReviewNotDue))
+        learning.answerRead(nothingDueUntil(firstReadAt + 9.minutes))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            runCurrent()
+            assertEquals(
+                ReviewUiState.NothingDue(dueAt = firstReadAt + 9.minutes, path = null),
+                expectMostRecentItem(),
             )
         }
     }
@@ -421,6 +461,26 @@ class ReviewViewModelTest {
             viewModel.onIntent(ReviewIntent.CheckTapped)
             awaitStep { it == ReviewUiState.ReviewStep.Unreachable }
         }
+    }
+
+    @Test
+    fun `rereads the reviews instead of resending an answer that could not reach the api`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val viewModel: ReviewViewModel = openReview(learning)
+        learning.answerRead(dueNow(homeRecall, schoolRecognition))
+        learning.answerReview(ReviewAnswerResult.Unreachable)
+        learning.answerRead(dueNow(schoolRecognition))
+
+        viewModel.state.test {
+            awaitReviewing()
+            viewModel.onIntent(ReviewIntent.AnswerChanged("home"))
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            awaitStep { it == ReviewUiState.ReviewStep.Unreachable }
+            viewModel.onIntent(ReviewIntent.CheckTapped)
+            assertEquals(schoolRecognition.wordId, awaitReviewing().card.wordId)
+        }
+        assertEquals(1, learning.answers.size)
+        assertEquals(2, learning.readCount)
     }
 
     @Test

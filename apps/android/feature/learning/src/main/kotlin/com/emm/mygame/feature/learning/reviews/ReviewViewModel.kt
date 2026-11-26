@@ -8,6 +8,7 @@ import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.ReviewAnswerResult
 import com.emm.mygame.core.model.learning.ReviewHintResult
+import com.emm.mygame.core.model.learning.ReviewRefusal
 import com.emm.mygame.core.model.learning.ReviewVerdict
 import com.emm.mygame.core.model.learning.ReviewsReadResult
 import com.emm.mygame.core.model.town.HeldTown
@@ -189,11 +190,13 @@ class ReviewViewModel(
 
     private fun check() {
         val reviewing: ReviewUiState.Reviewing = answerable() ?: return
+        if (reviewing.step == ReviewUiState.ReviewStep.Unreachable) return open()
         val answer: String = reviewing.card.sentAnswer() ?: return
         _state.value = reviewing.copy(step = ReviewUiState.ReviewStep.Checking)
         viewModelScope.launch {
             when (val result: ReviewAnswerResult = learning.answer(reviewing.card.wordId, answer)) {
                 is ReviewAnswerResult.Answered -> rated(reviewing.card, result.verdict)
+                ReviewAnswerResult.Refused(ReviewRefusal.ReviewNotDue) -> open()
                 is ReviewAnswerResult.Refused -> stepTo(ReviewUiState.ReviewStep.Refused(result.refusal))
                 ReviewAnswerResult.Unreachable -> stepTo(ReviewUiState.ReviewStep.Unreachable)
             }

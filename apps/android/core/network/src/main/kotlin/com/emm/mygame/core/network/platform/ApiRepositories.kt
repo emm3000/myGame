@@ -98,6 +98,7 @@ class ApiRepositories internal constructor(
     val learning: LearningRepository by lazy {
         ApiLearningRepository(
             api = newSignedInApi(),
+            answeringApi = endpoint.unretriedSignedInApi(tokenStore = tokenStore, sessionEnds = sessionEnds),
             studyAnswers = studyAnswers,
             ioDispatcher = ioDispatcher,
         )
@@ -134,11 +135,19 @@ private val signOutTimeout: Duration = 5.seconds
 
 private val okHttpDefaults: () -> OkHttpClient.Builder = OkHttpClient::Builder
 
-private fun ApiEndpoint.signedInApi(tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi {
+private fun ApiEndpoint.signedInApi(tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi =
+    defaultApi(client = signedInClient(tokenStore = tokenStore, sessionEnds = sessionEnds))
+
+private fun ApiEndpoint.unretriedSignedInApi(tokenStore: TokenStore, sessionEnds: SessionEnds): DefaultApi {
+    val signedIn: OkHttpClient = signedInClient(tokenStore = tokenStore, sessionEnds = sessionEnds)
+    return defaultApi(client = signedIn.newBuilder().retryOnConnectionFailure(false).build())
+}
+
+private fun ApiEndpoint.signedInClient(tokenStore: TokenStore, sessionEnds: SessionEnds): OkHttpClient {
     val bearer: BearerInterceptor = BearerInterceptor(tokenStore = tokenStore) { refusedToken: String ->
         if (tokenStore.clearIfHolding(refusedToken)) sessionEnds.report()
     }
-    return defaultApi(client = bearerClient(bearer = bearer, callTimeout = Duration.ZERO))
+    return bearerClient(bearer = bearer, callTimeout = Duration.ZERO)
 }
 
 private fun ApiEndpoint.signOutApi(tokenStore: TokenStore, callTimeout: Duration): DefaultApi {
