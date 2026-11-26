@@ -67,7 +67,6 @@ class SchoolScreenTest {
         readyLesson.copy(lesson = secondLesson, number = 2, theme = "Work and money")
 
     private val idleSchool: SchoolUiState.Content = SchoolUiState.Content(
-        schoolLevel = 1,
         learning = SchoolUiState.LearningLine(
             inLearning = 0,
             cap = 10,
@@ -221,14 +220,6 @@ class SchoolScreenTest {
         composeRule.onNodeWithText("Volver a intentarlo").performClick()
 
         assertEquals(listOf<SchoolIntent>(SchoolIntent.RetryTapped), intents)
-    }
-
-    @Test
-    fun `names the school with its level`() {
-        show(idleSchool.copy(schoolLevel = 2))
-
-        composeRule.onNodeWithText("Escuela").assertIsDisplayed()
-        composeRule.onNodeWithText("Nivel 2").assertIsDisplayed()
     }
 
     @Test

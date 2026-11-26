@@ -4,7 +4,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -23,14 +22,11 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownSnapshot
-import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
 internal fun SchoolScreen(
@@ -125,7 +121,7 @@ private fun SchoolContent(
 ) {
     val shown: SchoolUiState.LessonCard? = content.blockLesson
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        SchoolTitle(level = content.schoolLevel)
+        SchoolTitle()
         holdoutChecks()
         shown?.let { card: SchoolUiState.LessonCard ->
             ShownLesson(card = card, content = content, onIntent = onIntent, onLessonOpen = onLessonOpen)
@@ -175,24 +171,11 @@ private fun HoldoutNote(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SchoolTitle(modifier: Modifier = Modifier, level: Int? = null) {
-    val copy: PlayerCopy = rememberPlayerCopy()
-    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(
-            label = copy.chrome(R.string.school_title),
-            style = MyGameTypography.display,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier
-                .alignByBaseline()
-                .semantics { heading() },
-        )
-        if (level != null) {
-            MyGameText(
-                label = copy.chrome(R.string.school_level, "level" to level.toString()),
-                style = MyGameTypography.caption.withTabularFigures(),
-                color = MyGameTheme.colors.inkMuted,
-                modifier = Modifier.alignByBaseline(),
-            )
-        }
-    }
+private fun SchoolTitle(modifier: Modifier = Modifier) {
+    MyGameText(
+        label = chromeResource(R.string.school_title),
+        style = MyGameTypography.display,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier.semantics { heading() },
+    )
 }

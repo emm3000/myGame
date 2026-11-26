@@ -74,7 +74,7 @@ class SchoolViewModelTest {
         advanceTimeBy(1.minutes)
         runCurrent()
 
-        assertEquals(1, contentOf(viewModel).schoolLevel)
+        assertEquals(10, contentOf(viewModel).learning.cap)
     }
 
     @Test
@@ -87,7 +87,7 @@ class SchoolViewModelTest {
         viewModel.onIntent(SchoolIntent.RetryTapped)
         runCurrent()
 
-        assertEquals(1, contentOf(viewModel).schoolLevel)
+        assertEquals(10, contentOf(viewModel).learning.cap)
     }
 
     @Test
@@ -133,13 +133,6 @@ class SchoolViewModelTest {
         val viewModel: SchoolViewModel = schoolReading(townOf(bandLines = listOf(firstBand)))
 
         assertEquals(listOf(firstBand), contentOf(viewModel).bandLines)
-    }
-
-    @Test
-    fun `draws the level of the school`() = runTest {
-        val viewModel: SchoolViewModel = schoolReading(townOf(schoolLevel = 3))
-
-        assertEquals(3, contentOf(viewModel).schoolLevel)
     }
 
     @Test

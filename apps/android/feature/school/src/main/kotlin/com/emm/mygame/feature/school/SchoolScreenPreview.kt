@@ -72,7 +72,6 @@ private val previewReleasedNext: SchoolUiState.ReleasedLessonCard = previewRelea
 )
 
 private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
-    schoolLevel = 1,
     learning = SchoolUiState.LearningLine(
         inLearning = 3,
         cap = 10,

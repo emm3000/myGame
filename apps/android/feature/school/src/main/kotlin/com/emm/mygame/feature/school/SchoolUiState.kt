@@ -19,7 +19,6 @@ sealed interface SchoolUiState {
     data object Failed : SchoolUiState
 
     data class Content(
-        val schoolLevel: Int,
         val learning: LearningLine,
         val slot: SlotLine,
         val skills: List<SkillLine>,
