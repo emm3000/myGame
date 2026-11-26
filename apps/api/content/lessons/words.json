@@ -6454,5 +6454,387 @@
       "es": "mucho"
     },
     "definition": "often, or very much"
+  },
+  {
+    "id": "word-281",
+    "lemma": "round",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Our team is in the next round!",
+        "gappedFrame": "Our team is in the next ____!"
+      }
+    ],
+    "gloss": {
+      "es": "ronda"
+    },
+    "definition": "one part of a game; the teams that win it go on to the next part"
+  },
+  {
+    "id": "word-282",
+    "lemma": "guy",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "He's a nice guy.",
+        "gappedFrame": "He's a nice ____."
+      }
+    ],
+    "gloss": {
+      "es": "tipo"
+    },
+    "definition": "a man, in the way people say it when they talk"
+  },
+  {
+    "id": "word-283",
+    "lemma": "watch",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Do you want to watch the news?",
+        "gappedFrame": "Do you want to ____ the news?"
+      }
+    ],
+    "gloss": {
+      "es": "ver"
+    },
+    "definition": "to look at something for a time, to see what happens"
+  },
+  {
+    "id": "word-284",
+    "lemma": "deal",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Okay, if you help me, it's a deal.",
+        "gappedFrame": "Okay, if you help me, it's a ____."
+      }
+    ],
+    "gloss": {
+      "es": "trato"
+    },
+    "definition": "a plan that 2 people agree on, where each one does something"
+  },
+  {
+    "id": "word-285",
+    "lemma": "already",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Thanks, but I already have one.",
+        "gappedFrame": "Thanks, but I ____ have one.",
+        "noCardSense": ["one"]
+      }
+    ],
+    "gloss": {
+      "es": "ya"
+    },
+    "definition": "before now, or before you think"
+  },
+  {
+    "id": "word-286",
+    "lemma": "whole",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "The whole town knows about it.",
+        "gappedFrame": "The ____ town knows about it."
+      }
+    ],
+    "gloss": {
+      "es": "entero"
+    },
+    "definition": "all of something, with no part left out"
+  },
+  {
+    "id": "word-287",
+    "lemma": "walk",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Do you want to walk to the river?",
+        "gappedFrame": "Do you want to ____ to the river?"
+      }
+    ],
+    "gloss": {
+      "es": "caminar"
+    },
+    "definition": "to move on your feet, not fast"
+  },
+  {
+    "id": "word-288",
+    "lemma": "far",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Is the farm far from here?",
+        "gappedFrame": "Is the farm ____ from here?"
+      }
+    ],
+    "gloss": {
+      "es": "lejos"
+    },
+    "definition": "a long way from a place"
+  },
+  {
+    "id": "word-289",
+    "lemma": "couple",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I'll be back in a couple of days.",
+        "gappedFrame": "I'll be back in a ____ of days."
+      }
+    ],
+    "gloss": {
+      "es": "un par"
+    },
+    "definition": "used before of: 2, or a small number"
+  },
+  {
+    "id": "word-290",
+    "lemma": "ever",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Have you ever been to the city?",
+        "gappedFrame": "Have you ____ been to the city?"
+      }
+    ],
+    "gloss": {
+      "es": "alguna vez"
+    },
+    "definition": "at any time"
+  },
+  {
+    "id": "word-291",
+    "lemma": "whether",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I'm not sure whether she's in town.",
+        "gappedFrame": "I'm not sure ____ she's in town."
+      }
+    ],
+    "gloss": {
+      "es": "si"
+    },
+    "definition": "used when there are 2 things that could be true, and you do not know which"
+  },
+  {
+    "id": "word-292",
+    "lemma": "room",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Your room is ready.",
+        "gappedFrame": "Your ____ is ready."
+      }
+    ],
+    "gloss": {
+      "es": "cuarto"
+    },
+    "definition": "a part of a house with walls around it, such as the place where you sleep"
+  },
+  {
+    "id": "word-293",
+    "lemma": "stay",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Can you stay for a bit?",
+        "gappedFrame": "Can you ____ for a bit?"
+      }
+    ],
+    "gloss": {
+      "es": "quedarse"
+    },
+    "definition": "to not leave a place, or to live in a place for a short time"
+  },
+  {
+    "id": "word-294",
+    "lemma": "please",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Please come in.",
+        "gappedFrame": "____ come in."
+      }
+    ],
+    "gloss": {
+      "es": "por favor"
+    },
+    "definition": "a word you say when you ask for something, to be nice"
+  },
+  {
+    "id": "word-295",
+    "lemma": "nothing",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I have nothing to do today.",
+        "gappedFrame": "I have ____ to do today."
+      }
+    ],
+    "gloss": {
+      "es": "nada"
+    },
+    "definition": "not anything"
+  },
+  {
+    "id": "word-296",
+    "lemma": "whatever",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "We can do whatever you want.",
+        "gappedFrame": "We can do ____ you want."
+      }
+    ],
+    "gloss": {
+      "es": "lo que sea"
+    },
+    "definition": "anything at all, when it does not matter what"
+  },
+  {
+    "id": "word-297",
+    "lemma": "eat",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "When do you want to eat?",
+        "gappedFrame": "When do you want to ____?"
+      }
+    ],
+    "gloss": {
+      "es": "comer"
+    },
+    "definition": "to take food into your body"
+  },
+  {
+    "id": "word-298",
+    "lemma": "mind",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Do you mind if I sit here?",
+        "gappedFrame": "Do you ____ if I sit here?"
+      }
+    ],
+    "gloss": {
+      "es": "importar"
+    },
+    "definition": "to feel that something is a problem for you"
+  },
+  {
+    "id": "word-299",
+    "lemma": "ago",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I saw her a week ago.",
+        "gappedFrame": "I saw her a week ____."
+      }
+    ],
+    "gloss": {
+      "es": "hace"
+    },
+    "definition": "before now; used after an amount of time, such as a week"
+  },
+  {
+    "id": "word-300",
+    "lemma": "exactly",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "That's exactly what I need.",
+        "gappedFrame": "That's ____ what I need."
+      }
+    ],
+    "gloss": {
+      "es": "exactamente"
+    },
+    "definition": "no more and no less; with nothing different"
+  },
+  {
+    "id": "word-301",
+    "lemma": "get up",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "When I get up, I eat and go to the farm.",
+        "gappedFrame": "When I ____ ____, I eat and go to the farm."
+      }
+    ],
+    "gloss": {
+      "es": "levantarse"
+    },
+    "definition": "to stand up, or to leave your bed after you sleep"
+  },
+  {
+    "id": "word-302",
+    "lemma": "go down",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Go down the hill to the river.",
+        "gappedFrame": "____ ____ the hill to the river."
+      }
+    ],
+    "gloss": {
+      "es": "bajar"
+    },
+    "definition": "to move to a lower place"
+  },
+  {
+    "id": "word-303",
+    "lemma": "show up",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "You can't just show up at my house!",
+        "gappedFrame": "You can't just ____ ____ at my house!",
+        "noCardSense": ["just"]
+      }
+    ],
+    "gloss": {
+      "es": "aparecer"
+    },
+    "definition": "to come to a place or an event, often when people are not sure you will come"
+  },
+  {
+    "id": "word-304",
+    "lemma": "or whatever",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "We can eat, watch the news, or whatever.",
+        "gappedFrame": "We can eat, watch the news, ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "o lo que sea"
+    },
+    "definition": "or something like that, when it does not matter what"
+  },
+  {
+    "id": "word-305",
+    "lemma": "to do with",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "What does that have to do with me?",
+        "gappedFrame": "What does that have ____ ____ ____ me?"
+      }
+    ],
+    "gloss": {
+      "es": "que ver con"
+    },
+    "definition": "used after have, to say that one thing is about another thing or is part of it"
   }
 ]
