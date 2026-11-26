@@ -11,6 +11,7 @@ import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.projection.town.building.StartStatus
+import com.emm.mygame.core.ui.ReadingSpan
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +37,7 @@ class TodayKeepGoingScreenTest {
     fun `a tapped frame word draws its on-tap support`() {
         val riverTapped: TodayUiState.KeepGoing.Frames = TodayUiState.KeepGoing.Frames(
             sentences = listOf(onTapFrame),
-            tapped = TodayUiState.SpanAt(sentence = 0, span = 1),
+            tapped = ReadingSpan(sentence = 0, span = 1),
         )
 
         show(contentWith(riverTapped))

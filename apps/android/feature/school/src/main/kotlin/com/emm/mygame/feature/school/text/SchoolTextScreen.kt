@@ -24,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.ui.ReadingBlock
 import com.emm.mygame.core.ui.ReadingSentences
+import com.emm.mygame.core.ui.ReadingSpan
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.school.R
@@ -101,12 +102,8 @@ private fun TextReading(
         )
         ReadingBlock(
             sentences = ReadingSentences(reading.text.sentences),
-            openSentence = reading.tapped?.sentence,
-            openSpan = reading.tapped?.span,
-            openSupport = reading.openSupport,
-            onSpanTap = { sentence: Int, span: Int ->
-                onIntent(SchoolTextIntent.WordTapped(SchoolTextUiState.SpanAt(sentence, span)))
-            },
+            tapped = reading.tapped,
+            onSpanTap = { at: ReadingSpan -> onIntent(SchoolTextIntent.WordTapped(at)) },
         )
     }
 }

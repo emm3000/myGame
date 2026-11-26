@@ -2,6 +2,8 @@ package com.emm.mygame.feature.school.text
 
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.OpenText
+import com.emm.mygame.core.ui.ReadingSpan
+import com.emm.mygame.core.ui.supportOpenAt
 
 sealed interface SchoolTextUiState {
 
@@ -11,16 +13,9 @@ sealed interface SchoolTextUiState {
 
     data object NotOpen : SchoolTextUiState
 
-    data class Reading(val text: OpenText, val tapped: SpanAt?) : SchoolTextUiState {
+    data class Reading(val text: OpenText, val tapped: ReadingSpan?) : SchoolTextUiState {
 
         val openSupport: WordSupport?
-            get() = tapped?.let(::supportAt)?.takeIf(::isOnTap)
-
-        private fun supportAt(at: SpanAt): WordSupport? =
-            text.sentences.getOrNull(at.sentence)?.getOrNull(at.span)?.support
-
-        private fun isOnTap(support: WordSupport): Boolean = support.shown == WordSupport.Shown.OnTap
+            get() = text.sentences.supportOpenAt(tapped)
     }
-
-    data class SpanAt(val sentence: Int, val span: Int)
 }

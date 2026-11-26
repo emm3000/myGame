@@ -6,6 +6,8 @@ import com.emm.mygame.core.model.learning.KeepGoingResult
 import com.emm.mygame.core.model.learning.KeepGoingWord
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.NextStepText
+import com.emm.mygame.core.ui.ReadingSpan
+import com.emm.mygame.core.ui.afterTapOn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -21,7 +23,7 @@ internal class TodayFrames(
 
     private var sentences: List<List<FrameSpan>> = emptyList()
 
-    private var tapped: TodayUiState.SpanAt? = null
+    private var tapped: ReadingSpan? = null
 
     private var reading: Job? = null
 
@@ -41,8 +43,8 @@ internal class TodayFrames(
         isFresh = false
     }
 
-    fun tap(at: TodayUiState.SpanAt) {
-        tapped = at
+    fun tap(at: ReadingSpan) {
+        tapped = tapped.afterTapOn(at)
         onChange()
     }
 

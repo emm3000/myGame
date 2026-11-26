@@ -9,6 +9,7 @@ import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.OpenText
+import com.emm.mygame.core.ui.ReadingSpan
 
 private fun previewSupport(shown: WordSupport.Shown, text: String, language: WordSupport.Language): WordSupport =
     WordSupport(shown = shown, text = text, language = language)
@@ -48,8 +49,8 @@ private class SchoolTextUiStates : PreviewParameterProvider<SchoolTextUiState> {
 
     override val values: Sequence<SchoolTextUiState> = sequenceOf(
         SchoolTextUiState.Reading(previewText, tapped = null),
-        SchoolTextUiState.Reading(previewText, tapped = SchoolTextUiState.SpanAt(sentence = 1, span = 1)),
-        SchoolTextUiState.Reading(previewText, tapped = SchoolTextUiState.SpanAt(sentence = 2, span = 1)),
+        SchoolTextUiState.Reading(previewText, tapped = ReadingSpan(sentence = 1, span = 1)),
+        SchoolTextUiState.Reading(previewText, tapped = ReadingSpan(sentence = 2, span = 1)),
         SchoolTextUiState.NotOpen,
         SchoolTextUiState.Loading,
         SchoolTextUiState.Failed,

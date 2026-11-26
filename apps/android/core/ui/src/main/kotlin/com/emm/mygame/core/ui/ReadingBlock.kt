@@ -13,20 +13,19 @@ import com.emm.mygame.core.model.learning.WordSupport
 @Composable
 fun ReadingBlock(
     sentences: ReadingSentences,
-    openSentence: Int?,
-    openSpan: Int?,
-    openSupport: WordSupport?,
-    onSpanTap: (sentence: Int, span: Int) -> Unit,
+    tapped: ReadingSpan?,
+    onSpanTap: (ReadingSpan) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val openSupport: WordSupport? = sentences.sentences.supportOpenAt(tapped)
     MyGameBlock(hue = MyGameBlockHue.Peach, modifier = modifier) {
         sentences.sentences.forEachIndexed { sentence: Int, spans: List<FrameSpan> ->
-            val tappedSpan: Int? = openSpan.takeIf { sentence == openSentence }
+            val tappedSpan: Int? = tapped?.takeIf { at: ReadingSpan -> at.sentence == sentence }?.span
             MyGameFrameText(
                 frame = spans.toMyGameFrame(),
                 openPiece = tappedSpan,
                 style = MyGameTypography.reading,
-                onPieceTap = { span: Int -> onSpanTap(sentence, span) },
+                onPieceTap = { span: Int -> onSpanTap(ReadingSpan(sentence, span)) },
             )
             if (tappedSpan != null) {
                 openSupport?.let { support: WordSupport -> MyGameSupportLine(support = support.toMyGameSupport()) }

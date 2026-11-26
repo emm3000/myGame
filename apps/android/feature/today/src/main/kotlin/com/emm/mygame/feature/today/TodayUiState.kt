@@ -14,6 +14,8 @@ import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.core.projection.town.building.NextLevelLine
 import com.emm.mygame.core.projection.town.building.StartStatus
+import com.emm.mygame.core.ui.ReadingSpan
+import com.emm.mygame.core.ui.supportOpenAt
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -42,19 +44,12 @@ sealed interface TodayUiState {
 
         data class Text(val text: TextId, val title: String) : KeepGoing
 
-        data class Frames(val sentences: List<List<FrameSpan>>, val tapped: SpanAt?) : KeepGoing {
+        data class Frames(val sentences: List<List<FrameSpan>>, val tapped: ReadingSpan?) : KeepGoing {
 
             val openSupport: WordSupport?
-                get() = tapped?.let(::supportAt)?.takeIf(::isOnTap)
-
-            private fun supportAt(at: SpanAt): WordSupport? =
-                sentences.getOrNull(at.sentence)?.getOrNull(at.span)?.support
-
-            private fun isOnTap(support: WordSupport): Boolean = support.shown == WordSupport.Shown.OnTap
+                get() = sentences.supportOpenAt(tapped)
         }
     }
-
-    data class SpanAt(val sentence: Int, val span: Int)
 
     enum class Eyebrow { StartHere, WhatIsNext }
 

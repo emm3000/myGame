@@ -4,12 +4,13 @@ import app.cash.turbine.test
 import com.emm.mygame.core.model.town.TownTextResult
 import com.emm.mygame.core.testing.FakeTownTextRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
-import kotlinx.coroutines.test.runCurrent
-import kotlinx.coroutines.test.runTest
+import com.emm.mygame.core.ui.ReadingSpan
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 
 class SchoolTextViewModelTest {
 
@@ -104,7 +105,7 @@ class SchoolTextViewModelTest {
     fun `opens no support for a word glossed beside it`() = runTest {
         val viewModel: SchoolTextViewModel = schoolTextReadingFrom(texts, courseText)
 
-        viewModel.onIntent(SchoolTextIntent.WordTapped(SchoolTextUiState.SpanAt(sentence = 0, span = 1)))
+        viewModel.onIntent(SchoolTextIntent.WordTapped(ReadingSpan(sentence = 0, span = 1)))
 
         assertNull((viewModel.state.value as SchoolTextUiState.Reading).openSupport)
     }
