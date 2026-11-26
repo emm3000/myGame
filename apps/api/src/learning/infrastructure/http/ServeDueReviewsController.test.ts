@@ -54,7 +54,7 @@ describe('the learning routes', () => {
       assert(recognition.mode === 'recognition')
       expect([recognition.word, recognition.frame]).toEqual([
         'school',
-        [{ text: 'We are at school.', support: null }],
+        [{ text: "We're at school.", support: null }],
       ])
       expect(recognition.choices.map(({ gloss }) => gloss).sort()).toEqual([
         'comida',
@@ -113,7 +113,7 @@ describe('the learning routes', () => {
         lessonId: 'lesson-1',
         dueAt: firstRecallAt,
         gloss: 'escuela',
-        gappedFrame: [{ text: 'We are at ____.', support: null }],
+        gappedFrame: [{ text: "We're at ____.", support: null }],
       })
       expect(recalls.map(({ mode }) => mode)).toEqual(wordIds.map(() => 'recall'))
       expect(wordIds.filter((wordId) => body.includes(`"${lemmaOf(wordId)}"`))).toEqual([])
@@ -182,7 +182,7 @@ describe('the learning routes', () => {
       const statuses = (await Promise.all([first, second])).map(({ status }) => status)
 
       expect(statuses).toEqual([200, 200])
-      expect(await pendingFramesOf('lesson-1-2')).toEqual(['We are at school.'])
+      expect(await pendingFramesOf('lesson-1-2')).toEqual(["We're at school."])
     })
   })
 })

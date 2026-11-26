@@ -47,7 +47,7 @@ describe('the recall frames the Report shows', () => {
     await placeOutOfBandOne()
 
     expect(await recallOfSchool(player)).toMatchObject({
-      gappedFrame: [{ text: 'We are at ____.', support: null }],
+      gappedFrame: [{ text: "We're at ____.", support: null }],
     })
   })
 })

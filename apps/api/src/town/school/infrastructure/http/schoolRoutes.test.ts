@@ -69,7 +69,7 @@ describe('the school routes', () => {
         standing: 'notStarted',
         reading: {
           word: 'school',
-          frame: [{ text: 'We are at school.', support: null }],
+          frame: [{ text: "We're at school.", support: null }],
         },
         support: { shown: 'beside', text: 'escuela', language: 'es' },
       })
@@ -86,7 +86,7 @@ describe('the school routes', () => {
         standing: 'notStarted',
         reading: {
           word: 'school',
-          frame: [{ text: 'We are at school.', support: null }],
+          frame: [{ text: "We're at school.", support: null }],
         },
         support: { shown: 'beside', text: 'a place where children go to learn', language: 'en' },
       })
