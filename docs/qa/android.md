@@ -251,7 +251,7 @@ Setup: a fresh `none` account with a named town, and a bearer for it
 4. Open the app.
 5. Verify the farm reads level 1, and the food rate is higher than it was before the work.
 6. Verify each of the four stocks drawn matches `GET /town`'s `amount` for that resource, read with the bearer in the same minute, to within one minute's `ratePerHour`.
-7. Open the Report. Verify its news holds `android.report.report_news_building_work_finished`, *Farm: now level 1.* (the place's name as the catalog writes it).
+7. Open the Report. Verify its news holds `android.ui.ui_news_building_work_finished`, *Farm: now level 1.* (the place's name as the catalog writes it).
 
 ### Lessons
 
