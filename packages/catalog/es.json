@@ -447,6 +447,7 @@
   "android.today.today_waiting": "Enviando…",
   "android.today.today_what_is_next": "Tu siguiente paso",
   "android.today.today_while_you_wait": "Mientras esperas",
+  "android.today.today_words_short": "{standing, select, stable {Necesita {needed} palabras fuera de aprendizaje: {held} de {needed}} retained {Necesita {needed} palabras aprendidas: {held} de {needed}} other {Necesita {needed} palabras aprendidas: {held} de {needed}}}",
   "android.today.today_work_ready_in": "{place}, nivel {level}, termina en",
   "android.town.town_amount": "{amount} de {resource}",
   "android.town.town_build": "Construir nivel {level}",

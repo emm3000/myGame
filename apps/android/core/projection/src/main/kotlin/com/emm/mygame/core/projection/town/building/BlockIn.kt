@@ -11,18 +11,28 @@ fun NextLevelLine.blockIn(
     drawn: Map<TownResourceKind, Long>,
     now: Instant,
     gap: Duration,
-): BlockReason? {
+): BlockReason? = workBlockIn(town) ?: wordsBlock() ?: resourcesBlockIn(town, drawn, now, gap)
+
+private fun NextLevelLine.workBlockIn(town: TownSnapshot): BlockReason? {
     val work: TownSnapshot.Work = town.work
     if (work.slot != null && work.waitingList.size >= work.cap) return BlockReason.WaitingListFull(work.cap)
-    if (work.slot == null && work.waitingList.isEmpty() && people > town.people.free) {
-        return BlockReason.PeopleShort(needed = people, free = town.people.free)
-    }
+    val isShortOfPeople: Boolean = work.slot == null && work.waitingList.isEmpty() && people > town.people.free
+    return if (isShortOfPeople) BlockReason.PeopleShort(needed = people, free = town.people.free) else null
+}
+
+private fun NextLevelLine.wordsBlock(): BlockReason? = wordsNeeded?.let { words: WordNeedLine ->
+    BlockReason.WordsShort(needed = words.needed, held = words.held, standing = words.standing)
+}
+
+private fun NextLevelLine.resourcesBlockIn(
+    town: TownSnapshot,
+    drawn: Map<TownResourceKind, Long>,
+    now: Instant,
+    gap: Duration,
+): BlockReason? {
     val shortfalls: List<Shortfall> = costs.shortfallsAgainst(drawn)
-    return if (shortfalls.isEmpty()) {
-        null
-    } else {
-        BlockReason.Resources(shortfalls, ready = town.readyTimeOf(costs, now, gap))
-    }
+    if (shortfalls.isEmpty()) return null
+    return BlockReason.Resources(shortfalls, ready = town.readyTimeOf(costs, now, gap))
 }
 
 fun List<CostLine>.shortfallsAgainst(drawn: Map<TownResourceKind, Long>): List<Shortfall> =

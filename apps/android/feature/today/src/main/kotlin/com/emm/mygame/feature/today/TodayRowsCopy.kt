@@ -40,6 +40,12 @@ internal fun PlayerCopy.blockLineOf(block: BlockReason): MyGameLabel = when (blo
         fixedLabel(fixedCopy(R.string.today_refusal_waiting_list_full, "cap" to block.cap))
     is BlockReason.PeopleShort ->
         chrome(R.string.today_people_short, "needed" to block.needed.toString(), "free" to block.free)
+    is BlockReason.WordsShort -> chrome(
+        R.string.today_words_short,
+        "standing" to neededWordSelectorOf(block.standing),
+        "held" to block.held.toString(),
+        "needed" to block.needed.toString(),
+    )
     is BlockReason.Resources -> chrome { shortfallLineOf(block) }
 }
 

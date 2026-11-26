@@ -44,6 +44,7 @@ internal fun nextLevelOf(
     kind: TownBuildingKind,
     money: Long,
     people: Int = 1,
+    wordsNeeded: TownSnapshot.WordsNeeded? = null,
 ): TownSnapshot.Building = TownSnapshot.Building(
     kind = kind,
     level = 1,
@@ -52,7 +53,7 @@ internal fun nextLevelOf(
         costs = listOf(TownSnapshot.Cost(TownResourceKind.Money, money)),
         duration = 3.minutes,
         people = people,
-        wordsNeeded = null,
+        wordsNeeded = wordsNeeded,
     ),
 )
 
