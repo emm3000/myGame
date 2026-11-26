@@ -22,6 +22,7 @@ import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.account.PlayerScaffold
@@ -58,6 +59,7 @@ internal fun SettingsScreen(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
+        if ((state as? SettingsUiState.Loaded)?.reminder?.isOffered == true) ReminderOffer(onIntent = onIntent)
         themeChoice()
         MyGameSkeleton(
             isLoading = state == SettingsUiState.Loading,
@@ -66,7 +68,28 @@ internal fun SettingsScreen(
         ) {
             SettingsState(state = state, onIntent = onIntent, onNotificationSettingsOpen = onNotificationSettingsOpen)
         }
+        SignOut(isBusy = state == SettingsUiState.SigningOut, onIntent = onIntent)
     }
+}
+
+@Composable
+private fun SignOut(isBusy: Boolean, onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
+    MyGameTextLink(
+        label = stringResource(R.string.settings_sign_out),
+        isBusy = isBusy,
+        busyDescription = stringResource(R.string.settings_waiting),
+        onClick = { onIntent(SettingsIntent.SignOutTapped) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun ReminderOffer(onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
+    MyGameTextLink(
+        label = stringResource(R.string.settings_reminder_offer),
+        onClick = { onIntent(SettingsIntent.ReminderSwitched(isOn = true)) },
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -76,7 +99,7 @@ private fun SettingsState(
     onNotificationSettingsOpen: () -> Unit,
 ) {
     when (state) {
-        SettingsUiState.Loading -> Unit
+        SettingsUiState.Loading, SettingsUiState.SigningOut -> Unit
         SettingsUiState.Failed -> MyGameErrorBanner(
             message = stringResource(R.string.settings_failed),
             actionLabel = stringResource(R.string.settings_retry),

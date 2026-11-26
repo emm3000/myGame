@@ -9,6 +9,9 @@ import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.reminder.ReminderNotifications
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.reminder.StudyReminderSettings
+import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.report.ReportRepository
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +25,7 @@ class SettingsViewModel(
     private val playerScaffold: StateFlow<PlayerScaffold?>,
     private val reminders: StudyReminderSettings,
     private val notifications: ReminderNotifications,
+    private val reports: ReportRepository,
 ) : ViewModel() {
 
     private val _state: MutableStateFlow<SettingsUiState> = MutableStateFlow(SettingsUiState.Loading)
@@ -32,13 +36,17 @@ class SettingsViewModel(
 
     val effects: Flow<SettingsEffect> = _effects.receiveAsFlow()
 
+    private var isNothingDue: Boolean = false
+
     init {
         read()
+        viewModelScope.launch { readReviewsDue() }
         viewModelScope.launch { playerScaffold.collect(::holdStored) }
         viewModelScope.launch { reminders.choice.collect { drawReminder(SettingsUiState.NotificationAsk.Untouched) } }
     }
 
     fun onIntent(intent: SettingsIntent) {
+        if (_state.value == SettingsUiState.SigningOut) return
         when (intent) {
             is SettingsIntent.ScaffoldPicked -> change(intent.scaffold)
             SettingsIntent.RetryTapped -> retry()
@@ -46,6 +54,7 @@ class SettingsViewModel(
             is SettingsIntent.NotificationsAnswered -> answerAsk(intent.isGranted)
             is SettingsIntent.ReminderStepped -> stepReminder(intent.step)
             SettingsIntent.ScreenResumed -> drawReminder(shownAsk())
+            SettingsIntent.SignOutTapped -> signOut()
         }
     }
 
@@ -58,13 +67,34 @@ class SettingsViewModel(
         }
     }
 
+    private fun signOut() {
+        viewModelScope.coroutineContext.cancelChildren()
+        _state.value = SettingsUiState.SigningOut
+        viewModelScope.launch {
+            _effects.send(SettingsEffect.SigningOut)
+            sessions.signOut()
+            _effects.send(SettingsEffect.SignedOut)
+        }
+    }
+
+    private suspend fun readReviewsDue() {
+        val answer: ReportReadResult = reports.read()
+        isNothingDue = answer is ReportReadResult.Read && answer.report.dueCount == 0
+        drawReminder(shownAsk())
+    }
+
     private fun reminderAsked(ask: SettingsUiState.NotificationAsk): SettingsUiState.Reminder {
         val choice: StudyReminderChoice = reminders.choice.value
         val isAllowed: Boolean = notifications.areAllowed
         val isShownOn: Boolean = choice.isOn && isAllowed
         val kept: SettingsUiState.NotificationAsk =
             if (isShownOn) SettingsUiState.NotificationAsk.Untouched else askWhileOff(ask, choice.isOn, isAllowed)
-        return SettingsUiState.Reminder(isOn = isShownOn, time = choice.time, ask = kept)
+        return SettingsUiState.Reminder(
+            isOn = isShownOn,
+            time = choice.time,
+            ask = kept,
+            isOffered = isNothingDue && !choice.isOn,
+        )
     }
 
     private fun askWhileOff(

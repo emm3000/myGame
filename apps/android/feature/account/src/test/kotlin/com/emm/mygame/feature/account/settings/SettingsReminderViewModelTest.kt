@@ -6,6 +6,7 @@ import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.testing.FakeReminderNotifications
+import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -25,6 +26,8 @@ class SettingsReminderViewModelTest {
 
     private val heldScaffold: MutableStateFlow<PlayerScaffold?> = MutableStateFlow(PlayerScaffold.Spanish)
 
+    private val reports: FakeReportRepository = FakeReportRepository()
+
     private val askableNotifications: FakeReminderNotifications =
         FakeReminderNotifications(areAllowed = false, canAsk = true)
 
@@ -38,7 +41,7 @@ class SettingsReminderViewModelTest {
         notifications: FakeReminderNotifications = askableNotifications,
     ): SettingsViewModel {
         sessions.answerRestore(RestoreResult.SignedIn(SignedInPlayer("ines@example.com", true, PlayerScaffold.Spanish)))
-        return SettingsViewModel(sessions, heldScaffold, reminders, notifications)
+        return SettingsViewModel(sessions, heldScaffold, reminders, notifications, reports)
     }
 
     private fun reminderOf(viewModel: SettingsViewModel): SettingsUiState.Reminder =

@@ -6,6 +6,7 @@ import com.emm.mygame.core.model.account.ScaffoldChangeResult
 import com.emm.mygame.core.model.account.SignedInPlayer
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.testing.FakeReminderNotifications
+import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -28,9 +29,11 @@ class SettingsViewModelTest {
 
     private val notifications: FakeReminderNotifications = FakeReminderNotifications(areAllowed = false, canAsk = true)
 
+    private val reports: FakeReportRepository = FakeReportRepository()
+
     @Test
     fun `draws loading until the session is read`() = runTest {
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
 
         assertEquals(SettingsUiState.Loading, viewModel.state.value)
     }
@@ -46,7 +49,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session cannot be read`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -55,7 +58,7 @@ class SettingsViewModelTest {
     fun `draws failed when the session names a scaffold the client does not know`() = runTest {
         sessions.answerRestore(sessionWith(scaffold = null))
 
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
 
         assertEquals(SettingsUiState.Failed, viewModel.state.value)
     }
@@ -63,7 +66,7 @@ class SettingsViewModelTest {
     @Test
     fun `reads the session again on retry`() = runTest {
         sessions.answerRestore(RestoreResult.Unreachable)
-        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        val viewModel: SettingsViewModel = SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
         sessions.answerRestore(sessionWith(scaffold = PlayerScaffold.None))
 
         viewModel.onIntent(SettingsIntent.RetryTapped)
@@ -261,7 +264,7 @@ class SettingsViewModelTest {
 
     private fun loaded(scaffold: PlayerScaffold): SettingsViewModel {
         sessions.answerRestore(sessionWith(scaffold))
-        return SettingsViewModel(sessions, playerScaffold, reminders, notifications)
+        return SettingsViewModel(sessions, playerScaffold, reminders, notifications, reports)
     }
 
     private fun stored(scaffold: PlayerScaffold): SettingsUiState =

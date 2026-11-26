@@ -29,6 +29,7 @@ private const val SWITCH_TITLE: String = "Recordatorio de estudio"
 private const val SWITCH_LINE: String =
     "Como mucho una vez al día, cerca de la hora que elijas, cuando pueda haber algo que estudiar."
 private const val OPEN_SETTINGS: String = "Abrir los ajustes de notificaciones"
+private const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
 private const val DENIED_LINE: String =
     "Las notificaciones de Townword están desactivadas en los ajustes del teléfono."
 
@@ -165,5 +166,28 @@ class SettingsReminderScreenTest {
             ReminderStep.entries.map(SettingsIntent::ReminderStepped),
             sentIntents,
         )
+    }
+
+    @Test
+    fun `draws the reminder's offer at the top of Me while it is offered`() {
+        draw(firstReminder.copy(isOffered = true))
+
+        composeRule.onNodeWithText(REMINDER_OFFER).assertIsDisplayed()
+    }
+
+    @Test
+    fun `turns the reminder on from its offer`() {
+        draw(firstReminder.copy(isOffered = true))
+
+        composeRule.onNodeWithText(REMINDER_OFFER).performClick()
+
+        assertEquals(listOf<SettingsIntent>(SettingsIntent.ReminderSwitched(isOn = true)), sentIntents)
+    }
+
+    @Test
+    fun `draws no offer while the reminder is not offered`() {
+        draw(firstReminder)
+
+        composeRule.onAllNodesWithText(REMINDER_OFFER).assertCountEquals(0)
     }
 }

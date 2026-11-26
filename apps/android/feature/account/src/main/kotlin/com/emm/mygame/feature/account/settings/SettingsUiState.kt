@@ -9,6 +9,8 @@ sealed interface SettingsUiState {
 
     data object Failed : SettingsUiState
 
+    data object SigningOut : SettingsUiState
+
     data class Loaded(val stored: PlayerScaffold, val change: Change, val reminder: Reminder) : SettingsUiState {
 
         val shown: PlayerScaffold
@@ -31,7 +33,7 @@ sealed interface SettingsUiState {
         data object Unreachable : Change
     }
 
-    data class Reminder(val isOn: Boolean, val time: LocalTime, val ask: NotificationAsk)
+    data class Reminder(val isOn: Boolean, val time: LocalTime, val ask: NotificationAsk, val isOffered: Boolean)
 
     sealed interface NotificationAsk {
 

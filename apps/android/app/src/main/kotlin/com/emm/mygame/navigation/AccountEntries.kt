@@ -61,6 +61,7 @@ internal fun EntryProviderScope<NavKey>.signedOutEntries(dependencies: AppDepend
 
 internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
+    val navigator: Navigator = chrome.navigator
     entry<Destination.Settings> {
         SignedInFrame(
             kind = FrameKind.Place,
@@ -73,10 +74,13 @@ internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
                 playerScaffold = dependencies.playerScaffold,
                 reminders = dependencies.studyReminders,
                 notifications = dependencies.reminderNotifications,
+                reports = dependencies.reports,
                 themes = dependencies.themes,
                 rememberNotificationAsk = { onAnswer: (Boolean) -> Unit -> rememberNotificationAsk(onAnswer) },
                 navigation = SettingsNavigation(
                     onNotificationSettingsOpen = { context.openNotificationSettings() },
+                    onSigningOut = navigator::signingOut,
+                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
             )
         }

@@ -15,4 +15,6 @@ sealed interface SettingsIntent {
     data class ReminderStepped(val step: ReminderStep) : SettingsIntent
 
     data object ScreenResumed : SettingsIntent
+
+    data object SignOutTapped : SettingsIntent
 }

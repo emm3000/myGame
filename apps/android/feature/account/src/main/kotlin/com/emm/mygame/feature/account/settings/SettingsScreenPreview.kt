@@ -12,6 +12,7 @@ private val previewReminder: SettingsUiState.Reminder = SettingsUiState.Reminder
     isOn = true,
     time = LocalTime.of(19, 0),
     ask = SettingsUiState.NotificationAsk.Untouched,
+    isOffered = false,
 )
 
 private val previewReminderOff: SettingsUiState.Reminder = previewReminder.copy(isOn = false)

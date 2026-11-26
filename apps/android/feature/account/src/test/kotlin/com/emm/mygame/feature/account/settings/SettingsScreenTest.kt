@@ -51,6 +51,7 @@ private const val HELP_LANGUAGE_QUESTION: String = "Idioma de ayuda"
 private const val REMINDER_TITLE: String = "Recordatorio de estudio"
 private const val OUTAGE_LINE: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
 private const val RETRY: String = "Volver a intentarlo"
+private const val SIGN_OUT: String = "Salir"
 private const val OPEN_NOTIFICATION_SETTINGS: String = "Abrir los ajustes de notificaciones"
 private val timeSteps: List<String> =
     listOf("Una hora antes", "Una hora después", "Cinco minutos antes", "Cinco minutos después")
@@ -77,7 +78,8 @@ class SettingsScreenTest {
 
     private val ownControl: SemanticsMatcher =
         (
-            listOf(SPANISH_CHOICE, NONE_CHOICE, REMINDER_TITLE, OPEN_NOTIFICATION_SETTINGS, RETRY).map(::hasText) +
+            listOf(SPANISH_CHOICE, NONE_CHOICE, REMINDER_TITLE, OPEN_NOTIFICATION_SETTINGS, RETRY, SIGN_OUT)
+                .map(::hasText) +
                 timeSteps.map(::hasContentDescription)
             ).reduce(SemanticsMatcher::or)
 
@@ -237,39 +239,39 @@ class SettingsScreenTest {
         draw(SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder))
 
         composeRule.onAllNodesWithText("Volver a tu pueblo").assertCountEquals(0)
-        assertOnlyOwnControls(count = 3)
-    }
-
-    @Test
-    fun `draws only the scaffold choices, the switch and the time steps with the reminder on`() {
-        draw(untouched.copy(reminder = firstReminder.copy(isOn = true)))
-
-        assertOnlyOwnControls(count = 7)
-    }
-
-    @Test
-    fun `draws only the scaffold choices, the switch and the settings link with notifications denied`() {
-        draw(untouched.copy(reminder = firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied)))
-
         assertOnlyOwnControls(count = 4)
     }
 
     @Test
-    fun `draws only the choices, the switch, the settings link and the time steps when denied with the reminder on`() {
+    fun `draws only the scaffold choices, the switch, the time steps and the sign-out with the reminder on`() {
+        draw(untouched.copy(reminder = firstReminder.copy(isOn = true)))
+
+        assertOnlyOwnControls(count = 8)
+    }
+
+    @Test
+    fun `draws only the scaffold choices, the switch, the settings link and the sign-out with notifications denied`() {
+        draw(untouched.copy(reminder = firstReminder.copy(ask = SettingsUiState.NotificationAsk.Denied)))
+
+        assertOnlyOwnControls(count = 5)
+    }
+
+    @Test
+    fun `draws only the choices, the switch, the settings link, the time steps and the sign-out when denied and on`() {
         draw(
             untouched.copy(
                 reminder = firstReminder.copy(isOn = true, ask = SettingsUiState.NotificationAsk.Denied),
             ),
         )
 
-        assertOnlyOwnControls(count = 8)
+        assertOnlyOwnControls(count = 9)
     }
 
     @Test
-    fun `draws only the retry when the settings cannot be read`() {
+    fun `draws only the retry and the sign-out when the settings cannot be read`() {
         draw(SettingsUiState.Failed)
 
-        assertOnlyOwnControls(count = 1)
+        assertOnlyOwnControls(count = 2)
     }
 
     @Test
