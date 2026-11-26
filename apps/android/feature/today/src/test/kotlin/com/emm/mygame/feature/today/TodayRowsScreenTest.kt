@@ -161,6 +161,7 @@ class TodayRowsScreenTest {
     ): TodayUiState.Content = TodayUiState.Content(
         eyebrow = TodayUiState.Eyebrow.StartHere,
         first = first,
+        whatHappened = null,
         lesson = lesson,
         work = null,
         job = null,
@@ -215,6 +216,7 @@ class TodayRowsScreenTest {
             onReviewsOpen = {},
             onHoldoutCheckOpen = { _, _ -> },
             onMapOpen = {},
+            onNewsOpen = {},
             onNoTown = {},
         )
     }

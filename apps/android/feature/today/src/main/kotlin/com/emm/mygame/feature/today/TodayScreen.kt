@@ -110,6 +110,9 @@ private fun TodayContent(
                 onAct = { onIntent.actOn(card, navigation) },
             )
         }
+        content.whatHappened?.let { whatHappened: TodayUiState.WhatHappened ->
+            TodayWhatHappened(whatHappened = whatHappened, onIntent = onIntent, onNewsOpen = navigation.onNewsOpen)
+        }
         if (content.hasInProgress()) InProgress(content = content, copy = copy, navigation = navigation)
         TodayCanDo(content = content, onIntent = onIntent, placement = placement)
         if (content.locked.isNotEmpty()) TodayLocked(content = content, onIntent = onIntent)

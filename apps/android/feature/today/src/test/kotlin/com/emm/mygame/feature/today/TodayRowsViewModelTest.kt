@@ -16,6 +16,7 @@ import com.emm.mygame.core.projection.town.building.CostLine
 import com.emm.mygame.core.projection.town.building.NextLevelLine
 import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.projection.town.building.StartStatus
+import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
@@ -170,7 +171,7 @@ class TodayRowsViewModelTest {
 
     private fun TestScope.shownOn(town: TownSnapshot): TodayViewModel {
         towns.answerRead(TownReadResult.Read(town))
-        val viewModel: TodayViewModel = TodayViewModel(towns, TestClock(testScheduler, readAt))
+        val viewModel: TodayViewModel = TodayViewModel(towns, FakeReportRepository(), TestClock(testScheduler, readAt))
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 awaitCancellation()

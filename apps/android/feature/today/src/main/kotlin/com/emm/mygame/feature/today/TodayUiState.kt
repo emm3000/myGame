@@ -6,6 +6,7 @@ import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.core.projection.town.building.NextLevelLine
@@ -22,6 +23,7 @@ sealed interface TodayUiState {
     data class Content(
         val eyebrow: Eyebrow,
         val first: FirstCard?,
+        val whatHappened: WhatHappened?,
         val lesson: RunningLesson?,
         val work: RunningWork?,
         val job: JobOut?,
@@ -51,6 +53,26 @@ sealed interface TodayUiState {
         data object NoReviewsDue : CaughtUpLine
 
         data class LearningCap(val inLearning: Int, val cap: Int) : CaughtUpLine
+    }
+
+    data class WhatHappened(val events: List<NewsEvent>, val receivedAt: Instant, val close: NewsClose)
+
+    sealed interface NewsEvent {
+
+        val news: TownNews
+
+        data class Achievement(override val news: TownNews) : NewsEvent
+
+        data class Plain(override val news: TownNews) : NewsEvent
+    }
+
+    sealed interface NewsClose {
+
+        data object Idle : NewsClose
+
+        data object Waiting : NewsClose
+
+        data object Unreachable : NewsClose
     }
 
     data class TimeAt(val remaining: Duration, val at: Instant)

@@ -9,5 +9,6 @@ data class TodayNavigation(
     val onReviewsOpen: () -> Unit,
     val onHoldoutCheckOpen: (PlacementBand, HoldoutCheckWeek) -> Unit,
     val onMapOpen: () -> Unit,
+    val onNewsOpen: () -> Unit,
     val onNoTown: () -> Unit,
 )

@@ -13,5 +13,7 @@ sealed interface TodayIntent {
 
     data class StudyTapped(val lesson: LessonId) : TodayIntent
 
+    data object NewsCloseTapped : TodayIntent
+
     data class BuildTapped(val building: TownBuildingKind) : TodayIntent
 }

@@ -7,8 +7,10 @@ import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
+import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.core.projection.town.building.CostLine
@@ -23,6 +25,17 @@ private val previewLesson: LessonId = LessonId("lesson-1")
 
 private val previewAt: Instant = Instant.parse("2026-11-18T23:15:00Z")
 
+private val previewWhatHappened: TodayUiState.WhatHappened = TodayUiState.WhatHappened(
+    events = listOf(
+        TodayUiState.NewsEvent.Achievement(TownNews.BuildingWorkFinished(previewAt, TownBuildingKind.Farm, level = 2)),
+        TodayUiState.NewsEvent.Plain(
+            TownNews.JobBack(previewAt, TownSite(region = 1, area = 2, site = 3), pay = emptyList()),
+        ),
+    ),
+    receivedAt = previewAt,
+    close = TodayUiState.NewsClose.Idle,
+)
+
 private val previewNextLevel: NextLevelLine = NextLevelLine(
     level = 2,
     costs = listOf(CostLine(TownResourceKind.Money, amount = 50, isShort = false)),
@@ -36,6 +49,7 @@ private val previewNavigation: TodayNavigation = TodayNavigation(
     onReviewsOpen = {},
     onHoldoutCheckOpen = { _, _ -> },
     onMapOpen = {},
+    onNewsOpen = {},
     onNoTown = {},
 )
 
@@ -46,6 +60,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
             first = TodayUiState.FirstCard.Study(previewLesson, number = 1),
+            whatHappened = previewWhatHappened,
             lesson = null,
             work = null,
             job = null,
@@ -63,6 +78,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
             first = null,
+            whatHappened = null,
             lesson = TodayUiState.RunningLesson(previewLesson, LessonName.Shelved(1), 8.minutes, previewAt),
             work = TodayUiState.RunningWork(TownBuildingKind.Farm, level = 2, remaining = 40.minutes, previewAt),
             job = TodayUiState.JobOut(TownSnapshot.JobPhase.Outbound, remaining = 45.seconds, previewAt),
@@ -77,6 +93,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
                 line = TodayUiState.CaughtUpLine.NoReviewsDue,
                 nextReview = TodayUiState.TimeAt(remaining = 3.hours, at = previewAt),
             ),
+            whatHappened = null,
             lesson = null,
             work = null,
             job = null,
