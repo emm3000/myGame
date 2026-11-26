@@ -21,6 +21,7 @@ fun TodayRoute(
     modifier: Modifier = Modifier,
     viewModel: TodayViewModel = viewModel { TodayViewModel(towns, clock) },
     ring: @Composable () -> Unit = {},
+    placement: @Composable () -> Unit = {},
 ) {
     val state: TodayUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentNavigation: TodayNavigation by rememberUpdatedState(navigation)
@@ -43,5 +44,6 @@ fun TodayRoute(
         navigation = navigation,
         modifier = modifier,
         ring = ring,
+        placement = placement,
     )
 }

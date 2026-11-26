@@ -7,6 +7,9 @@ import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
+import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.projection.town.building.NextLevelLine
+import com.emm.mygame.core.projection.town.building.StartStatus
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -22,7 +25,10 @@ sealed interface TodayUiState {
         val lesson: RunningLesson?,
         val work: RunningWork?,
         val job: JobOut?,
-        val start: StartStatus,
+        val canDo: List<CanDo>,
+        val locked: List<Locked>,
+        val start: LessonStart,
+        val build: StartStatus,
     ) : TodayUiState
 
     enum class Eyebrow { StartHere, WhatIsNext }
@@ -63,16 +69,20 @@ sealed interface TodayUiState {
         val finishesAt: Instant,
     )
 
+    data class CanDo(val building: TownBuildingKind, val next: NextLevelLine)
+
+    data class Locked(val building: TownBuildingKind, val next: NextLevelLine, val block: BlockReason)
+
     data class JobOut(val phase: TownSnapshot.JobPhase, val remaining: Duration, val finishesAt: Instant)
 
-    sealed interface StartStatus {
+    sealed interface LessonStart {
 
-        data object Idle : StartStatus
+        data object Idle : LessonStart
 
-        data object Starting : StartStatus
+        data object Starting : LessonStart
 
-        data class Refused(val refusal: TownLessonRefusal) : StartStatus
+        data class Refused(val refusal: TownLessonRefusal) : LessonStart
 
-        data object Unreachable : StartStatus
+        data object Unreachable : LessonStart
     }
 }

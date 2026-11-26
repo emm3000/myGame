@@ -10,6 +10,7 @@ import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.feature.placement.PlacementOfferRoute
 import com.emm.mygame.feature.today.TodayNavigation
 import com.emm.mygame.feature.today.TodayRoute
 
@@ -31,6 +32,12 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
                     onNoTown = navigator::townUnnamed,
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
+                placement = {
+                    PlacementOfferRoute(
+                        placements = dependencies.placements,
+                        onPlacementOpen = { navigator.openOnTab(Destination.Placement) },
+                    )
+                },
             )
         }
     }

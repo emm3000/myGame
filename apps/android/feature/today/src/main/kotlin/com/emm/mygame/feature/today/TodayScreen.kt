@@ -40,6 +40,7 @@ internal fun TodayScreen(
     navigation: TodayNavigation,
     modifier: Modifier = Modifier,
     ring: @Composable () -> Unit = {},
+    placement: @Composable () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
@@ -68,13 +69,18 @@ internal fun TodayScreen(
             loadingLabel = chromeResource(R.string.today_loading).spoken,
             blocks = todayBlocks,
         ) {
-            TodayState(state = state, onIntent = onIntent, navigation = navigation)
+            TodayState(state = state, onIntent = onIntent, navigation = navigation, placement = placement)
         }
     }
 }
 
 @Composable
-private fun TodayState(state: TodayUiState, onIntent: (TodayIntent) -> Unit, navigation: TodayNavigation) {
+private fun TodayState(
+    state: TodayUiState,
+    onIntent: (TodayIntent) -> Unit,
+    navigation: TodayNavigation,
+    placement: @Composable () -> Unit,
+) {
     when (state) {
         TodayUiState.Loading -> Unit
         TodayUiState.Failed -> MyGameErrorBanner(
@@ -82,12 +88,18 @@ private fun TodayState(state: TodayUiState, onIntent: (TodayIntent) -> Unit, nav
             actionLabel = chromeResource(R.string.today_try_again),
             onAction = { onIntent(TodayIntent.RetryTapped) },
         )
-        is TodayUiState.Content -> TodayContent(content = state, onIntent = onIntent, navigation = navigation)
+        is TodayUiState.Content ->
+            TodayContent(content = state, onIntent = onIntent, navigation = navigation, placement = placement)
     }
 }
 
 @Composable
-private fun TodayContent(content: TodayUiState.Content, onIntent: (TodayIntent) -> Unit, navigation: TodayNavigation) {
+private fun TodayContent(
+    content: TodayUiState.Content,
+    onIntent: (TodayIntent) -> Unit,
+    navigation: TodayNavigation,
+    placement: @Composable () -> Unit,
+) {
     val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6)) {
         content.first?.let { card: TodayUiState.FirstCard ->
@@ -99,6 +111,8 @@ private fun TodayContent(content: TodayUiState.Content, onIntent: (TodayIntent) 
             )
         }
         if (content.hasInProgress()) InProgress(content = content, copy = copy, navigation = navigation)
+        TodayCanDo(content = content, onIntent = onIntent, placement = placement)
+        if (content.locked.isNotEmpty()) TodayLocked(content = content, onIntent = onIntent)
     }
 }
 

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="today_amount">{amount} {resource}</string>
+    <string name="today_build_for">Build for {cost}</string>
+    <string name="today_can_do_now">You can do now</string>
     <string name="today_duration_hours">{hours} h</string>
     <string name="today_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="today_duration_minutes">{minutes} min</string>
@@ -17,8 +20,11 @@
     <string name="today_lesson_ready_in">Lesson {number} ready in</string>
     <string name="today_lesson_title">Lesson {number}</string>
     <string name="today_loading">Reading your town…</string>
+    <string name="today_locked">Locked</string>
+    <string name="today_next_level">{place}, level {level}</string>
     <string name="today_next_review">Next review:</string>
     <string name="today_no_reviews_due">No reviews due now.</string>
+    <string name="today_people_short">People needed: {needed}. {free, plural, =1 {Free: 1} other {Free: {free, number,0}}}.</string>
     <string name="today_place_factory">Factory</string>
     <string name="today_place_farm">Farm</string>
     <string name="today_place_homes">Homes</string>
@@ -27,16 +33,28 @@
     <string name="today_place_school">School</string>
     <string name="today_place_storage">Storage</string>
     <string name="today_read_words">Read the words</string>
+    <string name="today_ready_at">Ready</string>
+    <string name="today_ready_in">Ready in</string>
     <string name="today_refusal_learning_cap_reached">Words in learning: {cardsInLearning} of {learningCap}. Review them before you start another lesson.</string>
     <string name="today_refusal_lesson_already_studied">You already studied that lesson: its words are in your reviews.</string>
     <string name="today_refusal_lesson_school_too_low">That lesson needs a school of a higher level. Build it to a higher level first.</string>
     <string name="today_refusal_lesson_under_study">The school is already studying that lesson. Wait for it to finish.</string>
+    <string name="today_refusal_not_enough_people">This work needs {requiredPeople, plural, =1 {1 free person} other {{requiredPeople, number,0} free people}} and you have {freePeople}. Build your homes to a higher level.</string>
+    <string name="today_refusal_not_enough_resources">You do not have enough for this work. Wait until your town makes more.</string>
+    <string name="today_refusal_not_enough_words">This level needs {needed} {standing, select, stable {words out of learning} retained {learned words} other {learned words}} and you have {held}. Study new lessons and review the words that are due.</string>
     <string name="today_refusal_study_slot_busy">The school is already studying a lesson. Wait for it to finish.</string>
+    <string name="today_refusal_top_level_reached">This building is already at its top level, {level}.</string>
     <string name="today_refusal_town_not_found">You have no town yet. Name it to start it.</string>
     <string name="today_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
+    <string name="today_refusal_waiting_list_full">{cap, plural, =1 {The waiting list already holds 1 work.} other {The waiting list already holds {cap, number,0} works.}} Wait for one to finish.</string>
     <string name="today_released_lesson">Returning words: band {band}, set {number}</string>
     <string name="today_released_ready_in">Returning words: band {band}, set {number} ready in</string>
+    <string name="today_resource_food">food</string>
+    <string name="today_resource_material">material</string>
+    <string name="today_resource_money">money</string>
+    <string name="today_resource_power">power</string>
     <string name="today_reviews_due">Reviews due: {count}</string>
+    <string name="today_shortfall">You need {missing} more.</string>
     <string name="today_start_here">Start here</string>
     <string name="today_start_reviews">Start the reviews</string>
     <string name="today_study">Study lesson {number}</string>
@@ -45,5 +63,6 @@
     <string name="today_try_again">Try again</string>
     <string name="today_waiting">Sending…</string>
     <string name="today_what_is_next">What is next</string>
+    <string name="today_while_you_wait">While you wait</string>
     <string name="today_work_ready_in">{place}, level {level}, ready in</string>
 </resources>
