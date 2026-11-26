@@ -40,10 +40,10 @@ const ranksHoldingOut = (heldOutCount: number): ReadonlyMap<string, number> =>
   ])
 
 describe('content gate check 11, the word need', () => {
-  it('passes on the shipped content, every need counting 183 words', () => {
+  it('passes on the shipped content, every need counting 203 words', () => {
     const shipped = readGateContent(shippedContent)
     expect(shipped.schoolLevels.map((level) => countedWordsOf(shipped, level))).toEqual(
-      Array.from({ length: 10 }, () => 183),
+      Array.from({ length: 10 }, () => 203),
     )
     expect(checkWordNeed(shipped)).toEqual([])
   })

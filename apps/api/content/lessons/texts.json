@@ -136,5 +136,24 @@
       "I already love it here.",
       "It's the best home I have ever had, and it's exactly what I needed."
     ]
+  },
+  {
+    "id": "text-8",
+    "fromLessonId": "lesson-66",
+    "title": "A Day in the City",
+    "sentences": [
+      "Once a week, I go to the city, on the other side of the river, for a course.",
+      "In today's lesson, there was a term I didn't understand, so I asked about it.",
+      "The answer was clear when I saw an example.",
+      "After that, everybody was able to use it.",
+      "Then I went to the market.",
+      "There were a lot of people in line, so I waited until I was next.",
+      "It was hard to pick what to buy, but I didn't spend much money.",
+      "They didn't have an item I needed, and the next market didn't either.",
+      "A person from the course wanted to speak with me on the phone.",
+      "We only talked for a second, but she said I could start a new course.",
+      "Sometimes the city is hard for me, but I suppose it was a good day."
+    ],
+    "noCardSense": ["there"]
   }
 ]

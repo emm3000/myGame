@@ -6835,5 +6835,387 @@
       "es": "que ver con"
     },
     "definition": "used after have, to say that one thing is about another thing or is part of it"
+  },
+  {
+    "id": "word-306",
+    "lemma": "suppose",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "I suppose I can come back tomorrow.",
+        "gappedFrame": "I ____ I can come back tomorrow."
+      }
+    ],
+    "gloss": {
+      "es": "suponer"
+    },
+    "definition": "to think something is probably true, or to agree when you are not happy about it"
+  },
+  {
+    "id": "word-307",
+    "lemma": "able",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "The mayor won't be able to talk to you today.",
+        "gappedFrame": "The mayor won't be ____ to talk to you today."
+      }
+    ],
+    "gloss": {
+      "es": "poder"
+    },
+    "definition": "used after be and before to: to have what you need to do something"
+  },
+  {
+    "id": "word-308",
+    "lemma": "speak",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "Can I speak to the mayor, please?",
+        "gappedFrame": "Can I ____ to the mayor, please?"
+      }
+    ],
+    "gloss": {
+      "es": "hablar"
+    },
+    "definition": "to say words to someone; used when you ask to talk with a person"
+  },
+  {
+    "id": "word-309",
+    "lemma": "second",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Wait a second, she's on her way.",
+        "gappedFrame": "Wait a ____, she's on her way."
+      }
+    ],
+    "gloss": {
+      "es": "segundo"
+    },
+    "definition": "one of the 60 parts of a minute, or a very short time"
+  },
+  {
+    "id": "word-310",
+    "lemma": "answer",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I still don't have an answer.",
+        "gappedFrame": "I still don't have an ____."
+      }
+    ],
+    "gloss": {
+      "es": "respuesta"
+    },
+    "definition": "what you say back when someone asks you something"
+  },
+  {
+    "id": "word-311",
+    "lemma": "item",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Is this item on the list?",
+        "gappedFrame": "Is this ____ on the list?"
+      }
+    ],
+    "gloss": {
+      "es": "artículo"
+    },
+    "definition": "one thing in a group or on a list, such as one thing you buy"
+  },
+  {
+    "id": "word-312",
+    "lemma": "spend",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "How much money did you spend?",
+        "gappedFrame": "How much money did you ____?",
+        "noCardSense": ["how"]
+      }
+    ],
+    "gloss": {
+      "es": "gastar"
+    },
+    "definition": "to give money to buy things"
+  },
+  {
+    "id": "word-313",
+    "lemma": "pick",
+    "partOfSpeech": "verb",
+    "frames": [
+      {
+        "frame": "You can pick the one you like.",
+        "gappedFrame": "You can ____ the one you like.",
+        "noCardSense": ["one"]
+      }
+    ],
+    "gloss": {
+      "es": "elegir"
+    },
+    "definition": "to take one thing from a group because you want it more than the others"
+  },
+  {
+    "id": "word-314",
+    "lemma": "line",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "We have to wait in line.",
+        "gappedFrame": "We have to wait in ____."
+      }
+    ],
+    "gloss": {
+      "es": "fila"
+    },
+    "definition": "people who wait one behind another to get or do something"
+  },
+  {
+    "id": "word-315",
+    "lemma": "either",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I don't have any money either.",
+        "gappedFrame": "I don't have any money ____."
+      }
+    ],
+    "gloss": {
+      "es": "tampoco"
+    },
+    "definition": "used after not, to say that the same is true of another person or thing"
+  },
+  {
+    "id": "word-316",
+    "lemma": "side",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "My house is on the other side of the river.",
+        "gappedFrame": "My house is on the other ____ of the river."
+      }
+    ],
+    "gloss": {
+      "es": "lado"
+    },
+    "definition": "one of the 2 parts of a place, such as the land on each part of a road"
+  },
+  {
+    "id": "word-317",
+    "lemma": "once",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "I only come this way once a year.",
+        "gappedFrame": "I only come this way ____ a year."
+      }
+    ],
+    "gloss": {
+      "es": "una vez"
+    },
+    "definition": "one time"
+  },
+  {
+    "id": "word-318",
+    "lemma": "until",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Wait here until I come back.",
+        "gappedFrame": "Wait here ____ I come back."
+      }
+    ],
+    "gloss": {
+      "es": "hasta que"
+    },
+    "definition": "up to the time when something happens"
+  },
+  {
+    "id": "word-319",
+    "lemma": "phone",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "I can't find my phone.",
+        "gappedFrame": "I can't find my ____."
+      }
+    ],
+    "gloss": {
+      "es": "teléfono"
+    },
+    "definition": "a small thing you use to talk to people who are far away"
+  },
+  {
+    "id": "word-320",
+    "lemma": "sometimes",
+    "partOfSpeech": "adverb",
+    "frames": [
+      {
+        "frame": "Sometimes the map isn't right.",
+        "gappedFrame": "____ the map isn't right."
+      }
+    ],
+    "gloss": {
+      "es": "a veces"
+    },
+    "definition": "at some times, but not always"
+  },
+  {
+    "id": "word-321",
+    "lemma": "term",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "What's the term for a man who works on a farm?",
+        "gappedFrame": "What's the ____ for a man who works on a farm?"
+      }
+    ],
+    "gloss": {
+      "es": "término"
+    },
+    "definition": "a word or a group of words that is the name of a thing"
+  },
+  {
+    "id": "word-322",
+    "lemma": "example",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Can you give me an example?",
+        "gappedFrame": "Can you give me an ____?"
+      }
+    ],
+    "gloss": {
+      "es": "ejemplo"
+    },
+    "definition": "one thing that shows what the others of its kind are like, or how something works"
+  },
+  {
+    "id": "word-323",
+    "lemma": "clear",
+    "partOfSpeech": "adjective",
+    "frames": [
+      {
+        "frame": "The lesson wasn't clear to me.",
+        "gappedFrame": "The lesson wasn't ____ to me."
+      }
+    ],
+    "gloss": {
+      "es": "claro"
+    },
+    "definition": "easy to understand"
+  },
+  {
+    "id": "word-324",
+    "lemma": "everybody",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "Everybody, sit down, please.",
+        "gappedFrame": "____, sit down, please."
+      }
+    ],
+    "gloss": {
+      "es": "todos"
+    },
+    "definition": "all the people in a group or a place"
+  },
+  {
+    "id": "word-325",
+    "lemma": "person",
+    "partOfSpeech": "noun",
+    "frames": [
+      {
+        "frame": "She's the best person to ask.",
+        "gappedFrame": "She's the best ____ to ask."
+      }
+    ],
+    "gloss": {
+      "es": "persona"
+    },
+    "definition": "a man, a woman or a child"
+  },
+  {
+    "id": "word-326",
+    "lemma": "pick up",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Can you pick up the kids from school?",
+        "gappedFrame": "Can you ____ ____ the kids from school?"
+      }
+    ],
+    "gloss": {
+      "es": "recoger"
+    },
+    "definition": "to go to a place and take someone or something from there"
+  },
+  {
+    "id": "word-327",
+    "lemma": "come down",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "Come down here and help me.",
+        "gappedFrame": "____ ____ here and help me."
+      }
+    ],
+    "gloss": {
+      "es": "bajar"
+    },
+    "definition": "to move from a higher place to a lower one"
+  },
+  {
+    "id": "word-328",
+    "lemma": "look back",
+    "partOfSpeech": "verb",
+    "source": "phave",
+    "frames": [
+      {
+        "frame": "When I look back, I think we had a good life here.",
+        "gappedFrame": "When I ____ ____, I think we had a good life here."
+      }
+    ],
+    "gloss": {
+      "es": "mirar atrás"
+    },
+    "definition": "to think about a time in the past"
+  },
+  {
+    "id": "word-329",
+    "lemma": "that sort of thing",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "We talked about money, school, that sort of thing.",
+        "gappedFrame": "We talked about money, school, ____ ____ ____ ____."
+      }
+    ],
+    "gloss": {
+      "es": "ese tipo de cosas"
+    },
+    "definition": "and others like those; used after a list"
+  },
+  {
+    "id": "word-330",
+    "lemma": "go for",
+    "partOfSpeech": "phrase",
+    "source": "phrase",
+    "frames": [
+      {
+        "frame": "A day at the river? Yeah, I could go for that.",
+        "gappedFrame": "A day at the river? Yeah, I could ____ ____ that."
+      }
+    ],
+    "gloss": {
+      "es": "tener ganas de"
+    },
+    "definition": "to want something, such as food or a thing to do"
   }
 ]
