@@ -1,7 +1,10 @@
 package com.emm.mygame.feature.today
 
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
+import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
+import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
@@ -32,7 +35,26 @@ sealed interface TodayUiState {
         val locked: List<Locked>,
         val start: LessonStart,
         val build: StartStatus,
+        val keepGoing: KeepGoing?,
     ) : TodayUiState
+
+    sealed interface KeepGoing {
+
+        data class Text(val text: TextId, val title: String) : KeepGoing
+
+        data class Frames(val sentences: List<List<FrameSpan>>, val tapped: SpanAt?) : KeepGoing {
+
+            val openSupport: WordSupport?
+                get() = tapped?.let(::supportAt)?.takeIf(::isOnTap)
+
+            private fun supportAt(at: SpanAt): WordSupport? =
+                sentences.getOrNull(at.sentence)?.getOrNull(at.span)?.support
+
+            private fun isOnTap(support: WordSupport): Boolean = support.shown == WordSupport.Shown.OnTap
+        }
+    }
+
+    data class SpanAt(val sentence: Int, val span: Int)
 
     enum class Eyebrow { StartHere, WhatIsNext }
 

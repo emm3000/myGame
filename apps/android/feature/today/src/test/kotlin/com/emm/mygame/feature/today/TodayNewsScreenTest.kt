@@ -124,6 +124,7 @@ class TodayNewsScreenTest {
                         onHoldoutCheckOpen = { _, _ -> },
                         onMapOpen = {},
                         onNewsOpen = { newsOpened += 1 },
+                        onTextOpen = {},
                         onNoTown = {},
                     ),
                 )
@@ -148,6 +149,7 @@ class TodayNewsScreenTest {
         locked = emptyList(),
         start = TodayUiState.LessonStart.Idle,
         build = StartStatus.Idle,
+        keepGoing = null,
     )
 
     private companion object {

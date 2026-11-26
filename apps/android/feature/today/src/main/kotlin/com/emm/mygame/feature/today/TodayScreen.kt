@@ -115,6 +115,9 @@ private fun TodayContent(
         }
         if (content.hasInProgress()) InProgress(content = content, copy = copy, navigation = navigation)
         TodayCanDo(content = content, onIntent = onIntent, placement = placement)
+        content.keepGoing?.let { offered: TodayUiState.KeepGoing ->
+            TodayKeepGoing(keepGoing = offered, onIntent = onIntent, onTextOpen = navigation.onTextOpen)
+        }
         if (content.locked.isNotEmpty()) TodayLocked(content = content, onIntent = onIntent)
     }
 }

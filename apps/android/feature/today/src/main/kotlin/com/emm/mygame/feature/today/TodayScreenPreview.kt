@@ -5,7 +5,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.TownSnapshot
@@ -55,6 +57,7 @@ private val previewNavigation: TodayNavigation = TodayNavigation(
     onHoldoutCheckOpen = { _, _ -> },
     onMapOpen = {},
     onNewsOpen = {},
+    onTextOpen = {},
     onNoTown = {},
 )
 
@@ -80,6 +83,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
             ),
             start = TodayUiState.LessonStart.Idle,
             build = StartStatus.Idle,
+            keepGoing = null,
         ),
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
@@ -93,6 +97,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
             locked = emptyList(),
             start = TodayUiState.LessonStart.Idle,
             build = StartStatus.Idle,
+            keepGoing = null,
         ),
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.WhatIsNext,
@@ -109,6 +114,7 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
             locked = emptyList(),
             start = TodayUiState.LessonStart.Idle,
             build = StartStatus.Idle,
+            keepGoing = TodayUiState.KeepGoing.Frames(sentences = listOf(previewFrame), tapped = null),
         ),
     )
 }
@@ -120,3 +126,9 @@ private fun TodayScreenPreview(@PreviewParameter(TodayStates::class) state: Toda
         TodayScreen(state = state, onIntent = {}, navigation = previewNavigation)
     }
 }
+
+private val previewFrame: List<FrameSpan> = listOf(
+    FrameSpan(text = "I live by the ", support = null),
+    FrameSpan(text = "river", support = WordSupport(WordSupport.Shown.Beside, "río", WordSupport.Language.Spanish)),
+    FrameSpan(text = ".", support = null),
+)

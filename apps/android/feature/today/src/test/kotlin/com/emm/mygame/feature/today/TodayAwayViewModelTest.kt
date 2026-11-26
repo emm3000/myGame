@@ -7,6 +7,7 @@ import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
+import com.emm.mygame.core.testing.FakeKeepGoingRepository
 import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
@@ -90,7 +91,8 @@ class TodayAwayViewModelTest {
     private fun TestScope.shownOn(town: TownSnapshot): TodayViewModel {
         towns.answerRead(TownReadResult.Read(town))
         reports.answerRead(ReportReadResult.Read(noNews))
-        val viewModel: TodayViewModel = TodayViewModel(towns, reports, TestClock(testScheduler, readAt))
+        val viewModel: TodayViewModel =
+            TodayViewModel(towns, reports, FakeKeepGoingRepository(), TestClock(testScheduler, readAt))
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
                 awaitCancellation()

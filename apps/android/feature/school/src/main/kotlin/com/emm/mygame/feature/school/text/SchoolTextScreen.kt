@@ -12,25 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameFrameText
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameSupportLine
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.englishTextOf
-import com.emm.mygame.core.model.learning.WordSupport
+import com.emm.mygame.core.ui.ReadingBlock
+import com.emm.mygame.core.ui.ReadingSentences
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
-import com.emm.mygame.core.ui.toMyGameFrame
-import com.emm.mygame.core.ui.toMyGameSupport
 import com.emm.mygame.feature.school.R
 
 @Composable
@@ -104,29 +99,16 @@ private fun TextReading(
             color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
-        MyGameBlock(hue = MyGameBlockHue.Peach) {
-            reading.text.sentences.indices.forEach { sentence: Int ->
-                Sentence(sentence = sentence, reading = reading, onIntent = onIntent)
-            }
-        }
+        ReadingBlock(
+            sentences = ReadingSentences(reading.text.sentences),
+            openSentence = reading.tapped?.sentence,
+            openSpan = reading.tapped?.span,
+            openSupport = reading.openSupport,
+            onSpanTap = { sentence: Int, span: Int ->
+                onIntent(SchoolTextIntent.WordTapped(SchoolTextUiState.SpanAt(sentence, span)))
+            },
+        )
     }
-}
-
-@Composable
-private fun Sentence(
-    sentence: Int,
-    reading: SchoolTextUiState.Reading,
-    onIntent: (SchoolTextIntent) -> Unit,
-) {
-    val tappedSpan: Int? = reading.tapped?.takeIf { at: SchoolTextUiState.SpanAt -> at.sentence == sentence }?.span
-    MyGameFrameText(
-        frame = reading.text.sentences[sentence].toMyGameFrame(),
-        openPiece = tappedSpan,
-        style = MyGameTypography.reading,
-        onPieceTap = { span: Int -> onIntent(SchoolTextIntent.WordTapped(SchoolTextUiState.SpanAt(sentence, span))) },
-    )
-    if (tappedSpan == null) return
-    reading.openSupport?.let { support: WordSupport -> MyGameSupportLine(support = support.toMyGameSupport()) }
 }
 
 @Composable

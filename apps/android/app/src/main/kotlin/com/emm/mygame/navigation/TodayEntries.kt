@@ -9,6 +9,7 @@ import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.feature.placement.PlacementOfferRoute
 import com.emm.mygame.feature.today.TodayNavigation
@@ -22,6 +23,7 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
             TodayRoute(
                 towns = dependencies.towns,
                 reports = dependencies.reports,
+                frames = dependencies.keepGoing,
                 clock = dependencies.clock,
                 navigation = TodayNavigation(
                     onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
@@ -31,6 +33,9 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
                     },
                     onMapOpen = { navigator.openOnTab(Destination.Map) },
                     onNewsOpen = { navigator.openAbove(Destination.Today, Destination.News) },
+                    onTextOpen = { text: TextId ->
+                        navigator.openAbove(Destination.Today, Destination.SchoolText(text))
+                    },
                     onNoTown = navigator::townUnnamed,
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },

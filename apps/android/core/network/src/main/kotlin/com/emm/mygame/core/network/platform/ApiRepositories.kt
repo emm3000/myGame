@@ -2,6 +2,7 @@ package com.emm.mygame.core.network.platform
 
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.learning.KeepGoingRepository
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.report.ReportRepository
@@ -12,6 +13,7 @@ import com.emm.mygame.core.network.account.PlayerLanguages
 import com.emm.mygame.core.network.generated.apis.DefaultApi
 import com.emm.mygame.core.network.generated.infrastructure.Serializer
 import com.emm.mygame.core.network.holdout.ApiHoldoutCheckRepository
+import com.emm.mygame.core.network.learning.ApiKeepGoingRepository
 import com.emm.mygame.core.network.learning.ApiLearningRepository
 import com.emm.mygame.core.network.placement.ApiPlacementRepository
 import com.emm.mygame.core.network.reminder.StudyAnswers
@@ -90,6 +92,13 @@ class ApiRepositories internal constructor(
 
     val texts: TownTextRepository by lazy {
         ApiTownTextRepository(
+            api = newSignedInApi(),
+            ioDispatcher = ioDispatcher,
+        )
+    }
+
+    val keepGoing: KeepGoingRepository by lazy {
+        ApiKeepGoingRepository(
             api = newSignedInApi(),
             ioDispatcher = ioDispatcher,
         )

@@ -4,6 +4,7 @@ import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.learning.KeepGoingRepository
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.reminder.ReminderNotifications
@@ -31,6 +32,8 @@ interface AppDependencies {
     val towns: TownRepository
 
     val texts: TownTextRepository
+
+    val keepGoing: KeepGoingRepository
 
     val learning: LearningRepository
 

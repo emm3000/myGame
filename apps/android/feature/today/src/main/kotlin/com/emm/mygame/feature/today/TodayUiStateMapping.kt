@@ -23,6 +23,7 @@ internal fun TownSnapshot.todayAt(
     requests: TodayRequests,
     gained: List<TownSnapshot.Cost>,
     whatHappened: TodayUiState.WhatHappened?,
+    keepGoing: TodayUiState.KeepGoing?,
 ): TodayUiState.Content {
     val reaches: List<Reach> = reachesAt(now, gap)
     return TodayUiState.Content(
@@ -40,6 +41,7 @@ internal fun TownSnapshot.todayAt(
         },
         start = requests.lesson,
         build = requests.build,
+        keepGoing = keepGoing,
     )
 }
 

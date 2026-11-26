@@ -4,6 +4,7 @@ import android.app.Application
 import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.holdout.HoldoutCheckRepository
+import com.emm.mygame.core.model.learning.KeepGoingRepository
 import com.emm.mygame.core.model.learning.LearningRepository
 import com.emm.mygame.core.model.placement.PlacementRepository
 import com.emm.mygame.core.model.reminder.ReminderNotifications
@@ -13,6 +14,7 @@ import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.model.town.TownTextRepository
 import com.emm.mygame.core.network.platform.SessionEnds
 import com.emm.mygame.core.testing.FakeHoldoutCheckRepository
+import com.emm.mygame.core.testing.FakeKeepGoingRepository
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakePlacementRepository
 import com.emm.mygame.core.testing.FakeReminderNotifications
@@ -41,6 +43,8 @@ class ReminderTapApplication : Application(), AppDependencies {
     override val towns: FakeTownRepository = FakeTownRepository()
 
     override val texts: TownTextRepository = FakeTownTextRepository()
+
+    override val keepGoing: KeepGoingRepository = FakeKeepGoingRepository()
 
     override val learning: LearningRepository = FakeLearningRepository()
 

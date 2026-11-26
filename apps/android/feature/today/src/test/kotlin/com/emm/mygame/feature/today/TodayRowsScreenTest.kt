@@ -170,6 +170,7 @@ class TodayRowsScreenTest {
         locked = locked,
         start = TodayUiState.LessonStart.Idle,
         build = build,
+        keepGoing = null,
     )
 
     private fun locked(block: BlockReason): TodayUiState.Locked =
@@ -218,6 +219,7 @@ class TodayRowsScreenTest {
             onHoldoutCheckOpen = { _, _ -> },
             onMapOpen = {},
             onNewsOpen = {},
+            onTextOpen = {},
             onNoTown = {},
         )
     }
