@@ -1,5 +1,7 @@
 package com.emm.mygame.feature.today
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
@@ -18,6 +20,7 @@ import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.projection.town.building.StartStatus
+import com.emm.mygame.core.uitesting.textStyleOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -94,15 +97,24 @@ class TodayNewsScreenTest {
     }
 
     @Test
+    fun `the caught-up first card draws its line in on-block in the dark theme`() {
+        var onBlock: Color = Color.Unspecified
+        show(contentWith(first = caughtUp, events = null), isDark = true) { onBlock = MyGameTheme.colors.onBlock }
+
+        assertEquals(onBlock, textStyleOf(composeRule, NO_REVIEWS_DUE).color)
+    }
+
+    @Test
     fun `any other first card is paper, not a block`() {
         show(contentWith(first = TodayUiState.FirstCard.Study(LessonId("lesson-1"), number = 1), events = null))
 
         composeRule.onNode(peach).assertDoesNotExist()
     }
 
-    private fun show(state: TodayUiState) {
+    private fun show(state: TodayUiState, isDark: Boolean = false, onTheme: @Composable () -> Unit = {}) {
         composeRule.setContent {
-            MyGameTheme {
+            MyGameTheme(darkTheme = isDark) {
+                onTheme()
                 TodayScreen(
                     state = state,
                     onIntent = { intent: TodayIntent -> intents += intent },
