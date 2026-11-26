@@ -36,6 +36,7 @@ internal fun SchoolScreen(
     onTextOpen: (TextId) -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
+    placement: @Composable () -> Unit = {},
 ) {
     val scroll: ScrollState = rememberScrollState()
     val selected: LessonId? = (state as? SchoolUiState.Content)?.selected
@@ -67,6 +68,7 @@ internal fun SchoolScreen(
                 onLessonOpen = onLessonOpen,
                 onTextOpen = onTextOpen,
                 holdoutChecks = holdoutChecks,
+                placement = placement,
             )
         }
     }
@@ -79,6 +81,7 @@ private fun SchoolState(
     onLessonOpen: (LessonId) -> Unit,
     onTextOpen: (TextId) -> Unit,
     holdoutChecks: @Composable () -> Unit,
+    placement: @Composable () -> Unit,
 ) {
     when (state) {
         SchoolUiState.Loading -> Unit
@@ -96,6 +99,7 @@ private fun SchoolState(
             onLessonOpen = onLessonOpen,
             onTextOpen = onTextOpen,
             holdoutChecks = holdoutChecks,
+            placement = placement,
         )
     }
 }
@@ -117,6 +121,7 @@ private fun SchoolContent(
     onLessonOpen: (LessonId) -> Unit,
     onTextOpen: (TextId) -> Unit,
     holdoutChecks: @Composable () -> Unit,
+    placement: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val shown: SchoolUiState.LessonCard? = content.blockLesson
@@ -132,6 +137,7 @@ private fun SchoolContent(
         shown?.let { card: SchoolUiState.LessonCard ->
             ShownLesson(card = card, content = content, onIntent = onIntent, onLessonOpen = onLessonOpen)
         }
+        placement()
         LearningSection(learning = content.learning)
         LessonRows(content = content, onIntent = onIntent)
         TextRows(content = content, onTextOpen = onTextOpen)

@@ -1,5 +1,6 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -7,7 +8,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import androidx.compose.ui.unit.Dp
@@ -57,10 +61,16 @@ class LearnRowsTest {
         bandLines = emptyList(),
     )
 
-    private fun show(state: SchoolUiState) {
+    private fun show(state: SchoolUiState, placement: @Composable () -> Unit = {}) {
         composeRule.setContent {
             MyGameTheme {
-                SchoolScreen(state = state, onIntent = {}, onLessonOpen = {}, onTextOpen = {})
+                SchoolScreen(
+                    state = state,
+                    onIntent = {},
+                    onLessonOpen = {},
+                    onTextOpen = {},
+                    placement = placement,
+                )
             }
         }
     }
@@ -90,10 +100,21 @@ class LearnRowsTest {
         composeRule.onAllNodesWithText("En estudio").assertCountEquals(0)
     }
 
+    @Test
+    fun `the placement's offer is a row of Learn while the server offers it`() {
+        show(idleSchool) {
+            MyGameText(text = PLACEMENT_OFFER, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+        }
+
+        composeRule.onNodeWithText(PLACEMENT_OFFER).performScrollTo().assertIsDisplayed()
+    }
+
     private val runningLesson: SchoolUiState.SlotLine.Busy =
         SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = 150.seconds, total = 150.seconds)
 
     private companion object {
+        const val PLACEMENT_OFFER: String = "Placement offer"
+
         const val LESSON_SUMMARY: String = "5 palabras · Habilidad: comida +5\u00A0%"
     }
 }

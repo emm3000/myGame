@@ -133,7 +133,9 @@ internal fun townOf(
 )
 
 internal fun townWithCap(cap: Int): TownSnapshot =
-    townOf(learning = TownSnapshot.Learning(cap = cap, inLearning = 0, retainedWords = null, nextInLearningDueAt = null))
+    townOf(
+        learning = TownSnapshot.Learning(cap = cap, inLearning = 0, retainedWords = null, nextInLearningDueAt = null),
+    )
 
 internal val caughtUpCard: NextStepCard = townOf().nextStepCard()
 

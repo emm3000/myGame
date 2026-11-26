@@ -53,7 +53,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
         signedInAtTown(town = playedTown(retainedWords = threeOfFive))
         composeRule.onNode(hasText("Escuela") and hasClickAction() and !isSelectable()).performScrollTo().performClick()
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        waitForLine("Ahora no hay ninguna lección en estudio.")
+        waitForLine("Palabras en aprendizaje: 0 de 10")
 
         ring(THREE_OF_FIVE).assertIsDisplayed()
     }
@@ -80,7 +80,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
         val readsOnTheTown: Int = towns.readCount
 
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        waitForLine("Ahora no hay ninguna lección en estudio.")
+        waitForLine("Palabras en aprendizaje: 0 de 10")
 
         assertEquals(readsOnTheTown + 1, towns.readCount)
     }
