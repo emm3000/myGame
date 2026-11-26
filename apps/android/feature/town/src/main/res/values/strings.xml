@@ -101,7 +101,6 @@
     <string name="town_sending">Sending…</string>
     <string name="town_short_mark">, you need more</string>
     <string name="town_shortfall">You need {missing} more.</string>
-    <string name="town_sign_out">Sign out</string>
     <string name="town_skill_name">Level {level} {resource} skill</string>
     <string name="town_stock_of">of {capacity}</string>
     <string name="town_street_built">Your town: {built} of {total} built</string>
@@ -120,7 +119,6 @@
     <string name="town_title">{name} · {label}</string>
     <string name="town_top_level">Top level</string>
     <string name="town_try_again">Try again</string>
-    <string name="town_waiting">Waiting</string>
     <string name="town_words_learned">Learned words: {count}</string>
     <string name="town_words_needed">{standing, select, stable {Needs {needed} words out of learning: {held} of {needed}} retained {Needs {needed} learned words: {held} of {needed}} other {Needs {needed} learned words: {held} of {needed}}}</string>
     <string name="town_words_reviewed">Words out of learning: {count}</string>

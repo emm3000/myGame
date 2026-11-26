@@ -9,14 +9,11 @@ sealed interface ReportUiState {
 
     data object Failed : ReportUiState
 
-    data object SigningOut : ReportUiState
-
     data class Content(
         val dueCount: Int,
         val nextReview: Instant?,
         val news: ReportNews,
         val receivedAt: Instant,
-        val isReminderOn: Boolean,
     ) : ReportUiState
 
     sealed interface ReportNews {

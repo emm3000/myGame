@@ -17,7 +17,6 @@ import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
-import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
@@ -190,9 +189,8 @@ internal fun placeOf(viewModel: TownViewModel, kind: TownBuildingKind): PlaceCar
 internal fun TestScope.townViewModelOf(
     towns: FakeTownRepository,
     start: Instant,
-    sessions: FakeSessionRepository = FakeSessionRepository(),
 ): TownViewModel {
-    val viewModel: TownViewModel = TownViewModel(towns, sessions, TestClock(testScheduler, start))
+    val viewModel: TownViewModel = TownViewModel(towns, TestClock(testScheduler, start))
     backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {
         try {
             awaitCancellation()

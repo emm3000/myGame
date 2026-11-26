@@ -9,7 +9,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.Destination
 import com.emm.mygame.core.model.account.RestoreResult
-import com.emm.mygame.core.model.town.TownReadResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,52 +41,32 @@ class TownExitNavigationTest : AppNavigationFixture() {
     }
 
     @Test
-    fun `signs out from the foot of the Report`() {
-        showingTheReport(nothingDue)
-        sessions.answerSignOut()
-        sessions.answerRestore(RestoreResult.SignedOut)
+    fun `signs out from the foot of Me`() {
+        onMe()
 
         composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-
-        waitForLine("Entrar")
-    }
-
-    @Test
-    fun `signs out from the naming form`() {
-        signedInReading(TownReadResult.NoTown)
-        waitForLine("Ponle nombre a tu pueblo")
         sessions.answerSignOut()
         sessions.answerRestore(RestoreResult.SignedOut)
-
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
 
         waitForLine("Entrar")
         assertEquals(1, sessions.signOutCount)
     }
 
     @Test
-    fun `signs out from a failed town read`() {
-        signedInReading(TownReadResult.Unreachable)
+    fun `keeps Me shown when the town tab is tapped while signing out`() {
+        onMe()
+        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
         tab("Pueblo").performClick()
-        waitForLine("Volver a intentarlo")
-        sessions.answerSignOut()
-        sessions.answerRestore(RestoreResult.SignedOut)
+        composeRule.waitForIdle()
 
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-
-        waitForLine("Entrar")
-        assertEquals(1, sessions.signOutCount)
+        composeRule.onNode(hasText("Ajustes").and(isHeading())).assertExists()
     }
 
-    @Test
-    fun `keeps the Report shown when the header's town link is tapped while signing out`() {
-        showingTheReport(nothingDue)
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        link("Pueblo").performClick()
-        composeRule.waitForIdle()
-
-        composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()
+    private fun onMe() {
+        signedInAtTown()
+        tab("Yo").performClick()
+        waitForLine("Salir")
     }
 }

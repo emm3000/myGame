@@ -51,12 +51,14 @@ class SettingsRouteTest {
     private fun routeShowing(viewModel: SettingsViewModel): @Composable () -> Unit = {
         MyGameTheme {
             SettingsRoute(
-                sessions = sessions,
-                playerScaffold = playerScaffold,
-                reminders = reminders,
-                notifications = notifications,
-                reports = reports,
-                themes = FakeThemeSettings(ThemePick.System),
+                sources = SettingsSources(
+                    sessions = sessions,
+                    playerScaffold = playerScaffold,
+                    reminders = reminders,
+                    notifications = notifications,
+                    reports = reports,
+                    themes = FakeThemeSettings(ThemePick.System),
+                ),
                 rememberNotificationAsk = { { } },
                 navigation = SettingsNavigation(
                     onNotificationSettingsOpen = {},

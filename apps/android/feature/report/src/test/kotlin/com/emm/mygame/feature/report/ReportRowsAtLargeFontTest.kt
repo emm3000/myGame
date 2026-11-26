@@ -25,7 +25,7 @@ import org.robolectric.annotation.GraphicsMode
 
 private const val LARGEST_FONT_SCALE: Float = 2.0f
 
-private const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
+private const val NEWS_ALL: String = "Leer todas las noticias"
 
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -38,10 +38,10 @@ class ReportRowsAtLargeFontTest {
     fun `keeps a wrapped row label off the hairlines around it at the largest font`() {
         showRowsAt(LARGEST_FONT_SCALE)
 
-        val label: SemanticsNodeInteraction = composeRule.onNodeWithText(REMINDER_OFFER, useUnmergedTree = true)
+        val label: SemanticsNodeInteraction = composeRule.onNodeWithText(NEWS_ALL, useUnmergedTree = true)
         val text: DpRect = label.getUnclippedBoundsInRoot()
-        val lineAbove: DpRect = composeRule.onAllNodesWithTag(HAIRLINE)[1].getUnclippedBoundsInRoot()
-        val lineBelow: DpRect = composeRule.onAllNodesWithTag(HAIRLINE)[2].getUnclippedBoundsInRoot()
+        val lineAbove: DpRect = composeRule.onAllNodesWithTag(HAIRLINE)[0].getUnclippedBoundsInRoot()
+        val lineBelow: DpRect = composeRule.onAllNodesWithTag(HAIRLINE)[1].getUnclippedBoundsInRoot()
 
         assertTrue("the label wraps", layoutOf(label).lineCount > 1)
         assertTrue("room above the label", text.top - lineAbove.bottom >= MyGameSpacing.step2)
@@ -55,7 +55,7 @@ class ReportRowsAtLargeFontTest {
             configuration.fontScale = fontScale
             CompositionLocalProvider(LocalDensity provides Density(context.createConfigurationContext(configuration))) {
                 MyGameTheme {
-                    ReportRows(isReminderOffered = true, onNewsOpen = {}, onSettingsOpen = {})
+                    ReportRows(onNewsOpen = {}, onSettingsOpen = {})
                 }
             }
         }

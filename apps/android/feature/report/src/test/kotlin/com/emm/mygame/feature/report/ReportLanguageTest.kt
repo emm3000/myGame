@@ -37,7 +37,6 @@ class ReportLanguageTest {
         nextReview = null,
         news = ReportUiState.ReportNews.Unread(listOf(finishedFarm), ReportUiState.CloseRequest.Unreachable),
         receivedAt = readInstant,
-        isReminderOn = true,
     )
 
     private val nothingDueUntilTomorrow: ReportUiState.Content = dueWithNews.copy(
@@ -79,8 +78,8 @@ class ReportLanguageTest {
         show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold))
 
         assertDrawn("Informe", "Repasos pendientes: 3", "NOTICIAS DEL PUEBLO")
-        assertDrawn("Granja: ahora en nivel 2.", "Cerrar las noticias", "Leer todas las noticias", "Salir")
-        assertNotDrawn("Report", "Reviews due: 3", "TOWN NEWS", "Sign out")
+        assertDrawn("Granja: ahora en nivel 2.", "Cerrar las noticias", "Leer todas las noticias")
+        assertNotDrawn("Report", "Reviews due: 3", "TOWN NEWS")
     }
 
     @Test
@@ -127,11 +126,11 @@ class ReportLanguageTest {
     }
 
     @Test
-    fun `draws sign-out in Spanish for an es player in the English phase`() {
+    fun `draws the fixed copy in Spanish for an es player in the English phase`() {
         show(CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.English))
 
-        assertDrawn("Salir", "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
-        assertNotDrawn("Sign out", "We could not reach the server. Try again in a moment.")
+        assertDrawn("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
+        assertNotDrawn("We could not reach the server. Try again in a moment.")
     }
 
     @Test
@@ -139,8 +138,8 @@ class ReportLanguageTest {
         show(CopyLanguage(ScaffoldLanguage.None, ChromePhase.English))
 
         assertDrawn("Report", "Reviews due: 3", "TOWN NEWS", "Farm: now level 2.")
-        assertDrawn("Sign out", "We could not reach the server. Try again in a moment.")
-        assertNotDrawn("Informe", "NOTICIAS DEL PUEBLO", "Salir")
+        assertDrawn("We could not reach the server. Try again in a moment.")
+        assertNotDrawn("Informe", "NOTICIAS DEL PUEBLO")
         assertNotDrawn("No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
     }
 }

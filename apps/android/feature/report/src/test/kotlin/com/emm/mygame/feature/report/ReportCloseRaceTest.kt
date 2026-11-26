@@ -1,13 +1,10 @@
 package com.emm.mygame.feature.report
 
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.report.ReportCloseResult
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.report.ReportRepository
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
-import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
@@ -27,8 +24,6 @@ class ReportCloseRaceTest {
 
     @get:Rule
     val mainDispatcher: MainDispatcherRule = MainDispatcherRule()
-
-    private val reminderOff: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
 
     private val reports: ReportsAnsweredInAnyOrder = ReportsAnsweredInAnyOrder()
 
@@ -61,8 +56,6 @@ class ReportCloseRaceTest {
         val viewModel: ReportViewModel = ReportViewModel(
             reports = reports,
             towns = FakeTownRepository(),
-            sessions = FakeSessionRepository(),
-            reminders = reminderOff,
             clock = clock,
         )
         backgroundScope.launch(start = CoroutineStart.UNDISPATCHED) {

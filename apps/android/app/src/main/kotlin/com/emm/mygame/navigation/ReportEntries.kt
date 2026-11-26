@@ -22,14 +22,10 @@ internal fun EntryProviderScope<NavKey>.reportEntry(chrome: SignedInChrome) {
             ReportRoute(
                 reports = dependencies.reports,
                 towns = dependencies.towns,
-                sessions = dependencies.sessions,
-                reminders = dependencies.studyReminders,
                 clock = dependencies.clock,
                 navigation = ReportNavigation(
                     onNewsOpen = { navigator.openAbove(Destination.Report, Destination.News) },
                     onSettingsOpen = { navigator.openAbove(Destination.Report, Destination.Settings) },
-                    onSigningOut = navigator::signingOut,
-                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                     onNewsClosed = chrome.onTaskAnswered,
                 ),
             )

@@ -23,7 +23,6 @@ private val previewContent: ReportUiState.Content = ReportUiState.Content(
     nextReview = null,
     news = previewUnread,
     receivedAt = previewReceivedAt,
-    isReminderOn = false,
 )
 
 private class ReportUiStates : PreviewParameterProvider<ReportUiState> {
@@ -39,7 +38,6 @@ private class ReportUiStates : PreviewParameterProvider<ReportUiState> {
         previewContent.copy(news = previewUnread.copy(close = ReportUiState.CloseRequest.Unreachable)),
         ReportUiState.Loading,
         ReportUiState.Failed,
-        ReportUiState.SigningOut,
     )
 }
 

@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.town.TownRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,11 +16,10 @@ import kotlin.time.Clock
 @Composable
 fun TownRoute(
     towns: TownRepository,
-    sessions: SessionRepository,
     clock: Clock,
     navigation: TownNavigation,
     modifier: Modifier = Modifier,
-    viewModel: TownViewModel = viewModel { TownViewModel(towns, sessions, clock) },
+    viewModel: TownViewModel = viewModel { TownViewModel(towns, clock) },
     ring: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
 ) {
@@ -31,8 +29,6 @@ fun TownRoute(
         withContext(Dispatchers.Main.immediate) {
             viewModel.effects.collect { effect: TownEffect ->
                 when (effect) {
-                    TownEffect.SigningOut -> currentNavigation.onSigningOut()
-                    TownEffect.SignedOut -> currentNavigation.onSignedOut()
                     TownEffect.Unnamed -> currentNavigation.onUnnamed()
                     TownEffect.Named -> currentNavigation.onNamed()
                 }

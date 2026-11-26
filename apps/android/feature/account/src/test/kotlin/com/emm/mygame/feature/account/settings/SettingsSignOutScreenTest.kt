@@ -71,6 +71,15 @@ class SettingsSignOutScreenTest {
     }
 
     @Test
+    fun `keeps the sign-out while Me loads`() {
+        draw(SettingsUiState.Loading)
+
+        composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).performScrollTo().performClick()
+
+        assertEquals(listOf<SettingsIntent>(SettingsIntent.SignOutTapped), sentIntents)
+    }
+
+    @Test
     fun `holds the sign-out while it is under way`() {
         draw(SettingsUiState.SigningOut)
 

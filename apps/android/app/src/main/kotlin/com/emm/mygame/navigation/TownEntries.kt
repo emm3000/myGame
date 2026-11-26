@@ -31,7 +31,6 @@ private inline fun <reified Shown : NavKey> EntryProviderScope<NavKey>.townHomeE
         ) {
             TownRoute(
                 towns = dependencies.towns,
-                sessions = dependencies.sessions,
                 clock = dependencies.clock,
                 navigation = TownNavigation(
                     onSchoolOpen = { navigator.openTab(Tab.Learn) },
@@ -39,8 +38,6 @@ private inline fun <reified Shown : NavKey> EntryProviderScope<NavKey>.townHomeE
                     onTextOpen = { text: TextId ->
                         navigator.openAbove(Destination.Town, Destination.SchoolText(text))
                     },
-                    onSigningOut = navigator::signingOut,
-                    onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                     onUnnamed = navigator::townUnnamed,
                     onNamed = navigator::townNamed,
                 ),

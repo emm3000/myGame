@@ -1,6 +1,10 @@
 package com.emm.mygame
 
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeTestRule
@@ -8,10 +12,8 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.core.designsystem.NAVIGATION_BAR
 import com.emm.mygame.core.model.account.RestoreResult
-import com.emm.mygame.core.model.report.ReportReadResult
-import com.emm.mygame.core.model.report.TownReport
-import com.emm.mygame.core.testing.FakeReportRepository
 import com.emm.mygame.core.testing.FakeSessionRepository
 import org.junit.After
 import org.junit.Rule
@@ -20,7 +22,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
-import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class SignOutRebuildTest {
@@ -30,29 +31,16 @@ class SignOutRebuildTest {
 
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val reports: FakeReportRepository = FakeReportRepository()
-
-    private val dependencies: AppDependencies = dependenciesOf(sessions = sessions, reports = reports)
+    private val dependencies: AppDependencies = dependenciesOf(sessions = sessions)
 
     @After
     fun forgetTheHostContent() {
         RebuildHostActivity.shown = null
     }
 
-    private fun signingOutOnARecreatedReport() {
-        reports.answerRead(
-            ReportReadResult.Read(
-                TownReport(
-                    dueCount = 0,
-                    readFirst = emptyList(),
-                    nextDueAt = null,
-                    news = emptyList(),
-                    readAt = Instant.parse("2026-11-05T10:00:00Z"),
-                ),
-            ),
-        )
+    private fun signingOutOnARecreatedMe() {
         RebuildHostActivity.shown =
-            RebuildHostActivity.Shown(dependencies, listOf(Destination.Today, Destination.Town, Destination.Report))
+            RebuildHostActivity.Shown(dependencies, listOf(Destination.Today, Destination.Settings))
         val host: ActivityController<RebuildHostActivity> =
             Robolectric.buildActivity(RebuildHostActivity::class.java).setup()
         waitForLine("Salir")
@@ -70,7 +58,7 @@ class SignOutRebuildTest {
 
     @Test
     fun `opens the links for the next session once a sign-out survives a recreation`() {
-        signingOutOnARecreatedReport()
+        signingOutOnARecreatedMe()
 
         repeat(SIGNED_OUT_READS) { sessions.answerRestore(RestoreResult.SignedOut) }
         sessions.answerSignOut()
@@ -83,15 +71,17 @@ class SignOutRebuildTest {
     }
 
     @Test
-    fun `keeps the header's town link shut when the activity is recreated mid-sign-out`() {
-        signingOutOnARecreatedReport()
-        waitForLine("Pueblo")
+    fun `keeps the town tab shut when the activity is recreated mid-sign-out`() {
+        signingOutOnARecreatedMe()
 
-        composeRule.onNode(hasText("Pueblo").and(hasClickAction())).performClick()
+        composeRule.onNode(townTab).performClick()
         composeRule.waitForIdle()
 
-        composeRule.onNode(hasText("Informe").and(isHeading())).assertExists()
+        composeRule.onNode(hasText("Ajustes").and(isHeading())).assertExists()
     }
+
+    private val townTab: SemanticsMatcher =
+        hasContentDescription("Pueblo").and(hasAnyAncestor(hasTestTag(NAVIGATION_BAR))).and(hasClickAction())
 
     private companion object {
         const val WAIT_MILLIS: Long = 5_000

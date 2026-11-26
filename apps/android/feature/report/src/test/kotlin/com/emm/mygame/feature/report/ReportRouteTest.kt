@@ -4,21 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.testing.FakeReportRepository
-import com.emm.mygame.core.testing.FakeSessionRepository
-import com.emm.mygame.core.testing.FakeStudyReminderSettings
 import com.emm.mygame.core.testing.FakeTownRepository
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -36,11 +29,7 @@ class ReportRouteTest {
 
     private val reports: FakeReportRepository = FakeReportRepository()
 
-    private val sessions: FakeSessionRepository = FakeSessionRepository()
-
     private val towns: FakeTownRepository = FakeTownRepository()
-
-    private val reminders: FakeStudyReminderSettings = FakeStudyReminderSettings(StudyReminderChoice.firstChoice)
 
     private val screenOwner: ScreenOwner = ScreenOwner()
 
@@ -48,22 +37,16 @@ class ReportRouteTest {
         override fun now(): Instant = readInstant
     }
 
-    private var signingOuts: Int = 0
-
     private fun routeShowing(viewModel: ReportViewModel): @Composable () -> Unit = {
         CompositionLocalProvider(LocalLifecycleOwner provides screenOwner) {
             MyGameTheme {
                 ReportRoute(
                     reports = reports,
                     towns = towns,
-                    sessions = sessions,
-                    reminders = reminders,
                     clock = frozenClock,
                     navigation = ReportNavigation(
                         onNewsOpen = {},
                         onSettingsOpen = {},
-                        onSigningOut = { signingOuts += 1 },
-                        onSignedOut = {},
                         onNewsClosed = {},
                     ),
                     viewModel = viewModel,
@@ -73,34 +56,13 @@ class ReportRouteTest {
     }
 
     private fun showRoute() {
-        composeRule.setContent(routeShowing(ReportViewModel(reports, towns, sessions, reminders, Clock.System)))
+        composeRule.setContent(routeShowing(ReportViewModel(reports, towns, Clock.System)))
         composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
         composeRule.waitForIdle()
-    }
-
-    private fun showRebuildableRoute(): StateRestorationTester {
-        val restoration: StateRestorationTester = StateRestorationTester(composeRule)
-        restoration.setContent(routeShowing(ReportViewModel(reports, towns, sessions, reminders, frozenClock)))
-        composeRule.runOnIdle { screenOwner.move(Lifecycle.State.RESUMED) }
-        return restoration
     }
 
     private fun waitForLine(line: String) {
         composeRule.waitUntil { composeRule.onAllNodes(hasText(line)).fetchSemanticsNodes().isNotEmpty() }
-    }
-
-    @Test
-    fun `calls onSigningOut once when the screen is rebuilt mid-sign-out`() {
-        reports.answerRead(ReportReadResult.Read(reportOf(dueCount = 0)))
-        val restoration: StateRestorationTester = showRebuildableRoute()
-        waitForLine("Salir")
-        composeRule.onNodeWithText("Salir").performScrollTo().performClick()
-        composeRule.waitForIdle()
-
-        restoration.emulateSavedInstanceStateRestore()
-        composeRule.waitForIdle()
-
-        assertEquals(1, signingOuts)
     }
 
     @Test

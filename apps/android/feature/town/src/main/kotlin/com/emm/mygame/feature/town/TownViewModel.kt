@@ -2,7 +2,6 @@ package com.emm.mygame.feature.town
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.emm.mygame.core.model.account.SessionRepository
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.ReadAnswer
 import com.emm.mygame.core.model.town.ReadFollower
@@ -21,7 +20,6 @@ import com.emm.mygame.feature.town.naming.NamingRequests
 import com.emm.mygame.feature.town.naming.NamingStatus
 import com.emm.mygame.feature.town.naming.updateNaming
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +33,6 @@ import kotlin.time.Instant
 
 class TownViewModel(
     private val towns: TownRepository,
-    private val sessions: SessionRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -123,7 +120,6 @@ class TownViewModel(
     }
 
     fun onIntent(intent: TownIntent) {
-        if (_state.value is TownUiState.SigningOut) return
         when (intent) {
             TownIntent.ScreenShown -> show()
             TownIntent.ScreenHidden -> {
@@ -142,7 +138,6 @@ class TownViewModel(
             is TownIntent.StopHiringTapped -> ifTownShown { hiring.stop(intent.target) }
             is TownIntent.TipClosed -> ifTownShown { guidance.closeTip(intent.tip) }
             TownIntent.GoalClosed -> ifTownShown { guidance.closeGoal() }
-            TownIntent.SignOutTapped -> signOut()
         }
     }
 
@@ -199,16 +194,6 @@ class TownViewModel(
         shown = null
         _state.value = TownUiState.Naming(name = "", status = NamingStatus.Idle)
         _effects.trySend(TownEffect.Unnamed)
-    }
-
-    private fun signOut() {
-        viewModelScope.coroutineContext.cancelChildren()
-        _state.value = TownUiState.SigningOut
-        viewModelScope.launch {
-            _effects.send(TownEffect.SigningOut)
-            sessions.signOut()
-            _effects.send(TownEffect.SignedOut)
-        }
     }
 
     private fun restartFrom(snapshot: TownSnapshot, kept: TownRequests) {
