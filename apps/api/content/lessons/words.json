@@ -5626,8 +5626,8 @@
         "fromLessonId": "lesson-51"
       },
       {
-        "frame": "How many students make up the school?",
-        "gappedFrame": "How many students ____ ____ the school?",
+        "frame": "How many minutes make up an hour?",
+        "gappedFrame": "How many minutes ____ ____ an hour?",
         "noCardSense": ["how"],
         "fromLessonId": "lesson-55"
       }
