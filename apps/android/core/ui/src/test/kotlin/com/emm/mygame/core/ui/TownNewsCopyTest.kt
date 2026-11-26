@@ -1,0 +1,325 @@
+package com.emm.mygame.core.ui
+
+import com.emm.mygame.core.model.town.TownAmount
+import com.emm.mygame.core.model.town.TownResourceKind
+import com.emm.mygame.core.model.town.TownSite
+import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.model.town.hiring.TownHireKind
+import com.emm.mygame.core.model.town.news.TownNews
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import java.time.ZoneId
+import kotlin.time.Instant
+
+@RunWith(RobolectricTestRunner::class)
+class TownNewsCopyTest {
+
+    private val spanish: PlayerCopy = PlayerCopy(
+        RuntimeEnvironment.getApplication(),
+        CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Scaffold),
+    )
+
+    private fun inSpanish(line: CopyReader.() -> String): String = spanish.fixedCopy(line)
+
+    private val english: PlayerCopy = PlayerCopy(
+        RuntimeEnvironment.getApplication(),
+        CopyLanguage(ScaffoldLanguage.None, ChromePhase.Scaffold),
+    )
+
+    private fun inEnglish(line: CopyReader.() -> String): String = english.fixedCopy(line)
+
+    private fun amountsLineOf(news: TownNews): String? =
+        newsAmountsOf(news)?.let { paid: NewsAmounts -> inSpanish { amountsLineOf(paid) } }
+
+    private val at: Instant = Instant.parse("2026-11-05T14:56:00Z")
+
+    private val site: TownSite = TownSite(region = 1, area = 2, site = 3)
+
+    private val lima: ZoneId = ZoneId.of("America/Lima")
+
+    private val noRefund: List<TownAmount> = emptyList()
+
+    private val refund: List<TownAmount> =
+        listOf(TownAmount(TownResourceKind.Money, 120), TownAmount(TownResourceKind.Material, 40))
+
+    @Test
+    fun `tells a building work finished`() {
+        val news: TownNews = TownNews.BuildingWorkFinished(at, TownBuildingKind.PowerStation, level = 3)
+
+        assertEquals("Central eléctrica: ahora en nivel 3.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a building work stopped`() {
+        val news: TownNews = TownNews.BuildingWorkStopped(at, TownBuildingKind.Storage, level = 2, noRefund)
+
+        assertEquals("Paraste la obra: Almacén, nivel 2.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `names every place of the town`() {
+        val names: List<String> = TownBuildingKind.entries.map { building: TownBuildingKind ->
+            inSpanish { newsLineOf(TownNews.BuildingWorkFinished(at, building, level = 1)) }.substringBefore(":")
+        }
+
+        assertEquals(
+            listOf("Hogares", "Granja", "Fábrica", "Central eléctrica", "Almacén", "Escuela", "Oficina"),
+            names,
+        )
+    }
+
+    @Test
+    fun `tells a lesson studied`() {
+        assertEquals("Estudiaste una lección.", inSpanish { newsLineOf(TownNews.LessonStudied(at)) })
+    }
+
+    @Test
+    fun `tells a lesson stopped`() {
+        assertEquals("Paraste el estudio de una lección.", inSpanish { newsLineOf(TownNews.LessonStopped(at)) })
+    }
+
+    @Test
+    fun `tells a skill earned with its resource and percent`() {
+        val news: TownNews = TownNews.SkillEarned(at, TownResourceKind.Power, ratePercent = 5)
+
+        assertEquals("Ganaste una habilidad de energía: +5 % de energía.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `names every resource of the town`() {
+        val names: List<String> = TownResourceKind.entries.map { resource: TownResourceKind ->
+            amountsLineOf(TownNews.CleanUpDone(at, site, listOf(TownAmount(resource, 2)))).orEmpty()
+        }
+
+        assertEquals(
+            listOf("Pago: 2 de dinero", "Pago: 2 de comida", "Pago: 2 de energía", "Pago: 2 de material"),
+            names,
+        )
+    }
+
+    @Test
+    fun `tells one worker hired`() {
+        val news: TownNews = TownNews.HiringDelivered(at, TownHireKind.Worker, count = 1)
+
+        assertEquals("Contrataste 1 trabajador.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells many workers hired`() {
+        val news: TownNews = TownNews.HiringDelivered(at, TownHireKind.Worker, count = 10000)
+
+        assertEquals("Contrataste 10000 trabajadores.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells one truck hired`() {
+        val news: TownNews = TownNews.HiringDelivered(at, TownHireKind.Truck, count = 1)
+
+        assertEquals("Contrataste 1 camión.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells many trucks hired`() {
+        val news: TownNews = TownNews.HiringDelivered(at, TownHireKind.Truck, count = 3)
+
+        assertEquals("Contrataste 3 camiones.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a stopped hiring of workers with one come`() {
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 1, stopped = 4, noRefund)
+
+        assertEquals("Paraste la contratación de trabajadores: llegó 1 de 5.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a stopped hiring of workers with many come`() {
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 3, stopped = 2, noRefund)
+
+        assertEquals("Paraste la contratación de trabajadores: llegaron 3 de 5.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a stopped hiring of trucks with one come`() {
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Truck, delivered = 1, stopped = 1, noRefund)
+
+        assertEquals("Paraste la contratación de camiones: llegó 1 de 2.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a stopped hiring of trucks with none come`() {
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Truck, delivered = 0, stopped = 2, noRefund)
+
+        assertEquals("Paraste la contratación de camiones: llegaron 0 de 2.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a job back with its site`() {
+        val news: TownNews = TownNews.JobBack(at, site, pay = emptyList())
+
+        assertEquals("Tu equipo volvió de la región 1, zona 2, sitio 3.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a job called back with its site`() {
+        val news: TownNews = TownNews.JobCalledBack(at, site, pay = emptyList())
+
+        assertEquals("Llamaste de vuelta a tu equipo de la región 1, zona 2, sitio 3.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a clean-up done with its site`() {
+        val news: TownNews = TownNews.CleanUpDone(at, site, reward = emptyList())
+
+        assertEquals("Tu equipo limpió los residuos de la región 1, zona 2, sitio 3.", inSpanish { newsLineOf(news) })
+    }
+
+    @Test
+    fun `tells a clean-up failed with its site`() {
+        val news: TownNews = TownNews.CleanUpFailed(at, site)
+
+        assertEquals(
+            "Tu equipo no pudo limpiar los residuos de la región 1, zona 2, sitio 3.",
+            inSpanish { newsLineOf(news) },
+        )
+    }
+
+    @Test
+    fun `tells the town becoming a city`() {
+        assertEquals("Tu pueblo ahora es una ciudad.", inSpanish { newsLineOf(TownNews.BecameCity(at)) })
+    }
+
+    @Test
+    fun `reads the pay of a job back`() {
+        val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
+
+        assertEquals("Pago: 40 de comida", amountsLineOf(TownNews.JobBack(at, site, pay)))
+    }
+
+    @Test
+    fun `reads the pay of a job called back`() {
+        val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
+
+        assertEquals("Pago: 40 de comida", amountsLineOf(TownNews.JobCalledBack(at, site, pay)))
+    }
+
+    @Test
+    fun `reads the reward of a clean-up as its pay`() {
+        val reward: List<TownAmount> = listOf(TownAmount(TownResourceKind.Food, 40))
+
+        assertEquals("Pago: 40 de comida", amountsLineOf(TownNews.CleanUpDone(at, site, reward)))
+    }
+
+    @Test
+    fun `joins two amounts with a conjunction`() {
+        val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Money, 1), TownAmount(TownResourceKind.Food, 2))
+
+        assertEquals("Pago: 1 de dinero y 2 de comida", amountsLineOf(TownNews.JobBack(at, site, pay)))
+    }
+
+    @Test
+    fun `joins three amounts in the order given`() {
+        val pay: List<TownAmount> = listOf(
+            TownAmount(TownResourceKind.Money, 1),
+            TownAmount(TownResourceKind.Power, 2),
+            TownAmount(TownResourceKind.Material, 3),
+        )
+
+        assertEquals(
+            "Pago: 1 de dinero, 2 de energía y 3 de material",
+            amountsLineOf(TownNews.JobBack(at, site, pay)),
+        )
+    }
+
+    @Test
+    fun `groups a large amount with a thin space`() {
+        val pay: List<TownAmount> = listOf(TownAmount(TownResourceKind.Money, 12500))
+
+        assertEquals("Pago: 12\u202F500 de dinero", amountsLineOf(TownNews.JobBack(at, site, pay)))
+    }
+
+    @Test
+    fun `reads no pay for a job that brought nothing`() {
+        assertNull(amountsLineOf(TownNews.JobBack(at, site, pay = emptyList())))
+    }
+
+    @Test
+    fun `names the refund of a stopped work`() {
+        val news: TownNews = TownNews.BuildingWorkStopped(at, TownBuildingKind.Farm, level = 3, refund)
+
+        assertEquals("Recuperaste: 120 de dinero y 40 de material", amountsLineOf(news))
+    }
+
+    @Test
+    fun `names the refund of a stopped hiring`() {
+        val news: TownNews = TownNews.HiringStopped(at, TownHireKind.Worker, delivered = 1, stopped = 2, refund)
+
+        assertEquals("Recuperaste: 120 de dinero y 40 de material", amountsLineOf(news))
+    }
+
+    @Test
+    fun `reads no pay for news that carry none`() {
+        assertNull(amountsLineOf(TownNews.BecameCity(at)))
+    }
+
+    @Test
+    fun `dates news of the day of the read as today`() {
+        val readAt: Instant = Instant.parse("2026-11-05T20:00:00Z")
+
+        assertEquals("Hoy, 09:56", inSpanish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of the same local day across the UTC midnight as today`() {
+        val occurred: Instant = Instant.parse("2026-11-06T04:30:00Z")
+        val readAt: Instant = Instant.parse("2026-11-05T15:00:00Z")
+
+        assertEquals("Hoy, 23:30", inSpanish { instantLabelOf(occurred, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of another day of the year with its day`() {
+        val readAt: Instant = Instant.parse("2026-11-07T20:00:00Z")
+
+        assertEquals("5 nov, 09:56", inSpanish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of another year with their year`() {
+        val readAt: Instant = Instant.parse("2027-01-02T20:00:00Z")
+
+        assertEquals("5 nov 2026, 09:56", inSpanish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of the same day of another month with its day`() {
+        val readAt: Instant = Instant.parse("2026-12-05T20:00:00Z")
+
+        assertEquals("5 nov, 09:56", inSpanish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of the same date of another year with their year`() {
+        val readAt: Instant = Instant.parse("2027-11-05T20:00:00Z")
+
+        assertEquals("5 nov 2026, 09:56", inSpanish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of another year with a comma before the year in English`() {
+        val readAt: Instant = Instant.parse("2027-01-02T20:00:00Z")
+
+        assertEquals("Nov 5, 2026, 9:56\u202FAM", inEnglish { instantLabelOf(at, readAt, lima) })
+    }
+
+    @Test
+    fun `dates news of another day of the year on the American clock in English`() {
+        val readAt: Instant = Instant.parse("2026-11-07T20:00:00Z")
+
+        assertEquals("Nov 5, 9:56\u202FAM", inEnglish { instantLabelOf(at, readAt, lima) })
+    }
+}

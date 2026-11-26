@@ -9,6 +9,7 @@ export type AndroidModule =
   | 'school'
   | 'today'
   | 'town'
+  | 'ui'
 
 export type AndroidKey = {
   readonly module: AndroidModule
@@ -26,6 +27,7 @@ export const androidModules: ReadonlyArray<AndroidModule> = [
   'school',
   'today',
   'town',
+  'ui',
 ]
 
 const isAndroidModule = (segment: string): segment is AndroidModule =>

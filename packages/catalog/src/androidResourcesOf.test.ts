@@ -43,6 +43,14 @@ describe('androidResourcesOf', () => {
     ])
   })
 
+  it('writes a ui key into core:ui', () => {
+    const shared = { en: { 'android.ui.ui_news_became_city': 'Your town is now a city.' }, es: {} }
+
+    expect(androidResourcesOf(shared).map(({ path }) => path)).toEqual([
+      'apps/android/core/ui/src/main/res/values/strings.xml',
+    ])
+  })
+
   it('writes English into values and Spanish into values-es', () => {
     const bothLanguages = {
       en: { 'android.app.app_name': 'Townword' },

@@ -9,8 +9,16 @@ type AndroidString = {
   readonly pattern: string
 }
 
-const moduleDirectoryOf = (module: AndroidModule): string =>
-  module === 'app' ? 'apps/android/app' : `apps/android/feature/${module}`
+const moduleDirectoryOf = (module: AndroidModule): string => {
+  switch (module) {
+    case 'app':
+      return 'apps/android/app'
+    case 'ui':
+      return 'apps/android/core/ui'
+    default:
+      return `apps/android/feature/${module}`
+  }
+}
 
 const escapedForAndroid = (pattern: string): string =>
   pattern

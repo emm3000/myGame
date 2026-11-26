@@ -21,6 +21,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.town.news.TownNews
+import com.emm.mygame.core.ui.TownNewsRow
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.report.R
@@ -74,7 +75,9 @@ private fun NewsState(state: NewsUiState, onIntent: (NewsIntent) -> Unit) {
             if (state.news.isEmpty()) {
                 NewsNote(line = chromeResource(R.string.report_news_none))
             } else {
-                Column { state.news.forEach { news: TownNews -> NewsRow(news = news, receivedAt = state.receivedAt) } }
+                Column {
+                    state.news.forEach { news: TownNews -> TownNewsRow(news = news, receivedAt = state.receivedAt) }
+                }
             }
     }
 }

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_news_amount">{amount} de {resource}</string>
+    <string name="ui_news_became_city">Tu pueblo ahora es una ciudad.</string>
+    <string name="ui_news_building_work_finished">{place}: ahora en nivel {level}.</string>
+    <string name="ui_news_building_work_stopped">Paraste la obra: {place}, nivel {level}.</string>
+    <string name="ui_news_clean_up_done">Tu equipo limpió los residuos de la región {region}, zona {area}, sitio {site}.</string>
+    <string name="ui_news_clean_up_failed">Tu equipo no pudo limpiar los residuos de la región {region}, zona {area}, sitio {site}.</string>
+    <string name="ui_news_day">{day}, {time}</string>
+    <string name="ui_news_hiring_delivered_truck">{count, plural, =1 {Contrataste 1 camión.} other {Contrataste {count, number,0} camiones.}}</string>
+    <string name="ui_news_hiring_delivered_worker">{count, plural, =1 {Contrataste 1 trabajador.} other {Contrataste {count, number,0} trabajadores.}}</string>
+    <string name="ui_news_hiring_stopped_truck">Paraste la contratación de camiones: {delivered, plural, =1 {llegó 1} other {llegaron {delivered, number,0}}} de {count}.</string>
+    <string name="ui_news_hiring_stopped_worker">Paraste la contratación de trabajadores: {delivered, plural, =1 {llegó 1} other {llegaron {delivered, number,0}}} de {count}.</string>
+    <string name="ui_news_job_back">Tu equipo volvió de la región {region}, zona {area}, sitio {site}.</string>
+    <string name="ui_news_job_called_back">Llamaste de vuelta a tu equipo de la región {region}, zona {area}, sitio {site}.</string>
+    <string name="ui_news_lesson_stopped">Paraste el estudio de una lección.</string>
+    <string name="ui_news_lesson_studied">Estudiaste una lección.</string>
+    <string name="ui_news_pay">Pago: {amounts}</string>
+    <string name="ui_news_place_factory">Fábrica</string>
+    <string name="ui_news_place_farm">Granja</string>
+    <string name="ui_news_place_homes">Hogares</string>
+    <string name="ui_news_place_office">Oficina</string>
+    <string name="ui_news_place_power_station">Central eléctrica</string>
+    <string name="ui_news_place_school">Escuela</string>
+    <string name="ui_news_place_storage">Almacén</string>
+    <string name="ui_news_refund">Recuperaste: {amounts}</string>
+    <string name="ui_news_resource_food">comida</string>
+    <string name="ui_news_resource_material">material</string>
+    <string name="ui_news_resource_money">dinero</string>
+    <string name="ui_news_resource_power">energía</string>
+    <string name="ui_news_skill_earned" formatted="false">Ganaste una habilidad de {resource}: +{percent} % de {resource}.</string>
+    <string name="ui_news_today">Hoy, {time}</string>
+</resources>

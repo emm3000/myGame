@@ -21,6 +21,9 @@
     <string name="today_lesson_title">Lección {number}</string>
     <string name="today_loading">Estamos leyendo tu pueblo…</string>
     <string name="today_locked">Bloqueado</string>
+    <string name="today_news_all">Leer todas las noticias</string>
+    <string name="today_news_close">Cerrar las noticias</string>
+    <string name="today_news_title">Noticias del pueblo</string>
     <string name="today_next_level">{place}, nivel {level}</string>
     <string name="today_next_review">Siguiente repaso:</string>
     <string name="today_no_reviews_due">No tienes repasos pendientes ahora.</string>
