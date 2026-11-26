@@ -102,17 +102,17 @@ class TodayViewModel(private val towns: TownRepository, private val clock: Clock
 
     private fun follow() {
         following?.cancel()
-        if (!isShown || held?.town?.lessonSlot == null) return
+        if (!isShown || held?.town?.countdownsAt().isNullOrEmpty()) return
         following = viewModelScope.launch {
             while (true) {
                 val town: TownSnapshot = held?.town ?: return@launch
                 val now: Instant = now()
-                val finishesAt: Instant = town.lessonSlot?.finishesAt ?: return@launch
-                if (finishesAt <= now) {
+                val nearest: Instant = town.countdownsAt().minOrNull() ?: return@launch
+                if (nearest <= now) {
                     towns.read()
                     return@launch
                 }
-                delay(repaintDelay(finishesAt - now))
+                delay(repaintDelay(nearest - now))
                 draw()
             }
         }

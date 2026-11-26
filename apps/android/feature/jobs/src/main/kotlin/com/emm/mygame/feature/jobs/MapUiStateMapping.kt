@@ -6,6 +6,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.UNSCALED_PERCENT
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.model.town.jobs.RegionMap
+import com.emm.mygame.core.model.town.jobs.nextInstant
 import com.emm.mygame.core.projection.countdownTo
 import com.emm.mygame.core.ui.DurationMark
 import kotlin.time.Duration

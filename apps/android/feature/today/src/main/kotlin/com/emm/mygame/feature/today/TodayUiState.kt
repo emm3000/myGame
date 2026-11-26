@@ -4,6 +4,8 @@ import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import kotlin.time.Duration
 import kotlin.time.Instant
@@ -17,7 +19,9 @@ sealed interface TodayUiState {
     data class Content(
         val eyebrow: Eyebrow,
         val first: FirstCard?,
-        val running: RunningLesson?,
+        val lesson: RunningLesson?,
+        val work: RunningWork?,
+        val job: JobOut?,
         val start: StartStatus,
     ) : TodayUiState
 
@@ -51,6 +55,15 @@ sealed interface TodayUiState {
         val remaining: Duration,
         val finishesAt: Instant,
     )
+
+    data class RunningWork(
+        val building: TownBuildingKind,
+        val level: Int,
+        val remaining: Duration,
+        val finishesAt: Instant,
+    )
+
+    data class JobOut(val phase: TownSnapshot.JobPhase, val remaining: Duration, val finishesAt: Instant)
 
     sealed interface StartStatus {
 

@@ -10,12 +10,22 @@
     <string name="today_holdout_check">Word check for band {band}</string>
     <string name="today_holdout_open">Open the check</string>
     <string name="today_in_progress">In progress</string>
+    <string name="today_job_coming_back">Your team is coming back, home in</string>
+    <string name="today_job_on_the_way">Your team is on the way, at work in</string>
+    <string name="today_job_working">Your team is working, done in</string>
     <string name="today_learning_cap">Words in learning: {inLearning} of {cap}</string>
     <string name="today_lesson_ready_in">Lesson {number} ready in</string>
     <string name="today_lesson_title">Lesson {number}</string>
     <string name="today_loading">Reading your town…</string>
     <string name="today_next_review">Next review:</string>
     <string name="today_no_reviews_due">No reviews due now.</string>
+    <string name="today_place_factory">Factory</string>
+    <string name="today_place_farm">Farm</string>
+    <string name="today_place_homes">Homes</string>
+    <string name="today_place_office">Office</string>
+    <string name="today_place_power_station">Power station</string>
+    <string name="today_place_school">School</string>
+    <string name="today_place_storage">Storage</string>
     <string name="today_read_words">Read the words</string>
     <string name="today_refusal_learning_cap_reached">Words in learning: {cardsInLearning} of {learningCap}. Review them before you start another lesson.</string>
     <string name="today_refusal_lesson_already_studied">You already studied that lesson: its words are in your reviews.</string>
@@ -35,4 +45,5 @@
     <string name="today_try_again">Try again</string>
     <string name="today_waiting">Sending…</string>
     <string name="today_what_is_next">What is next</string>
+    <string name="today_work_ready_in">{place}, level {level}, ready in</string>
 </resources>

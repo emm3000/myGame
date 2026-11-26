@@ -5,6 +5,7 @@ import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.school.TownLessonResult
 import com.emm.mygame.core.testing.FakeTownRepository
@@ -15,6 +16,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -22,8 +24,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class TodayViewModelTest {
 
@@ -101,7 +105,44 @@ class TodayViewModelTest {
                 remaining = 8.minutes,
                 finishesAt = readAt + 10.minutes,
             ),
-            contentOf(viewModel).running,
+            contentOf(viewModel).lesson,
+        )
+    }
+
+    @Test
+    fun `a building work's row in In progress repaints each minute, then each second in its last minute`() = runTest {
+        val viewModel: TodayViewModel = shownOn(newTown(nextStep = lessonsDone, work = farmWorkLasting(2.minutes)))
+
+        val rows: List<TodayUiState.RunningWork?> = drawnDuring(viewModel, 62.seconds) { content -> content.work }
+
+        assertEquals(
+            listOf(2.minutes, 1.minutes, 59.seconds, 58.seconds).map { remaining: Duration ->
+                TodayUiState.RunningWork(
+                    building = TownBuildingKind.Farm,
+                    level = 2,
+                    remaining = remaining,
+                    finishesAt = readAt + 2.minutes,
+                )
+            },
+            rows,
+        )
+    }
+
+    @Test
+    fun `the job out's row in In progress counts down to its next phase, each second in its last minute`() = runTest {
+        val viewModel: TodayViewModel = shownOn(newTown(nextStep = lessonsDone, job = jobOnTheWayLasting(2.minutes)))
+
+        val rows: List<TodayUiState.JobOut?> = drawnDuring(viewModel, 62.seconds) { content -> content.job }
+
+        assertEquals(
+            listOf(2.minutes, 1.minutes, 59.seconds, 58.seconds).map { remaining: Duration ->
+                TodayUiState.JobOut(
+                    phase = TownSnapshot.JobPhase.Outbound,
+                    remaining = remaining,
+                    finishesAt = readAt + 2.minutes,
+                )
+            },
+            rows,
         )
     }
 
@@ -173,6 +214,20 @@ class TodayViewModelTest {
                 viewModel.onIntent(TodayIntent.ScreenHidden)
             }
         }
+    }
+
+    private fun <T> TestScope.drawnDuring(
+        viewModel: TodayViewModel,
+        lasting: Duration,
+        rowOf: (TodayUiState.Content) -> T,
+    ): List<T> {
+        val rows: MutableList<T> = mutableListOf()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.state.collect { state: TodayUiState -> rows.add(rowOf(state as TodayUiState.Content)) }
+        }
+        advanceTimeBy(lasting)
+        runCurrent()
+        return rows
     }
 
     private fun contentOf(

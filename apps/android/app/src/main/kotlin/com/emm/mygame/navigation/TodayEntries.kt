@@ -27,6 +27,7 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
                     onHoldoutCheckOpen = { band: PlacementBand, week: HoldoutCheckWeek ->
                         navigator.openHoldoutCheck(band, week)
                     },
+                    onMapOpen = { navigator.openOnTab(Destination.Map) },
                     onNoTown = navigator::townUnnamed,
                 ),
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },

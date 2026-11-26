@@ -10,6 +10,7 @@ import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.gapOf
 import com.emm.mygame.core.model.town.jobs.RegionMap
 import com.emm.mygame.core.model.town.jobs.RegionMapResult
+import com.emm.mygame.core.model.town.jobs.nextInstant
 import com.emm.mygame.core.model.town.jobs.TownJobResult
 import com.emm.mygame.core.model.town.jobs.TownRegionRepository
 import com.emm.mygame.core.model.town.serverNow

@@ -7,8 +7,11 @@ import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.PreviewMyGame
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
+import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 private val previewLesson: LessonId = LessonId("lesson-1")
@@ -19,6 +22,7 @@ private val previewNavigation: TodayNavigation = TodayNavigation(
     onLessonOpen = {},
     onReviewsOpen = {},
     onHoldoutCheckOpen = { _, _ -> },
+    onMapOpen = {},
     onNoTown = {},
 )
 
@@ -29,13 +33,17 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
             first = TodayUiState.FirstCard.Study(previewLesson, number = 1),
-            running = null,
+            lesson = null,
+            work = null,
+            job = null,
             start = TodayUiState.StartStatus.Idle,
         ),
         TodayUiState.Content(
             eyebrow = TodayUiState.Eyebrow.StartHere,
             first = null,
-            running = TodayUiState.RunningLesson(previewLesson, LessonName.Shelved(1), 8.minutes, previewAt),
+            lesson = TodayUiState.RunningLesson(previewLesson, LessonName.Shelved(1), 8.minutes, previewAt),
+            work = TodayUiState.RunningWork(TownBuildingKind.Farm, level = 2, remaining = 40.minutes, previewAt),
+            job = TodayUiState.JobOut(TownSnapshot.JobPhase.Outbound, remaining = 45.seconds, previewAt),
             start = TodayUiState.StartStatus.Idle,
         ),
         TodayUiState.Content(
@@ -44,7 +52,9 @@ private class TodayStates : PreviewParameterProvider<TodayUiState> {
                 line = TodayUiState.CaughtUpLine.NoReviewsDue,
                 nextReview = TodayUiState.TimeAt(remaining = 3.hours, at = previewAt),
             ),
-            running = null,
+            lesson = null,
+            work = null,
+            job = null,
             start = TodayUiState.StartStatus.Idle,
         ),
     )
