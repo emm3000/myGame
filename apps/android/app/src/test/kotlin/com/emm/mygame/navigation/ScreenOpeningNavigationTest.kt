@@ -1,17 +1,13 @@
 package com.emm.mygame.navigation
 
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.learning.ReviewsReadResult
-import com.emm.mygame.core.model.placement.Placement
-import com.emm.mygame.core.model.placement.PlacementReadResult
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
@@ -42,36 +38,17 @@ class ScreenOpeningNavigationTest : AppNavigationFixture() {
     }
 
     @Test
-    fun `opens the map from its row on the town home`() {
+    fun `opens the map from its row on the office's page`() {
         val firstArea: RegionMap =
             RegionMap(region = 1, area = 1, lastArea = 2, terrain = Terrain.Fields, sites = emptyList())
         towns.regions.answerMap(RegionMapResult.Read(firstArea))
         signedInAtTown()
-        composeRule
-            .onNode(
-                SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
-                    .and(hasContentDescription("Oficina", substring = true)),
-            )
-            .performScrollTo()
-            .performClick()
+        waitForLine("Oficina")
+        composeRule.onNode(hasText("Oficina") and hasClickAction() and !isSelectable()).performScrollTo().performClick()
 
         composeRule.onNodeWithText("Ir al mapa").performScrollTo().performClick()
 
         waitForLine("Zona 1")
-    }
-
-    @Test
-    fun `opens the placement from its row on the town home`() {
-        repeat(3) { placements.answerRead(PlacementReadResult.Read(Placement.Offered)) }
-        signedInAtTown()
-        waitForLine("Hacer la prueba de nivel")
-
-        composeRule.onNodeWithText("Hacer la prueba de nivel").performScrollTo().performClick()
-
-        composeRule.waitUntil(WAIT_MILLIS) {
-            composeRule.onAllNodes(hasText("Empezar la prueba"))
-                .fetchSemanticsNodes().isNotEmpty()
-        }
     }
 
     @Test

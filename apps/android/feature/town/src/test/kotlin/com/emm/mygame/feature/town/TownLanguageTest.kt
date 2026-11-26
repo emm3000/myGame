@@ -1,15 +1,14 @@
 package com.emm.mygame.feature.town
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownFoundRefusal
@@ -78,7 +77,7 @@ class TownLanguageTest {
         ),
     )
 
-    private val home: TownUiState.Content = townOf(places = placesOf(farmShortOfMoneyAndFood)).readContent().onFarm()
+    private val home: TownUiState.Content = townOf(places = placesOf(farmShortOfMoneyAndFood)).readContent()
 
     private val farmShortOfMoneyFoodAndPower: TownSnapshot.Building = farmShortOfMoneyAndFood.copy(
         next = nextLevelOf(
@@ -91,10 +90,10 @@ class TownLanguageTest {
     )
 
     private val homeShortOfThree: TownUiState.Content =
-        townOf(places = placesOf(farmShortOfMoneyFoodAndPower)).readContent().onFarm()
+        townOf(places = placesOf(farmShortOfMoneyFoodAndPower)).readContent()
 
     private val homeBuildingForThreeDays: TownUiState.Content =
-        townOf(slot = workOf(TownBuildingKind.Farm, lasting = 3.days)).readContent().onFarm()
+        townOf(slot = workOf(TownBuildingKind.Farm, lasting = 3.days)).readContent()
 
     private val farmAtLevelTwo: WorkTarget = WorkTarget(TownBuildingKind.Farm, level = 2)
 
@@ -146,16 +145,21 @@ class TownLanguageTest {
         TimeZone.setDefault(phoneZone)
     }
 
-    private fun show(language: CopyLanguage, state: TownUiState = home) {
+    private val opened: MutableState<TownBuildingKind?> = mutableStateOf(null)
+
+    private fun show(language: CopyLanguage, state: TownUiState = home, place: TownBuildingKind? = null) {
+        opened.value = place
         composeRule.setContent {
             ProvideCopyLanguage(language = language) {
                 MyGameTheme {
                     TownScreen(
+                        place = opened.value,
+                        onPlaceOpen = {},
+                        onNewsOpen = {},
                         state = state,
                         onIntent = {},
                         onSchoolOpen = {},
                         onMapOpen = {},
-                        onTextOpen = {},
                     )
                 }
             }
@@ -181,9 +185,9 @@ class TownLanguageTest {
     fun `draws the town home in Spanish in the Spanish phase`() {
         show(spanishPhase)
 
-        assertDrawn("Riverton · Pueblo", "Edificio 2 de 7", "Granja", "Gente trabajando: +3")
+        assertDrawn("Riverton · Pueblo", "Noticias del pueblo", "Granja")
         assertDrawn("Necesitas 300 de dinero y 200 de comida más.")
-        assertNotDrawn("Riverton · Town", "Building 2 of 7", "Farm", "People at work: +3")
+        assertNotDrawn("Riverton · Town", "Town News", "Farm")
     }
 
     @Test
@@ -191,14 +195,13 @@ class TownLanguageTest {
         show(bothPhase)
 
         assertEnglishOverSpanish("Riverton · Town", "Riverton · Pueblo")
-        assertEnglishOverSpanish("Building 2 of 7", "Edificio 2 de 7")
+        assertEnglishOverSpanish("Town News", "Noticias del pueblo")
         assertEnglishOverSpanish("Farm", "Granja")
-        assertEnglishOverSpanish("People at work: +3", "Gente trabajando: +3")
     }
 
     @Test
     fun `draws the office English over Spanish in the both phase`() {
-        show(bothPhase, home.onOffice())
+        show(bothPhase, home, place = TownBuildingKind.Office)
 
         assertEnglishOverSpanish("Hiring", "Contratación")
         assertEnglishOverSpanish("Go to the map", "Ir al mapa")
@@ -206,7 +209,7 @@ class TownLanguageTest {
 
     @Test
     fun `draws a composed line English over Spanish in the both phase`() {
-        show(bothPhase)
+        show(bothPhase, place = TownBuildingKind.Farm)
 
         assertEnglishOverSpanish(
             english = "You need 300 money and 200 food more.",
@@ -218,35 +221,35 @@ class TownLanguageTest {
     fun `draws the town home in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("Riverton · Town", "Building 2 of 7", "Farm", "People at work: +3")
+        assertDrawn("Riverton · Town", "Town News", "Farm")
         assertDrawn("You need 300 money and 200 food more.")
-        assertNotDrawn("Riverton · Pueblo", "Edificio 2 de 7", "Granja", "Gente trabajando: +3")
+        assertNotDrawn("Riverton · Pueblo", "Noticias del pueblo", "Granja")
     }
 
     @Test
     fun `writes a later finish day the English way in the English phase`() {
-        show(englishPhase, homeBuildingForThreeDays)
+        show(englishPhase, homeBuildingForThreeDays, place = TownBuildingKind.Farm)
 
         composeRule.onNode(hasText("Nov 8", substring = true)).assertExists()
     }
 
     @Test
     fun `writes a later finish time on the American clock in the English phase`() {
-        show(englishPhase, homeBuildingForThreeDays)
+        show(englishPhase, homeBuildingForThreeDays, place = TownBuildingKind.Farm)
 
         composeRule.onNode(hasText("Nov 8 10:00\u202FAM", substring = true)).assertExists()
     }
 
     @Test
     fun `joins three shortfalls with a serial comma in the English phase`() {
-        show(englishPhase, homeShortOfThree)
+        show(englishPhase, homeShortOfThree, place = TownBuildingKind.Farm)
 
         composeRule.onNode(hasText("You need 300 money, 200 food, and ", substring = true)).assertExists()
     }
 
     @Test
     fun `joins three shortfalls with no comma before y in the Spanish phase`() {
-        show(spanishPhase, homeShortOfThree)
+        show(spanishPhase, homeShortOfThree, place = TownBuildingKind.Farm)
 
         composeRule.onNode(hasText("Necesitas 300 de dinero, 200 de comida y ", substring = true)).assertExists()
     }
@@ -255,9 +258,9 @@ class TownLanguageTest {
     fun `draws the town home in English under none`() {
         show(noScaffold)
 
-        assertDrawn("Riverton · Town", "Building 2 of 7", "Farm", "People at work: +3")
+        assertDrawn("Riverton · Town", "Town News", "Farm")
         assertDrawn("You need 300 money and 200 food more.")
-        assertNotDrawn("Riverton · Pueblo", "Edificio 2 de 7", "Granja", "Gente trabajando: +3")
+        assertNotDrawn("Riverton · Pueblo", "Noticias del pueblo", "Granja")
     }
 
     @Test
@@ -314,7 +317,7 @@ class TownLanguageTest {
             stop = StopStatus.Refused(farmAtLevelTwo, TownWorkRefusal.BuildingWorkNotFound(level = 2)),
         )
 
-        show(englishPhase, refused)
+        show(englishPhase, refused, place = TownBuildingKind.Farm)
 
         assertDrawn("La obra del nivel 2 ya no está en la lista. Quizá ya terminó.")
         assertNotDrawn("The work for level 2 is no longer on the list. It may have finished.")
@@ -328,7 +331,7 @@ class TownLanguageTest {
             },
         )
 
-        show(englishPhase, full)
+        show(englishPhase, full, place = TownBuildingKind.Farm)
 
         assertDrawn("La lista de espera ya tiene 2 obras. Espera a que termine alguna.")
         assertNotDrawn("The waiting list already holds 2 works. Wait for one to finish.")
@@ -342,7 +345,7 @@ class TownLanguageTest {
             ),
         )
 
-        show(englishPhase, refused.onOffice())
+        show(englishPhase, refused, place = TownBuildingKind.Office)
 
         assertDrawn(HIRING_BUSY_IN_SPANISH)
         assertNotDrawn(HIRING_BUSY_IN_ENGLISH)
@@ -356,7 +359,7 @@ class TownLanguageTest {
             ),
         )
 
-        show(englishPhase, refused.onOffice())
+        show(englishPhase, refused, place = TownBuildingKind.Office)
 
         assertDrawn(HIRING_BUSY_IN_SPANISH)
         assertNotDrawn(HIRING_BUSY_IN_ENGLISH)
@@ -374,11 +377,10 @@ class TownLanguageTest {
             ),
         )
 
-        show(englishPhase, unreachable)
+        show(englishPhase, unreachable, place = TownBuildingKind.Farm)
         val onFarm: Int = unreachableLines()
-        composeRule.onNode(
-            isTab and hasContentDescription("Office, ", substring = true),
-        ).performScrollTo().performClick()
+        opened.value = TownBuildingKind.Office
+        composeRule.waitForIdle()
 
         assertEquals(4, onFarm + unreachableLines())
         assertNotDrawn("We could not reach the server. Try again in a moment.")
@@ -390,7 +392,7 @@ class TownLanguageTest {
             start = StartStatus.Refused(TownBuildingKind.Farm, TownWorkRefusal.TopLevelReached(level = 5)),
         )
 
-        show(englishPhase, refused)
+        show(englishPhase, refused, place = TownBuildingKind.Farm)
 
         assertDrawn("Farm", "Este edificio ya está en su nivel más alto, el 5.")
         assertNotDrawn("This building is already at its top level, 5.")
@@ -398,10 +400,6 @@ class TownLanguageTest {
 
     private fun unreachableLines(): Int =
         composeRule.onAllNodesWithText(UNREACHABLE_IN_SPANISH, useUnmergedTree = true).fetchSemanticsNodes().size
-
-    private fun TownUiState.Content.onFarm(): TownUiState.Content = copy(nextStepPlace = TownBuildingKind.Farm)
-
-    private fun TownUiState.Content.onOffice(): TownUiState.Content = copy(nextStepPlace = TownBuildingKind.Office)
 
     private companion object {
         const val HIRING_BUSY_IN_SPANISH: String = "Ya tienes una contratación en curso. Espera a que termine."

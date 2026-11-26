@@ -5,7 +5,6 @@ import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.NextStep
-import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.model.town.hiring.TownHireKind
@@ -53,12 +52,10 @@ internal fun TownSnapshot.contentAt(
         slot = work.slot?.slotLineAt(now, gap) ?: SlotLine.Idle,
         waitingList = work.waitingList.map { item: TownSnapshot.WorkItem -> item.waitingLineAt(now, gap) },
         places = buildings
-            .sortedBy { place: TownSnapshot.Building -> streetOrder.indexOf(place.kind) }
+            .sortedBy { place: TownSnapshot.Building -> placeOrder.indexOf(place.kind) }
             .map { place: TownSnapshot.Building -> place.cardWith(drawn, this, registered, now, gap) },
         nextStepPlace = nextStep.placeWith(goal),
         goal = goal,
-        caughtUpGoal = goal.takeIf { nextStep is NextStep.CaughtUp },
-        newestText = nextStep.carriedText(),
         tip = tip?.takeUnless { shown: TipKind -> shown in closed.tips },
         start = requests.start,
         stop = requests.stop,
@@ -78,12 +75,6 @@ internal fun TownSnapshot.nearestCountdownAt(now: Instant): Duration? =
 private fun NextStep.carriedGoal(): TownGoal? = when (this) {
     is NextStep.LessonRunning -> goal
     is NextStep.CaughtUp -> goal
-    is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
-}
-
-private fun NextStep.carriedText(): NextStepText? = when (this) {
-    is NextStep.LessonRunning -> text
-    is NextStep.CaughtUp -> text
     is NextStep.Reviews, is NextStep.HoldoutCheck, is NextStep.ReleasedLesson, is NextStep.LessonToStudy -> null
 }
 

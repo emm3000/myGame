@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.uitesting.navRowOf
 import com.emm.mygame.feature.town.TownScreenFixture
 import org.junit.Assert.assertEquals
@@ -18,18 +19,21 @@ class HiringSectionScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the office on the office's page`() {
-        show(riverton)
-        composeRule.onAllNodesWithText(OFFICE_IDLE).assertCountEquals(0)
-
-        tab("Oficina").performScrollTo().performClick()
+        show(riverton, place = TownBuildingKind.Office)
 
         composeRule.onNodeWithText(OFFICE_IDLE).performScrollTo().assertIsDisplayed()
     }
 
     @Test
+    fun `draws no office on another place's page`() {
+        show(riverton, place = TownBuildingKind.Farm)
+
+        composeRule.onAllNodesWithText(OFFICE_IDLE).assertCountEquals(0)
+    }
+
+    @Test
     fun `opens the map from the office page's nav row`() {
-        show(riverton)
-        tab("Oficina").performScrollTo().performClick()
+        show(riverton, place = TownBuildingKind.Office)
 
         composeRule.onNode(navRowOf("Ir al mapa"), useUnmergedTree = true).performScrollTo().performClick()
 

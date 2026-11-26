@@ -33,7 +33,15 @@ class TownSignOutScreenTest {
     private fun show(state: TownUiState) {
         composeRule.setContent {
             MyGameTheme {
-                TownScreen(state = state, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}, onTextOpen = {})
+                TownScreen(
+                    state = state,
+                    place = null,
+                    onIntent = {},
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
+                    onSchoolOpen = {},
+                    onMapOpen = {},
+                )
             }
         }
     }

@@ -69,7 +69,7 @@ class TownPageFocusRingTest {
         buildMark = null,
         slot = SlotLine.Idle,
         waitingList = emptyList(),
-        places = streetOrder.map { kind: TownBuildingKind ->
+        places = placeOrder.map { kind: TownBuildingKind ->
             PlaceCard(
                 kind = kind,
                 level = 1,
@@ -81,8 +81,6 @@ class TownPageFocusRingTest {
         },
         nextStepPlace = TownBuildingKind.School,
         goal = null,
-        caughtUpGoal = null,
-        newestText = null,
         tip = null,
         start = StartStatus.Idle,
         stop = StopStatus.Idle,
@@ -98,7 +96,15 @@ class TownPageFocusRingTest {
             inputModes = LocalInputModeManager.current
             MyGameTheme {
                 focus = MyGameTheme.colors.focus
-                TownScreen(state = riverton, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}, onTextOpen = {})
+                TownScreen(
+                    state = riverton,
+                    place = TownBuildingKind.School,
+                    onIntent = {},
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
+                    onSchoolOpen = {},
+                    onMapOpen = {},
+                )
             }
         }
         composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }

@@ -61,11 +61,13 @@ class TownNamingArtTest {
                 silhouette = MyGameTheme.colors.surfaceSunken
                 ground = MyGameTheme.colors.surfaceRaised
                 TownScreen(
+                    place = null,
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
                     state = TownUiState.Naming("", NamingStatus.Idle),
                     onIntent = {},
                     onSchoolOpen = {},
                     onMapOpen = {},
-                    onTextOpen = {},
                 )
             }
         }

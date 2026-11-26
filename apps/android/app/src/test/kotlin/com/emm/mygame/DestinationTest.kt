@@ -4,6 +4,7 @@ import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
@@ -17,6 +18,7 @@ class DestinationTest {
             Destination.Naming,
             Destination.Today,
             Destination.Town,
+            Destination.Place(TownBuildingKind.Farm),
             Destination.School,
             Destination.Report,
             Destination.News,
@@ -47,6 +49,7 @@ class DestinationTest {
             "com.emm.mygame.Destination.Naming",
             "com.emm.mygame.Destination.Today",
             "com.emm.mygame.Destination.Town",
+            "com.emm.mygame.Destination.Place",
             "com.emm.mygame.Destination.School",
             "com.emm.mygame.Destination.Report",
             "com.emm.mygame.Destination.News",
@@ -73,6 +76,7 @@ class DestinationTest {
             "com.emm.mygame.Destination\$Naming",
             "com.emm.mygame.Destination\$Today",
             "com.emm.mygame.Destination\$Town",
+            "com.emm.mygame.Destination\$Place",
             "com.emm.mygame.Destination\$School",
             "com.emm.mygame.Destination\$Report",
             "com.emm.mygame.Destination\$News",

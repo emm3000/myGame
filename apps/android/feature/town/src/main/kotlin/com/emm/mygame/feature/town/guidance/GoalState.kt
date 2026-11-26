@@ -7,7 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameNextStepBlock
+import com.emm.mygame.core.designsystem.MyGameBlock
+import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -93,11 +94,7 @@ private class GoalStates : PreviewParameterProvider<TownGoal> {
 @Composable
 private fun GoalStatePreview(@PreviewParameter(GoalStates::class) goal: TownGoal) {
     MyGamePreviewSurface {
-        MyGameNextStepBlock(
-            title = MyGameLabel(text = "Your next step", translation = null),
-            line = MyGameLabel(text = "No reviews due now.", translation = null),
-            detail = rememberPlayerCopy().chrome { goalLineOf(goal) },
-        ) {
+        MyGameBlock(hue = MyGameBlockHue.Lavender) {
             GoalState(goal = goal)
         }
     }

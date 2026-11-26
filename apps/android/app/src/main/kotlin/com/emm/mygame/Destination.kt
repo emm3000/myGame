@@ -7,6 +7,7 @@ import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -38,6 +39,9 @@ sealed interface Destination : NavKey {
 
     @Serializable
     data object Town : Destination
+
+    @Serializable
+    data class Place(val building: TownBuildingKind) : Destination
 
     @Serializable
     data object School : Destination

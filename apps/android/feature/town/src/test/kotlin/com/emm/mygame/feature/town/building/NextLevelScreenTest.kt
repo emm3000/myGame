@@ -7,7 +7,6 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -15,7 +14,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
@@ -42,8 +40,7 @@ class NextLevelScreenTest : TownScreenFixture() {
 
     @Test
     fun `offers the place's next level on its own page`() {
-        show(riverton)
-        tab("Granja").performScrollTo().performClick()
+        show(riverton, place = TownBuildingKind.Farm)
 
         composeRule.onNodeWithText("Construir nivel 2 · 1:30").performScrollTo().performClick()
 
@@ -52,14 +49,14 @@ class NextLevelScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the build action outlined`() {
-        show(riverton)
+        show(riverton, place = TownBuildingKind.School)
 
         composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(1)
     }
 
     @Test
     fun `draws the level's cost and people on its page`() {
-        show(riverton)
+        show(riverton, place = TownBuildingKind.School)
 
         composeRule.onNodeWithText("Gente trabajando: +3").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithContentDescription("150 de dinero").performScrollTo().assertIsDisplayed()
@@ -67,7 +64,10 @@ class NextLevelScreenTest : TownScreenFixture() {
 
     @Test
     fun `says a shortfall of the build in words`() {
-        show(onSchool(placeOf(TownBuildingKind.School).copy(block = shortOf(TownResourceKind.Food, 20))))
+        show(
+            onSchool(placeOf(TownBuildingKind.School).copy(block = shortOf(TownResourceKind.Food, 20))),
+            place = TownBuildingKind.School,
+        )
 
         composeRule
             .onNode(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Necesitas 20 de comida más."))
@@ -77,7 +77,10 @@ class NextLevelScreenTest : TownScreenFixture() {
 
     @Test
     fun `keeps a blocked level tappable`() {
-        show(onSchool(placeOf(TownBuildingKind.School).copy(block = BlockReason.PeopleShort(5, 2))))
+        show(
+            onSchool(placeOf(TownBuildingKind.School).copy(block = BlockReason.PeopleShort(5, 2))),
+            place = TownBuildingKind.School,
+        )
 
         composeRule.onNodeWithText("Construir nivel 2 · 1:30").performScrollTo().performClick()
 
@@ -88,7 +91,10 @@ class NextLevelScreenTest : TownScreenFixture() {
     fun `draws the words a level needs over a segmented track`() {
         val need: WordNeedLine =
             WordNeedLine(needed = 10, held = 4, standing = NeededWordKind.Stable)
-        show(onSchool(placeOf(TownBuildingKind.School).copy(next = levelTwo.copy(wordsNeeded = need))))
+        show(
+            onSchool(placeOf(TownBuildingKind.School).copy(next = levelTwo.copy(wordsNeeded = need))),
+            place = TownBuildingKind.School,
+        )
 
         composeRule
             .onNodeWithText("Necesita 10 palabras fuera de aprendizaje: 4 de 10")
@@ -98,14 +104,17 @@ class NextLevelScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws no words line when the level needs none`() {
-        show(riverton)
+        show(riverton, place = TownBuildingKind.School)
 
         composeRule.onAllNodesWithText("Necesita", substring = true).assertCountEquals(0)
     }
 
     @Test
     fun `a top-level place shows no words, no cost and no build`() {
-        show(onSchool(placeOf(TownBuildingKind.School).copy(level = 10, next = null)))
+        show(
+            onSchool(placeOf(TownBuildingKind.School).copy(level = 10, next = null)),
+            place = TownBuildingKind.School,
+        )
 
         composeRule.onNodeWithText("Nivel máximo").assertIsDisplayed()
         composeRule.onAllNodesWithText("Necesita", substring = true).assertCountEquals(0)
@@ -118,7 +127,7 @@ class NextLevelScreenTest : TownScreenFixture() {
         val refused: StartStatus =
             StartStatus.Refused(TownBuildingKind.School, TownWorkRefusal.NotEnoughPeople(5, 2))
 
-        show(riverton.copy(start = refused))
+        show(riverton.copy(start = refused), place = TownBuildingKind.School)
 
         composeRule
             .onNodeWithText("Esta obra necesita 5 personas libres y tienes 2. Sube el nivel de tus hogares.")
@@ -127,9 +136,9 @@ class NextLevelScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `brings a start refusal at the end of the page fully into view above the street`() {
+    fun `brings a start refusal at the end of the page fully into view`() {
         val shown: MutableState<TownUiState> = mutableStateOf(riverton)
-        showState(shown, window = phoneWindow)
+        showState(shown, window = phoneWindow, place = TownBuildingKind.School)
         composeRule.onNodeWithText("Construir nivel 2 · 1:30").performClick()
 
         shown.value = riverton.copy(
@@ -138,13 +147,12 @@ class NextLevelScreenTest : TownScreenFixture() {
         composeRule.waitForIdle()
 
         val refusal: DpRect = composeRule.onNodeWithText(NOT_ENOUGH).getUnclippedBoundsInRoot()
-        val streetTop: Dp = composeRule.onNode(hasContentDescription(STREET)).getUnclippedBoundsInRoot().top
-        assertTrue("refusal ends at ${refusal.bottom}, street starts at $streetTop", refusal.bottom <= streetTop)
+        assertTrue("refusal ends at ${refusal.bottom}", refusal.bottom <= phoneWindow.height)
         assertTrue("refusal starts at ${refusal.top}", refusal.top >= 0.dp)
     }
 
     private fun onSchool(school: PlaceCard): TownUiState.Content = riverton.copy(
-        places = street.map { place: PlaceCard -> if (place.kind == school.kind) school else place },
+        places = placeCards.map { place: PlaceCard -> if (place.kind == school.kind) school else place },
     )
 
     private companion object {

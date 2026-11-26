@@ -2,7 +2,6 @@ package com.emm.mygame.feature.town
 
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.model.town.guidance.NextStepText
 import com.emm.mygame.core.model.town.guidance.TipKind
 import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.projection.town.building.StartStatus
@@ -38,8 +37,6 @@ sealed interface TownUiState {
         val places: List<PlaceCard>,
         val nextStepPlace: TownBuildingKind,
         val goal: TownGoal?,
-        val caughtUpGoal: TownGoal?,
-        val newestText: NextStepText?,
         val tip: TipKind?,
         val start: StartStatus,
         val stop: StopStatus,

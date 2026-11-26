@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.town.guidance
 
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
@@ -24,16 +23,21 @@ class PlaceGuidanceScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the goal's state on the goal building's page`() {
-        show(riverton.copy(goal = factoryGoal, nextStepPlace = TownBuildingKind.Factory))
+        show(riverton.copy(goal = factoryGoal), place = TownBuildingKind.Factory)
 
         composeRule.onNodeWithText("En construcción").performScrollTo().assertIsDisplayed()
-        tab("Granja").performScrollTo().performClick()
+    }
+
+    @Test
+    fun `draws no goal on another building's page`() {
+        show(riverton.copy(goal = factoryGoal), place = TownBuildingKind.Farm)
+
         composeRule.onAllNodesWithText("Cerrar la meta").assertCountEquals(0)
     }
 
     @Test
     fun `closes the goal from the goal building's page`() {
-        show(riverton.copy(goal = factoryGoal, nextStepPlace = TownBuildingKind.Factory))
+        show(riverton.copy(goal = factoryGoal), place = TownBuildingKind.Factory)
 
         composeRule.onNodeWithText("Cerrar la meta").performScrollTo().performClick()
 
@@ -42,21 +46,23 @@ class PlaceGuidanceScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws each tip on the page of the place it talks about`() {
-        val pages: Map<TipKind, String> = mapOf(
-            TipKind.Seasons to "Almacén",
-            TipKind.FullStore to "Almacén",
-            TipKind.People to "Hogares",
-            TipKind.Office to "Oficina",
-            TipKind.Jobs to "Oficina",
+        val pages: Map<TipKind, TownBuildingKind> = mapOf(
+            TipKind.Seasons to TownBuildingKind.Storage,
+            TipKind.FullStore to TownBuildingKind.Storage,
+            TipKind.People to TownBuildingKind.Homes,
+            TipKind.Office to TownBuildingKind.Office,
+            TipKind.Jobs to TownBuildingKind.Office,
         )
         val shown: MutableState<TownUiState> = mutableStateOf(riverton)
-        showState(shown)
+        val opened: MutableState<TownBuildingKind?> = mutableStateOf(null)
+        composeRule.setContent { Screen(state = shown.value, place = opened.value) }
 
-        val found: Map<TipKind, String> = pages.mapValues { (tip: TipKind, page: String) ->
+        val found: Map<TipKind, TownBuildingKind?> = pages.mapValues { (tip: TipKind, page: TownBuildingKind) ->
             shown.value = riverton.copy(tip = tip)
-            tab(page).performScrollTo().performClick()
+            opened.value = page
+            composeRule.waitForIdle()
             composeRule.onAllNodesWithText("Cerrar el consejo").fetchSemanticsNodes().size.let { count: Int ->
-                if (count == 1) page else "none"
+                if (count == 1) page else null
             }
         }
         assertEquals(pages, found)
@@ -64,17 +70,27 @@ class PlaceGuidanceScreenTest : TownScreenFixture() {
 
     @Test
     fun `draws the waiting list tip on the page of the place in work`() {
-        show(inWork(riverton.copy(slot = busyFarm, tip = TipKind.WaitingList), TownBuildingKind.Farm))
-        composeRule.onAllNodesWithText("Cerrar el consejo").assertCountEquals(0)
-
-        tab("Granja").performScrollTo().performClick()
+        show(
+            inWork(riverton.copy(slot = busyFarm, tip = TipKind.WaitingList), TownBuildingKind.Farm),
+            place = TownBuildingKind.Farm,
+        )
 
         composeRule.onNodeWithText("Cerrar el consejo").performScrollTo().assertIsDisplayed()
     }
 
     @Test
+    fun `draws no waiting list tip on a page with no work`() {
+        show(
+            inWork(riverton.copy(slot = busyFarm, tip = TipKind.WaitingList), TownBuildingKind.Farm),
+            place = TownBuildingKind.School,
+        )
+
+        composeRule.onAllNodesWithText("Cerrar el consejo").assertCountEquals(0)
+    }
+
+    @Test
     fun `closes the tip it shows`() {
-        show(riverton.copy(tip = TipKind.People, nextStepPlace = TownBuildingKind.Homes))
+        show(riverton.copy(tip = TipKind.People), place = TownBuildingKind.Homes)
 
         composeRule.onNodeWithText("Cerrar el consejo").performScrollTo().performClick()
 

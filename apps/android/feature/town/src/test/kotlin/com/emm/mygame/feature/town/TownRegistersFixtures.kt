@@ -7,15 +7,24 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.REGISTERING
 import com.emm.mygame.core.model.town.TownRegistered
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.registeredBetween
 import com.emm.mygame.feature.town.guidance.ClosedGuidance
 import kotlin.time.Duration
 
-internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnapshot, next: TownSnapshot) {
+internal fun showBetween(
+    composeRule: ComposeContentTestRule,
+    previous: TownSnapshot,
+    next: TownSnapshot,
+    place: TownBuildingKind,
+) {
     val registered: TownRegistered = registeredBetween(previous, next)
     composeRule.setContent {
         MyGameTheme {
             TownScreen(
+                place = place,
+                onPlaceOpen = {},
+                onNewsOpen = {},
                 state = next.contentAt(
                     now = readInstant,
                     gap = Duration.ZERO,
@@ -27,7 +36,6 @@ internal fun showBetween(composeRule: ComposeContentTestRule, previous: TownSnap
                 onIntent = { },
                 onSchoolOpen = { },
                 onMapOpen = {},
-                onTextOpen = {},
             )
         }
     }

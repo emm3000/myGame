@@ -1,8 +1,5 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.lifecycle.viewModelScope
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.SeasonDurationPercent
@@ -16,13 +13,11 @@ import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.guidance.CaughtUpReason
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.guidance.TipKind
-import com.emm.mygame.core.model.town.guidance.TownGoal
 import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import com.emm.mygame.feature.town.building.NextLevel
 import com.emm.mygame.feature.town.building.PlaceCard
 import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.hiring.HiringLine
@@ -38,11 +33,6 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
-
-internal val isTab: SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
-
-internal fun List<PlaceCard>.leveled(kind: TownBuildingKind, level: Int): List<PlaceCard> =
-    map { place: PlaceCard -> if (place.kind == kind) place.copy(level = level) else place }
 
 internal val readInstant: Instant = Instant.parse("2026-11-05T10:00:00Z")
 
@@ -85,12 +75,6 @@ internal fun workOf(
 
 internal fun lessonEndingAt(finishesAt: Instant): TownSnapshot.LessonSlot =
     TownSnapshot.LessonSlot(LessonId("lesson-1"), readInstant, finishesAt)
-
-internal fun openingOn(place: TownBuildingKind): NextStep = NextStep.CaughtUp(
-    reason = CaughtUpReason.LessonsDone,
-    goal = TownGoal(position = 1, count = 9, building = place, level = 1, state = TownGoal.State.Underway),
-    text = null,
-)
 
 internal fun emptyNaming(): TownUiState.Naming = TownUiState.Naming("", NamingStatus.Idle)
 

@@ -12,7 +12,6 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -22,7 +21,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -62,6 +60,8 @@ class TownHiringScreenTest {
     val composeRule: ComposeContentTestRule = createComposeRule()
 
     private val intents: MutableList<TownIntent> = mutableListOf()
+
+    private val phone: DpSize = DpSize(360.dp, 640.dp)
 
     private val threeWorkers: HiringOffer = HiringOffer(
         count = 3,
@@ -320,7 +320,7 @@ class TownHiringScreenTest {
     }
 
     @Test
-    fun `brings a hire refusal at the end of the page fully into view above the street`() {
+    fun `brings a hire refusal at the end of the page fully into view`() {
         val shown: MutableState<HiringLine> = mutableStateOf(hiring)
         showOnAPhone(shown)
 
@@ -329,11 +329,11 @@ class TownHiringScreenTest {
         )
         composeRule.waitForIdle()
 
-        assertAboveTheStreet(HIRE_SHORT)
+        assertFullyInView(HIRE_SHORT)
     }
 
     @Test
-    fun `brings a refused hiring stop at the end of the page fully into view above the street`() {
+    fun `brings a refused hiring stop at the end of the page fully into view`() {
         val busy: HiringLine = hiring.copy(order = busyHiring)
         val shown: MutableState<HiringLine> = mutableStateOf(busy)
         showOnAPhone(shown)
@@ -341,7 +341,7 @@ class TownHiringScreenTest {
         shown.value = busy.copy(stop = HiringStopStatus.Refused(TownHiringRefusal.HiringOrderNotFound))
         composeRule.waitForIdle()
 
-        assertAboveTheStreet(HIRING_OVER)
+        assertFullyInView(HIRING_OVER)
     }
 
     private fun shortOfMoneyUntil(ready: ReadyTime): HiringBlock =
@@ -360,24 +360,24 @@ class TownHiringScreenTest {
     private fun showOnAPhone(shown: MutableState<HiringLine>) {
         composeRule.setContent {
             MyGameTheme {
-                Box(modifier = Modifier.size(DpSize(360.dp, 640.dp))) {
+                Box(modifier = Modifier.size(phone)) {
                     TownScreen(
+                        place = TownBuildingKind.Office,
+                        onPlaceOpen = {},
+                        onNewsOpen = {},
                         state = homeWith(shown.value),
                         onIntent = { intent: TownIntent -> intents += intent },
                         onSchoolOpen = {},
                         onMapOpen = {},
-                        onTextOpen = {},
                     )
                 }
             }
         }
     }
 
-    private fun assertAboveTheStreet(line: String) {
+    private fun assertFullyInView(line: String) {
         val alert: DpRect = composeRule.onNodeWithText(line).getUnclippedBoundsInRoot()
-        val streetTop: Dp =
-            composeRule.onNode(hasContentDescription(STREET, substring = true)).getUnclippedBoundsInRoot().top
-        assertTrue("refusal ends at ${alert.bottom}, street starts at $streetTop", alert.bottom <= streetTop)
+        assertTrue("refusal ends at ${alert.bottom}", alert.bottom <= phone.height)
         assertTrue("refusal starts at ${alert.top}", alert.top >= 0.dp)
     }
 
@@ -402,11 +402,13 @@ class TownHiringScreenTest {
         composeRule.setContent {
             MyGameTheme {
                 TownScreen(
+                    place = TownBuildingKind.Office,
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
                     state = homeWith(shown),
                     onIntent = { intent: TownIntent -> intents += intent },
                     onSchoolOpen = { },
                     onMapOpen = {},
-                    onTextOpen = {},
                 )
             }
         }
@@ -425,8 +427,6 @@ class TownHiringScreenTest {
         places = listOf(bareOffice),
         nextStepPlace = TownBuildingKind.Office,
         goal = null,
-        caughtUpGoal = null,
-        newestText = null,
         tip = null,
         start = StartStatus.Idle,
         stop = StopStatus.Idle,
@@ -434,7 +434,6 @@ class TownHiringScreenTest {
     )
 
     private companion object {
-        const val STREET: String = "Tu pueblo:"
         const val HIRE_SHORT: String =
             "No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas."
         const val HIRING_OVER: String = "Esta contratación ya terminó."

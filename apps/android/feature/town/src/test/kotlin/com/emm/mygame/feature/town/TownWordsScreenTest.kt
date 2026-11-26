@@ -71,8 +71,6 @@ class TownWordsScreenTest {
         places = listOf(farmOffer),
         nextStepPlace = TownBuildingKind.Farm,
         goal = null,
-        caughtUpGoal = null,
-        newestText = null,
         tip = null,
         start = StartStatus.Idle,
         stop = StopStatus.Idle,
@@ -116,7 +114,15 @@ class TownWordsScreenTest {
     private fun showPlaces(content: TownUiState.Content) {
         composeRule.setContent {
             MyGameTheme {
-                TownScreen(state = content, onIntent = {}, onSchoolOpen = {}, onMapOpen = {}, onTextOpen = {})
+                TownScreen(
+                    state = content,
+                    place = TownBuildingKind.Farm,
+                    onIntent = {},
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
+                    onSchoolOpen = {},
+                    onMapOpen = {},
+                )
             }
         }
     }

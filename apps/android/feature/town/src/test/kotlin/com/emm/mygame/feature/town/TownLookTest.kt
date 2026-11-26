@@ -6,11 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -21,7 +19,6 @@ import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -105,8 +102,6 @@ class TownLookTest {
         places = listOf(farmOffer),
         nextStepPlace = TownBuildingKind.Farm,
         goal = null,
-        caughtUpGoal = null,
-        newestText = null,
         tip = null,
         start = StartStatus.Idle,
         stop = StopStatus.Idle,
@@ -145,11 +140,13 @@ class TownLookTest {
         composeRule.setContent {
             MyGameTheme {
                 TownScreen(
+                    place = null,
+                    onPlaceOpen = {},
+                    onNewsOpen = {},
                     state = home.value,
                     onIntent = { },
                     onSchoolOpen = { },
                     onMapOpen = {},
-                    onTextOpen = {},
                 )
             }
         }
@@ -183,17 +180,19 @@ class TownLookTest {
             farmOffer.copy(kind = TownBuildingKind.Storage, level = 2, isInWork = true),
         )
 
-        show(riverton.copy(places = places, nextStepPlace = TownBuildingKind.School))
+        val opened: MutableState<TownBuildingKind?> = mutableStateOf(null)
+        composeRule.setContent { MyGameTheme { Home(riverton.copy(places = places), opened.value) } }
 
-        val lines: Map<String, String> = mapOf(
-            "Hogares" to "Nivel máximo",
-            "Escuela" to "Nivel 3",
-            "Oficina" to "Sin construir",
-            "Fábrica" to "En construcción",
-            "Almacén" to "Nivel 2 · En construcción",
+        val lines: Map<TownBuildingKind, String> = mapOf(
+            TownBuildingKind.Homes to "Nivel máximo",
+            TownBuildingKind.School to "Nivel 3",
+            TownBuildingKind.Office to "Sin construir",
+            TownBuildingKind.Factory to "En construcción",
+            TownBuildingKind.Storage to "Nivel 2 · En construcción",
         )
-        lines.forEach { (place: String, line: String) ->
-            tab(place).performScrollTo().performClick()
+        lines.forEach { (place: TownBuildingKind, line: String) ->
+            opened.value = place
+            composeRule.waitForIdle()
             composeRule.onNodeWithText(line).performScrollTo().assertIsDisplayed()
         }
     }
@@ -202,8 +201,7 @@ class TownLookTest {
     fun `orders the stocks money, food, power, material`() {
         val town: TownSnapshot = townOf(stocks = stocksOf().reversed())
 
-        show(town.readContent())
-        tab("Almacén").performScrollTo().performClick()
+        show(town.readContent(), place = TownBuildingKind.Storage)
 
         val tops: List<Dp> = listOf("Dinero", "Comida", "Energía", "Material").map { name: String -> topOf(name) }
         assertEquals(tops.sorted(), tops)
@@ -216,10 +214,9 @@ class TownLookTest {
         composeRule.setContent {
             MyGameTheme {
                 ink = MyGameTheme.colors.ink
-                Home(onStorage)
+                Home(onStorage, place = TownBuildingKind.Storage)
             }
         }
-        tab("Almacén").performScrollTo().performClick()
 
         val name: TextStyle = textStyleOf("Comida")
         assertEquals(MyGameTypography.title.fontSize, name.fontSize)
@@ -252,13 +249,7 @@ class TownLookTest {
         composeRule.setContent {
             MyGameTheme {
                 warningInk = MyGameTheme.colors.warningInk
-                TownScreen(
-                    state = riverton.copy(places = listOf(short)),
-                    onIntent = { },
-                    onSchoolOpen = { },
-                    onMapOpen = {},
-                    onTextOpen = {},
-                )
+                Home(riverton.copy(places = listOf(short)), place = TownBuildingKind.Farm)
             }
         }
 
@@ -268,14 +259,14 @@ class TownLookTest {
 
     @Test
     fun `keeps a cost's name for TalkBack`() {
-        show(riverton)
+        show(riverton, place = TownBuildingKind.Farm)
 
         composeRule.onNodeWithContentDescription("150 de dinero").performScrollTo().assertIsDisplayed()
     }
 
     @Test
     fun `sets a running work's countdown in title with tabular figures`() {
-        show(riverton.copy(slot = busySlot))
+        show(riverton.copy(slot = busySlot), place = TownBuildingKind.Farm)
 
         val countdown: TextStyle = textStyleOf("12 min")
         assertEquals(MyGameTypography.title.fontSize, countdown.fontSize)
@@ -286,8 +277,10 @@ class TownLookTest {
     @Test
     fun `sets a waiting work's countdown in title with tabular figures`() {
         val school: PlaceCard = farmOffer.copy(kind = TownBuildingKind.School, isInWork = true)
-        show(riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool), places = listOf(farmOffer, school)))
-        tab("Escuela").performScrollTo().performClick()
+        show(
+            riverton.copy(slot = busySlot, waitingList = listOf(waitingSchool), places = listOf(farmOffer, school)),
+            place = TownBuildingKind.School,
+        )
 
         val countdown: TextStyle = textStyleOf("20 min")
         assertEquals(MyGameTypography.title.fontSize, countdown.fontSize)
@@ -297,14 +290,14 @@ class TownLookTest {
 
     @Test
     fun `draws the running work's heading as one section title`() {
-        show(riverton.copy(slot = busySlot))
+        show(riverton.copy(slot = busySlot), place = TownBuildingKind.Farm)
 
         assertWorkHeadingIsOneSectionTitle()
     }
 
     @Test
     fun `draws the done work's heading as one section title`() {
-        show(riverton.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)))
+        show(riverton.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)), place = TownBuildingKind.Farm)
 
         assertWorkHeadingIsOneSectionTitle()
     }
@@ -318,14 +311,14 @@ class TownLookTest {
 
     @Test
     fun `carries its icon on a done line`() {
-        show(riverton.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)))
+        show(riverton.copy(slot = SlotLine.Done(TownBuildingKind.Farm, 2)), place = TownBuildingKind.Farm)
 
         composeRule.onNodeWithTag(WORK_DONE_ICON, useUnmergedTree = true).assertExists()
     }
 
     @Test
     fun `draws no done icon on a running work`() {
-        show(riverton.copy(slot = busySlot))
+        show(riverton.copy(slot = busySlot), place = TownBuildingKind.Farm)
 
         composeRule.onAllNodesWithTag(WORK_DONE_ICON, useUnmergedTree = true).assertCountEquals(0)
     }
@@ -339,7 +332,7 @@ class TownLookTest {
             productionMarks = emptyList(),
         )
 
-        show(riverton.copy(season = season))
+        show(riverton.copy(season = season), place = null)
 
         composeRule.onNodeWithText("Otoño, año 2").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Otoño termina en 2 días").performScrollTo().assertIsDisplayed()
@@ -354,7 +347,7 @@ class TownLookTest {
             productionMarks = emptyList(),
         )
 
-        show(riverton.copy(season = season))
+        show(riverton.copy(season = season), place = null)
 
         composeRule.onNodeWithText("Primavera termina en 30 min").performScrollTo().assertIsDisplayed()
     }
@@ -371,7 +364,7 @@ class TownLookTest {
             ),
         )
 
-        show(onStorage.copy(season = season))
+        show(onStorage.copy(season = season), place = TownBuildingKind.Storage)
 
         assertTrue(topOf("Comida") < topOf(SUMMER_FOOD))
         assertTrue(topOf(SUMMER_FOOD) < topOf("Energía"))
@@ -381,14 +374,14 @@ class TownLookTest {
 
     @Test
     fun `draws no build mark while the overview answers none`() {
-        show(riverton)
+        show(riverton, place = TownBuildingKind.Farm)
 
         composeRule.onAllNodesWithText(SUMMER_BUILD).assertCountEquals(0)
     }
 
     @Test
     fun `sets a season mark in caption`() {
-        show(farmInWork.copy(buildMark = DurationMark(SeasonKind.Summer, percent = 75)))
+        show(farmInWork.copy(buildMark = DurationMark(SeasonKind.Summer, percent = 75)), place = TownBuildingKind.Farm)
 
         assertEquals(MyGameTypography.caption.fontSize, textStyleOf(SUMMER_BUILD).fontSize)
     }
@@ -399,7 +392,7 @@ class TownLookTest {
         composeRule.setContent {
             MyGameTheme {
                 inkMuted = MyGameTheme.colors.inkMuted
-                Home(farmInWork.copy(buildMark = DurationMark(SeasonKind.Summer, percent = 75)))
+                Home(farmInWork.copy(buildMark = DurationMark(SeasonKind.Summer, percent = 75)), TownBuildingKind.Farm)
             }
         }
 
@@ -409,7 +402,7 @@ class TownLookTest {
     @Test
     fun `names each season on the build mark`() {
         val home: MutableState<TownUiState> = mutableStateOf(farmInWork)
-        composeRule.setContent { MyGameTheme { Home(home.value) } }
+        composeRule.setContent { MyGameTheme { Home(home.value, TownBuildingKind.Farm) } }
 
         seasonWords.forEach { (season: SeasonKind, word: String) ->
             home.value = farmInWork.copy(buildMark = DurationMark(season, percent = 75))
@@ -422,7 +415,7 @@ class TownLookTest {
     @Test
     fun `draws each season's icon beside the build mark`() {
         val home: MutableState<TownUiState> = mutableStateOf(farmInWork)
-        composeRule.setContent { MyGameTheme { Home(home.value) } }
+        composeRule.setContent { MyGameTheme { Home(home.value, TownBuildingKind.Farm) } }
 
         seasonIcons.forEach { (season: SeasonKind, icon: ImageVector) ->
             home.value = farmInWork.copy(buildMark = DurationMark(season, percent = 75))
@@ -441,7 +434,7 @@ class TownLookTest {
             productionMarks = listOf(ProductionMark(TownResourceKind.Power, percent = 75)),
         )
 
-        show(onStorage.copy(season = season))
+        show(onStorage.copy(season = season), place = TownBuildingKind.Storage)
 
         composeRule.onNode(seasonMarkOf(MyGameIcons.winter, text = "Invierno: energía al 75 %")).assertExists()
     }
@@ -478,22 +471,20 @@ class TownLookTest {
 
     private fun topOf(text: String): Dp = composeRule.onAllNodesWithText(text).onLast().getUnclippedBoundsInRoot().top
 
-    private fun tab(place: String): SemanticsNodeInteraction = composeRule.onNode(
-        isTab and hasContentDescription(place, substring = true),
-    )
-
-    private fun show(state: TownUiState) {
-        composeRule.setContent { MyGameTheme { Home(state) } }
+    private fun show(state: TownUiState, place: TownBuildingKind?) {
+        composeRule.setContent { MyGameTheme { Home(state, place) } }
     }
 
     @Composable
-    private fun Home(state: TownUiState) {
+    private fun Home(state: TownUiState, place: TownBuildingKind?) {
         TownScreen(
+            place = place,
+            onPlaceOpen = {},
+            onNewsOpen = {},
             state = state,
             onIntent = { },
             onSchoolOpen = { },
             onMapOpen = {},
-            onTextOpen = {},
         )
     }
 

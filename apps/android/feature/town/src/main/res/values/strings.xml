@@ -2,7 +2,9 @@
 <resources>
     <string name="town_amount">{amount} {resource}</string>
     <string name="town_build">Build level {level}</string>
+    <string name="town_build_for">Build for {cost}</string>
     <string name="town_build_with_duration">{action} · {duration}</string>
+    <string name="town_card_ready">You can build level {level}.</string>
     <string name="town_duration_hours">{hours} h</string>
     <string name="town_duration_hours_minutes">{hours} h {minutes} min</string>
     <string name="town_duration_minutes">{minutes} min</string>
@@ -14,7 +16,6 @@
     <string name="town_full_at">Full {clock}</string>
     <string name="town_go_to_school">Go to the school</string>
     <string name="town_goal_close">Close the goal</string>
-    <string name="town_goal_line">Goal {position} of {count}: {place}, level {level}</string>
     <string name="town_goal_people">Free people needed: {count}.</string>
     <string name="town_goal_ready">You have what it needs.</string>
     <string name="town_in_work">In work</string>
@@ -29,7 +30,7 @@
     <string name="town_naming_mayor">You are the mayor.</string>
     <string name="town_naming_submit">Start</string>
     <string name="town_naming_title">Name your town</string>
-    <string name="town_next_text">Read: {title}</string>
+    <string name="town_news_link">Town News</string>
     <string name="town_next_title">What is next</string>
     <string name="town_not_built">Not built</string>
     <string name="town_office_busy">Wait for this hiring to end.</string>
@@ -54,7 +55,6 @@
     <string name="town_office_stop_of_worker">Stop hiring workers</string>
     <string name="town_office_team_truck">Your team: {count, plural, =1 {1 truck} other {{count, number,0} trucks}}</string>
     <string name="town_office_team_worker">Your team: {count, plural, =1 {1 worker} other {{count, number,0} workers}}</string>
-    <string name="town_page_position">Building {number} of {count}</string>
     <string name="town_people">People: {free, plural, =1 {1 free} other {{free, number,0} free}}, {atWork} at work</string>
     <string name="town_people_at_work">People at work: +{people}</string>
     <string name="town_people_short">People needed: {needed}. {free, plural, =1 {Free: 1} other {Free: {free, number,0}}}.</string>
@@ -103,11 +103,6 @@
     <string name="town_shortfall">You need {missing} more.</string>
     <string name="town_skill_name">Level {level} {resource} skill</string>
     <string name="town_stock_of">of {capacity}</string>
-    <string name="town_street_built">Your town: {built} of {total} built</string>
-    <string name="town_street_built_city">Your city: {built} of {total} built</string>
-    <string name="town_tab_in_work">in work</string>
-    <string name="town_tab_name">{place}, {level}</string>
-    <string name="town_tab_next_step">what is next</string>
     <string name="town_tip_close">Close the tip</string>
     <string name="town_tip_full_store">When money, food, power or material is full, your town earns no more of it. Build the storage for more.</string>
     <string name="town_tip_jobs">Your workers and trucks are free. Send a team on a job on the map for pay.</string>

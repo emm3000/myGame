@@ -42,12 +42,14 @@ class TownRouteTest {
                         towns = towns,
                         clock = Clock.System,
                         navigation = TownNavigation(
+                            onPlaceOpen = {},
+                            onNewsOpen = {},
                             onSchoolOpen = {},
                             onMapOpen = {},
-                            onTextOpen = {},
                             onUnnamed = {},
                             onNamed = {},
                         ),
+                        place = TownBuildingKind.Office,
                     )
                 }
             }
@@ -70,7 +72,7 @@ class TownRouteTest {
             startedAt = now,
             endsAt = now + 30.minutes,
         )
-        return townOf(hiring = hiringOf(order = order), nextStep = openingOn(TownBuildingKind.Office), readAt = now)
+        return townOf(hiring = hiringOf(order = order), readAt = now)
     }
 
     @Test

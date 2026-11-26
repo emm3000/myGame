@@ -130,6 +130,7 @@ private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
     todayEntry(chrome)
     namingEntry(chrome)
     townEntry(chrome)
+    placeEntry(chrome)
     schoolEntry(chrome)
     reportEntry(chrome)
     newsEntry(chrome)
@@ -152,6 +153,7 @@ private fun NavKey?.isSignedIn(): Boolean = when (this as? Destination) {
     Destination.Naming,
     Destination.Today,
     Destination.Town,
+    is Destination.Place,
     Destination.School,
     Destination.Map,
     is Destination.LessonWords,
@@ -182,6 +184,7 @@ private fun NavKey?.isLessonFinishFollowed(): Boolean = when (this as? Destinati
     is Destination.MailedLink,
     Destination.Today,
     Destination.Town,
+    is Destination.Place,
     Destination.School,
     Destination.Map,
     is Destination.LessonWords,
