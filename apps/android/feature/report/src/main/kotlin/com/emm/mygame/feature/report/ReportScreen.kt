@@ -33,11 +33,11 @@ import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.ui.PlayerCopy
+import com.emm.mygame.core.ui.TownNewsRow
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.feature.report.news.NewsNote
-import com.emm.mygame.feature.report.news.NewsRow
 import java.time.ZoneId
 import kotlin.time.Instant
 
@@ -177,7 +177,7 @@ private fun UnreadNews(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        Column { unread.items.forEach { news: TownNews -> NewsRow(news = news, receivedAt = receivedAt) } }
+        Column { unread.items.forEach { news: TownNews -> TownNewsRow(news = news, receivedAt = receivedAt) } }
         if (unread.close == ReportUiState.CloseRequest.Unreachable) {
             MyGameInlineAlert(message = fixedCopyResource(R.string.report_refusal_unexpected))
         }

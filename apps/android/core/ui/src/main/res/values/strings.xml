@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ui_news_amount">{amount} {resource}</string>
+    <string name="ui_news_became_city">Your town is now a city.</string>
+    <string name="ui_news_building_work_finished">{place}: now level {level}.</string>
+    <string name="ui_news_building_work_stopped">You stopped the work: {place}, level {level}.</string>
+    <string name="ui_news_clean_up_done">Your team cleaned the waste at region {region}, area {area}, site {site}.</string>
+    <string name="ui_news_clean_up_failed">Your team could not clean the waste at region {region}, area {area}, site {site}.</string>
+    <string name="ui_news_day">{day}, {time}</string>
+    <string name="ui_news_hiring_delivered_truck">{count, plural, =1 {You hired 1 truck.} other {You hired {count, number,0} trucks.}}</string>
+    <string name="ui_news_hiring_delivered_worker">{count, plural, =1 {You hired 1 worker.} other {You hired {count, number,0} workers.}}</string>
+    <string name="ui_news_hiring_stopped_truck">You stopped hiring trucks: {delivered} of {count} came.</string>
+    <string name="ui_news_hiring_stopped_worker">You stopped hiring workers: {delivered} of {count} came.</string>
+    <string name="ui_news_job_back">Your team came back from region {region}, area {area}, site {site}.</string>
+    <string name="ui_news_job_called_back">You called your team back from region {region}, area {area}, site {site}.</string>
+    <string name="ui_news_lesson_stopped">You stopped studying a lesson.</string>
+    <string name="ui_news_lesson_studied">You studied a lesson.</string>
+    <string name="ui_news_pay">Pay: {amounts}</string>
+    <string name="ui_news_place_factory">Factory</string>
+    <string name="ui_news_place_farm">Farm</string>
+    <string name="ui_news_place_homes">Homes</string>
+    <string name="ui_news_place_office">Office</string>
+    <string name="ui_news_place_power_station">Power station</string>
+    <string name="ui_news_place_school">School</string>
+    <string name="ui_news_place_storage">Storage</string>
+    <string name="ui_news_refund">Back to you: {amounts}</string>
+    <string name="ui_news_resource_food">food</string>
+    <string name="ui_news_resource_material">material</string>
+    <string name="ui_news_resource_money">money</string>
+    <string name="ui_news_resource_power">power</string>
+    <string name="ui_news_skill_earned" formatted="false">You earned a {resource} skill: +{percent} % {resource}.</string>
+    <string name="ui_news_today">Today, {time}</string>
+</resources>

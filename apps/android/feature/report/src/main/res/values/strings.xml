@@ -1,50 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="report_amount">{amount} {resource}</string>
-    <string name="report_day">{day}, {time}</string>
     <string name="report_loading">Reading your Report…</string>
     <string name="report_news_all">Read all the news</string>
-    <string name="report_news_became_city">Your town is now a city.</string>
-    <string name="report_news_building_work_finished">{place}: now level {level}.</string>
-    <string name="report_news_building_work_stopped">You stopped the work: {place}, level {level}.</string>
-    <string name="report_news_clean_up_done">Your team cleaned the waste at region {region}, area {area}, site {site}.</string>
-    <string name="report_news_clean_up_failed">Your team could not clean the waste at region {region}, area {area}, site {site}.</string>
     <string name="report_news_close">Close the news</string>
     <string name="report_news_closed">You closed the news.</string>
-    <string name="report_news_hiring_delivered_truck">{count, plural, =1 {You hired 1 truck.} other {You hired {count, number,0} trucks.}}</string>
-    <string name="report_news_hiring_delivered_worker">{count, plural, =1 {You hired 1 worker.} other {You hired {count, number,0} workers.}}</string>
-    <string name="report_news_hiring_stopped_truck">You stopped hiring trucks: {delivered} of {count} came.</string>
-    <string name="report_news_hiring_stopped_worker">You stopped hiring workers: {delivered} of {count} came.</string>
-    <string name="report_news_job_back">Your team came back from region {region}, area {area}, site {site}.</string>
-    <string name="report_news_job_called_back">You called your team back from region {region}, area {area}, site {site}.</string>
-    <string name="report_news_lesson_stopped">You stopped studying a lesson.</string>
-    <string name="report_news_lesson_studied">You studied a lesson.</string>
     <string name="report_news_loading">Reading the news…</string>
     <string name="report_news_none">No news.</string>
-    <string name="report_news_pay">Pay: {amounts}</string>
-    <string name="report_news_refund">Back to you: {amounts}</string>
-    <string name="report_news_skill_earned" formatted="false">You earned a {resource} skill: +{percent} % {resource}.</string>
     <string name="report_news_title">Town News</string>
     <string name="report_next_review">Next review:</string>
     <string name="report_next_review_day">{day} {time}</string>
     <string name="report_next_review_tomorrow">tomorrow {time}</string>
     <string name="report_no_reviews_due">No reviews due now.</string>
-    <string name="report_place_factory">Factory</string>
-    <string name="report_place_farm">Farm</string>
-    <string name="report_place_homes">Homes</string>
-    <string name="report_place_office">Office</string>
-    <string name="report_place_power_station">Power station</string>
-    <string name="report_place_school">School</string>
-    <string name="report_place_storage">Storage</string>
     <string name="report_refusal_unexpected">We could not reach the server. Try again in a moment.</string>
-    <string name="report_resource_food">food</string>
-    <string name="report_resource_material">material</string>
-    <string name="report_resource_money">money</string>
-    <string name="report_resource_power">power</string>
     <string name="report_reviews_due">Reviews due: {count}</string>
     <string name="report_settings">Settings</string>
     <string name="report_title">Report</string>
-    <string name="report_today">Today, {time}</string>
     <string name="report_try_again">Try again</string>
     <string name="report_waiting">Sending…</string>
 </resources>

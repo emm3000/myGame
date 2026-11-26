@@ -21,6 +21,9 @@
     <string name="today_lesson_title">Lesson {number}</string>
     <string name="today_loading">Reading your town…</string>
     <string name="today_locked">Locked</string>
+    <string name="today_news_all">Read all the news</string>
+    <string name="today_news_close">Close the news</string>
+    <string name="today_news_title">Town News</string>
     <string name="today_next_level">{place}, level {level}</string>
     <string name="today_next_review">Next review:</string>
     <string name="today_no_reviews_due">No reviews due now.</string>
