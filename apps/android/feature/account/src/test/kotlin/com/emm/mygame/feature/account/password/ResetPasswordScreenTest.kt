@@ -15,6 +15,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -88,6 +89,16 @@ class ResetPasswordScreenTest {
         draw(ResetPasswordUiState.Changed, onSignInOpen = { signInsOpened += 1 })
 
         composeRule.onNode(hasClickAction() and hasText("Entra en tu pueblo")).performClick()
+
+        assertEquals(1, signInsOpened)
+    }
+
+    @Test
+    fun `opens sign-in from the new password form`() {
+        var signInsOpened: Int = 0
+        draw(form(ResetPasswordUiState.FormStatus.Idle), onSignInOpen = { signInsOpened += 1 })
+
+        composeRule.onNode(hasClickAction() and hasText("Entra en tu pueblo")).performScrollTo().performClick()
 
         assertEquals(1, signInsOpened)
     }

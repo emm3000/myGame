@@ -51,9 +51,10 @@ internal fun ResetPasswordScreen(
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4)) {
             when (state) {
                 is ResetPasswordUiState.Form -> NewPasswordForm(form = state, onIntent = onIntent)
-                ResetPasswordUiState.Changed -> PasswordChanged(onSignInOpen = onSignInOpen)
+                ResetPasswordUiState.Changed -> PasswordChanged()
                 ResetPasswordUiState.LinkRefused -> LinkRefused(onForgotPasswordOpen = onForgotPasswordOpen)
             }
+            MyGameTextLink(label = stringResource(R.string.reset_password_to_sign_in), onClick = onSignInOpen)
         }
     }
 }
@@ -98,16 +99,13 @@ private fun FormStatusMessage(status: ResetPasswordUiState.FormStatus, modifier:
 }
 
 @Composable
-private fun PasswordChanged(onSignInOpen: () -> Unit, modifier: Modifier = Modifier) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        MyGameText(
-            text = stringResource(R.string.reset_password_changed),
-            style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-        )
-        MyGameTextLink(label = stringResource(R.string.reset_password_to_sign_in), onClick = onSignInOpen)
-    }
+private fun PasswordChanged(modifier: Modifier = Modifier) {
+    MyGameText(
+        text = stringResource(R.string.reset_password_changed),
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
+    )
 }
 
 @Composable
