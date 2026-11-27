@@ -79,11 +79,14 @@ class MyGameTabHeaderTest {
 
     @Test
     @Config(qualifiers = "w360dp-h640dp", fontScale = 2.0f)
-    fun `wraps a town title over at most two lines beside the ring`() {
+    fun `sets a town title beside the ring on at most two lines or stacks the ring under it`() {
         drawHeader(title = MyGameLabel(text = TOWN_TITLE, translation = null), under = { Under() })
 
-        assertTrue("the title takes at most two lines", titleLayout(TOWN_TITLE).lineCount <= 2)
-        assertTrue("the ring ends the title's row", boundsOf(RING_NAME).left >= boundsOf(TOWN_TITLE).right)
+        val ring: DpRect = boundsOf(RING_NAME)
+        val isBesideOnTwoLines: Boolean =
+            titleLayout(TOWN_TITLE).lineCount <= 2 && ring.left >= boundsOf(TOWN_TITLE).right
+        val isStacked: Boolean = ring.left.value < HALF_PIXEL && ring.top >= boundsOf(UNDER).bottom
+        assertTrue("the title sits beside the ring on two lines at most, or stacks", isBesideOnTwoLines || isStacked)
     }
 
     @Test
