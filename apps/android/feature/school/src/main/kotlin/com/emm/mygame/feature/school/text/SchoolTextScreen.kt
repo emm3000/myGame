@@ -74,11 +74,11 @@ private fun SchoolTextState(
                 style = MyGameTypography.body,
                 color = MyGameTheme.colors.ink,
             )
-            SchoolLink(onSchoolOpen = onSchoolOpen)
+            LessonsLink(onSchoolOpen = onSchoolOpen)
         }
         is SchoolTextUiState.Reading -> {
             TextReading(reading = state, onIntent = onIntent)
-            SchoolLink(onSchoolOpen = onSchoolOpen)
+            LessonsLink(onSchoolOpen = onSchoolOpen)
         }
     }
 }
@@ -109,9 +109,9 @@ private fun TextReading(
 }
 
 @Composable
-private fun SchoolLink(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
+private fun LessonsLink(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
     MyGameNavRow(
-        title = chromeResource(R.string.school_go_to_school),
+        title = chromeResource(R.string.school_go_to_lessons),
         onClick = onSchoolOpen,
         modifier = modifier,
     )

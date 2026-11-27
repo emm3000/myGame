@@ -79,7 +79,7 @@ class LearnRowsTest {
     fun `Learn draws no building level and no building work`() {
         show(idleSchool)
 
-        composeRule.onNodeWithText("Escuela").assertIsDisplayed()
+        composeRule.onNodeWithText("Aprender").assertIsDisplayed()
         composeRule.onAllNodesWithText("Nivel", substring = true).assertCountEquals(0)
         composeRule.onAllNodesWithText("Obra", substring = true).assertCountEquals(0)
     }

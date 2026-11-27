@@ -84,10 +84,10 @@ class SchoolTextScreenTest {
     }
 
     @Test
-    fun `leads back to the school when the text is not open`() {
+    fun `leads back to your lessons when the text is not open`() {
         draw(SchoolTextUiState.NotOpen)
 
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+        composeRule.onNodeWithText("Ir a tus lecciones").performScrollTo().performClick()
 
         assertEquals(1, schoolOpens)
     }

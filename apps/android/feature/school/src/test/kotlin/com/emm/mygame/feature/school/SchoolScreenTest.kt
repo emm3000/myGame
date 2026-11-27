@@ -22,9 +22,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import com.emm.mygame.core.designsystem.BLOCKED_LOCK
+import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTransitions
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.designsystem.SKELETON_BLOCK
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
@@ -249,7 +249,7 @@ class SchoolScreenTest {
         show(idleSchool.copy(lessons = listOf(readyLesson, secondCard)))
 
         composeRule
-            .onNodeWithTag(OUTLINED_PILL)
+            .onNodeWithTag(GO_OUTLINED_PILL)
             .assert(hasText("Estudiar la lección 1 · 2:30"))
     }
 

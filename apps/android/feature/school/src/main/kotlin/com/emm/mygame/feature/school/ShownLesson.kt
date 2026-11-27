@@ -13,7 +13,7 @@ import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameNavRow
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -97,7 +97,7 @@ private fun StudyAction(
     val copy: PlayerCopy = rememberPlayerCopy()
     val reason: MyGameLabel? = block?.let { blocked: SchoolUiState.LessonBlock -> copy.blockLineOf(blocked) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameOutlinedButton(
+        MyGameGoOutlinedButton(
             label = copy.studyLabelOf(card),
             isBusy = content.start == SchoolUiState.LessonRequestStatus.Waiting,
             busyDescription = copy.chrome(R.string.school_waiting),

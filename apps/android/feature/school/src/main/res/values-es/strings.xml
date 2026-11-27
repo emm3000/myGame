@@ -9,7 +9,7 @@
     <string name="school_finish_day">{day} {time}</string>
     <string name="school_finish_tomorrow">mañana {time}</string>
     <string name="school_finish_with_clock">{timeLeft} · {clock}</string>
-    <string name="school_go_to_school">Ir a la escuela</string>
+    <string name="school_go_to_lessons">Ir a tus lecciones</string>
     <string name="school_holdout_note">1 de cada 10 palabras se aparta para dos pruebas posteriores y vuelve después de la última.</string>
     <string name="school_learning">Palabras en aprendizaje: {inLearning} de {cap}</string>
     <string name="school_learning_full">{count, plural, =1 {La siguiente lección trae 1 palabra.} other {La siguiente lección trae {count, number,0} palabras.}} Empieza los repasos.</string>
@@ -70,7 +70,7 @@
     <string name="school_start_reviews">Empezar los repasos</string>
     <string name="school_study_with_duration">{action} · {duration}</string>
     <string name="school_texts">Para leer</string>
-    <string name="school_title">Escuela</string>
+    <string name="school_title">Aprender</string>
     <string name="school_try_again">Volver a intentarlo</string>
     <string name="school_waiting">Enviando…</string>
 </resources>

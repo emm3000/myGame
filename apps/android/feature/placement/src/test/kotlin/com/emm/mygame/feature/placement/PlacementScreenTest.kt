@@ -250,6 +250,6 @@ class PlacementScreenTest {
         const val UNREACHABLE: String =
             "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
         const val NOTHING_TO_TAKE: String =
-            "No tienes ninguna prueba de nivel pendiente. Tus lecciones te esperan en la escuela."
+            "No tienes ninguna prueba de nivel pendiente. Tus lecciones te esperan en la pestaña Aprender."
     }
 }

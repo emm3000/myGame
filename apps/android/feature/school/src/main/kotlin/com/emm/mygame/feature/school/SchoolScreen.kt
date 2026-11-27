@@ -86,7 +86,7 @@ private fun SchoolState(
     when (state) {
         SchoolUiState.Loading -> Unit
         SchoolUiState.Failed -> {
-            SchoolTitle()
+            LearnTitle()
             MyGameErrorBanner(
                 message = fixedCopyResource(R.string.school_refusal_unexpected),
                 actionLabel = chromeResource(R.string.school_try_again),
@@ -126,7 +126,7 @@ private fun SchoolContent(
 ) {
     val shown: SchoolUiState.LessonCard? = content.blockLesson
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        SchoolTitle()
+        LearnTitle()
         holdoutChecks()
         LessonSlotSection(
             slot = content.slot,
@@ -177,7 +177,7 @@ private fun HoldoutNote(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SchoolTitle(modifier: Modifier = Modifier) {
+private fun LearnTitle(modifier: Modifier = Modifier) {
     MyGameText(
         label = chromeResource(R.string.school_title),
         style = MyGameTypography.display,
