@@ -153,6 +153,43 @@ class ReviewEndViewModelTest {
     }
 
     @Test
+    fun `names the lesson of the reviewed word at the review's end`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val towns: FakeTownRepository = FakeTownRepository()
+        val reviewedStandings: List<WordStanding> = listOf(WordStanding.Hold, WordStanding.Recognize)
+        towns.answerRead(
+            townOf(lessons = listOf(lessonOf("lesson-1", heldStandings), lessonOf("lesson-2", reviewedStandings))),
+        )
+        learning.answerRead(dueNow(coffeeRecall))
+        learning.answerRead(nothingDueUntil(firstReadAt + 9.minutes))
+
+        val end: ReviewUiState = nextAfterOneAnswer(learning, towns)
+
+        assertEquals(
+            ReviewUiState.LessonPath(number = 2, counts = schoolPathCountsOf(reviewedStandings)),
+            (end as ReviewUiState.NothingDue).path,
+        )
+    }
+
+    @Test
+    fun `names the reviewed lesson even once its skill is earned`() = runTest {
+        val learning: FakeLearningRepository = FakeLearningRepository()
+        val towns: FakeTownRepository = FakeTownRepository()
+        towns.answerRead(
+            townOf(
+                lessons = listOf(lessonOf("lesson-1", heldStandings), lessonOf("lesson-2", heldStandings)),
+                skills = listOf(earnedOf("lesson-2")),
+            ),
+        )
+        learning.answerRead(dueNow(coffeeRecall))
+        learning.answerRead(nothingDueUntil(firstReadAt + 9.minutes))
+
+        val end: ReviewUiState = nextAfterOneAnswer(learning, towns)
+
+        assertEquals(2, (end as ReviewUiState.NothingDue).path?.number)
+    }
+
+    @Test
     fun `shows the path of the first lesson whose skill is not earned`() = runTest {
         val towns: FakeTownRepository = FakeTownRepository()
         towns.answerRead(

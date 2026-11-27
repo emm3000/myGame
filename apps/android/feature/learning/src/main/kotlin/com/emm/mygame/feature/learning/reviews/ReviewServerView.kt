@@ -8,9 +8,17 @@ internal data class ReviewServerView(
     val gap: Duration,
     val readFirstOnArrival: List<LessonId>?,
     val reread: DueReviews?,
+    val dealtLesson: LessonId?,
+    val reviewedLesson: LessonId?,
 ) {
 
     companion object {
-        val none: ReviewServerView = ReviewServerView(gap = Duration.ZERO, readFirstOnArrival = null, reread = null)
+        val none: ReviewServerView = ReviewServerView(
+            gap = Duration.ZERO,
+            readFirstOnArrival = null,
+            reread = null,
+            dealtLesson = null,
+            reviewedLesson = null,
+        )
     }
 }

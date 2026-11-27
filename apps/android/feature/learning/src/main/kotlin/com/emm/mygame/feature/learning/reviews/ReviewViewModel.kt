@@ -117,7 +117,7 @@ class ReviewViewModel(
 
     private fun townChanged(town: TownSnapshot?) {
         when (val shown: ReviewUiState = _state.value) {
-            is ReviewUiState.NothingDue -> _state.value = shown.copy(path = town?.let(::lessonPathOf))
+            is ReviewUiState.NothingDue -> _state.value = shown.copy(path = lessonPathOf(town, server.reviewedLesson))
             is ReviewUiState.LessonReady -> _state.value = shown.copy(number = shownNumberOf(town, shown.lesson))
             else -> Unit
         }
@@ -129,6 +129,7 @@ class ReviewViewModel(
         }
         val first: DueReview? = reviews.due.firstOrNull()
         val nextDueAt: Instant? = reviews.nextDueAt
+        server = server.copy(dealtLesson = first?.lesson)
         when {
             first != null && first.lesson in reviews.readFirst && first.lesson !in baseline ->
                 _state.value = ReviewUiState.LessonReady(
@@ -160,7 +161,7 @@ class ReviewViewModel(
 
     private fun endAt(nextDueAt: Instant): ReviewUiState.NothingDue = ReviewUiState.NothingDue(
         dueAt = nextDueAt - server.gap,
-        path = towns.town.value?.town?.let(::lessonPathOf),
+        path = lessonPathOf(towns.town.value?.town, server.reviewedLesson),
     )
 
     private fun tapSupport(spanIndex: Int) {
@@ -213,6 +214,7 @@ class ReviewViewModel(
             is ReviewVerdict.Wrong -> ReviewUiState.ReviewStep.Wrong(correct = correctFormOf(card, verdict))
         }
         _effects.send(ReviewEffect.Answered)
+        server = server.copy(reviewedLesson = server.dealtLesson)
         val reread: DueReviews? = (learning.reviews() as? ReviewsReadResult.Read)?.reviews?.let(::measured)
         server = server.copy(reread = reread)
         stepTo(step)
