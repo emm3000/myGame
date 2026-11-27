@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -20,10 +21,13 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.fixedCopyResource
+
+internal const val HOLDOUT_CHECK_END_CARD: String = "holdout_check_end_card"
 
 @Composable
 internal fun HoldoutCheckScreen(
@@ -78,12 +82,14 @@ private fun HoldoutCheckState(state: HoldoutCheckUiState, onIntent: (HoldoutChec
 
 @Composable
 private fun HoldoutCheckEnd(@StringRes line: Int, modifier: Modifier = Modifier) {
-    MyGameText(
-        text = fixedCopyResource(line),
-        style = MyGameTypography.body,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
-    )
+    MyGameSunkenCard(modifier = modifier.testTag(HOLDOUT_CHECK_END_CARD)) {
+        MyGameText(
+            text = fixedCopyResource(line),
+            style = MyGameTypography.title,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        )
+    }
 }
 
 private val holdoutCheckBlocks: MyGameSkeletonBlocks = MyGameSkeletonBlocks(

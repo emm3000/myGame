@@ -4,22 +4,27 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameHairline
+import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.model.placement.PlacementScore
 import com.emm.mygame.core.ui.fixedCopyResource
 
+internal const val PLACEMENT_RESULT_CARD: String = "placement_result_card"
+
 @Composable
 internal fun PlacementResult(
     closed: PlacementUiState.Closed,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         if (closed.scores.isEmpty()) {
             MyGameText(
                 text = fixedCopyResource(R.string.placement_closed_none),
@@ -27,13 +32,14 @@ internal fun PlacementResult(
                 color = MyGameTheme.colors.ink,
             )
         } else {
-            MyGameText(
+            MyGameMetaText(
                 text = fixedCopyResource(R.string.placement_result_title),
-                style = MyGameTypography.title,
-                color = MyGameTheme.colors.ink,
+                color = MyGameTheme.colors.inkMuted,
                 modifier = Modifier.semantics { heading() },
             )
-            closed.scores.forEach { score: PlacementScore -> BandScore(score = score) }
+            MyGameSunkenCard(modifier = Modifier.testTag(PLACEMENT_RESULT_CARD)) {
+                closed.scores.forEach { score: PlacementScore -> BandScoreLines(score = score) }
+            }
         }
     }
 }
