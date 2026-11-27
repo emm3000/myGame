@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
@@ -94,6 +95,23 @@ class ForgotPasswordScreenTest {
     }
 
     @Test
+    fun `holds the sign-in link while the reset mail is sending`() {
+        draw(form(ForgotPasswordUiState.FormStatus.Sending))
+
+        signInLink().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `keeps sign-in closed when its link is tapped while the reset mail is sending`() {
+        var signInsOpened: Int = 0
+        draw(form(ForgotPasswordUiState.FormStatus.Sending), onSignInOpen = { signInsOpened += 1 })
+
+        signInLink().performClick()
+
+        assertEquals(0, signInsOpened)
+    }
+
+    @Test
     fun `returns to sign-in from the link under the confirmation`() {
         var signInsOpened: Int = 0
         draw(ForgotPasswordUiState.Sent, onSignInOpen = { signInsOpened += 1 })
@@ -120,4 +138,7 @@ class ForgotPasswordScreenTest {
 
     private fun field(label: String): SemanticsNodeInteraction =
         composeRule.onNode(hasSetTextAction() and hasContentDescription(label))
+
+    private fun signInLink(): SemanticsNodeInteraction =
+        composeRule.onNode(hasClickAction() and hasText("Entra en tu pueblo"))
 }

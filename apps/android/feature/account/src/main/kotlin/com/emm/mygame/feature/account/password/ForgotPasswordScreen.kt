@@ -52,7 +52,11 @@ internal fun ForgotPasswordScreen(
                 is ForgotPasswordUiState.Form -> RequestForm(form = state, onIntent = onIntent)
                 ForgotPasswordUiState.Sent -> Confirmation()
             }
-            MyGameTextLink(label = stringResource(R.string.forgot_password_to_sign_in), onClick = onSignInOpen)
+            MyGameTextLink(
+                label = stringResource(R.string.forgot_password_to_sign_in),
+                onClick = onSignInOpen,
+                isEnabled = state.canSwitchToSignIn,
+            )
         }
     }
 }
