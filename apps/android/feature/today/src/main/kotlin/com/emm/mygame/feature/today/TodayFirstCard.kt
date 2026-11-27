@@ -2,9 +2,13 @@ package com.emm.mygame.feature.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameAchievement
 import com.emm.mygame.core.designsystem.MyGameButton
 import com.emm.mygame.core.designsystem.MyGameCard
@@ -15,6 +19,8 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWorkingDots
+import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
@@ -37,10 +43,7 @@ internal fun TodayFirstCard(
             modifier = Modifier.padding(vertical = MyGameSpacing.step4),
         ) {
             MyGameMetaText(label = eyebrow, color = MyGameTheme.colors.inkMuted)
-            MyGameText(label = copy.lineOf(card), style = MyGameTypography.title, color = MyGameTheme.colors.ink)
-            copy.countdownOf(card)?.let { countdown: MyGameLabel ->
-                MyGameText(label = countdown, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
-            }
+            FirstCardHeading(line = copy.lineOf(card), countdown = copy.countdownOf(card))
             copy.startRefusalOf(start)?.let { refusal: String -> MyGameInlineAlert(message = refusal) }
             copy.actionOf(card)?.let { action: MyGameLabel ->
                 MyGameButton(
@@ -51,6 +54,28 @@ internal fun TodayFirstCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FirstCardHeading(line: MyGameLabel, countdown: MyGameLabel?, modifier: Modifier = Modifier) {
+    if (countdown == null) {
+        MyGameText(label = line, style = MyGameTypography.title, color = MyGameTheme.colors.ink, modifier = modifier)
+        return
+    }
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+        itemVerticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.semantics { heading() },
+    ) {
+        MyGameWorkingDots(tint = MyGameTheme.colors.ink)
+        MyGameText(label = line, style = MyGameTypography.title, color = MyGameTheme.colors.ink)
+        MyGameText(
+            label = countdown,
+            style = MyGameTypography.title.withTabularFigures(),
+            color = MyGameTheme.colors.ink,
+        )
     }
 }
 
