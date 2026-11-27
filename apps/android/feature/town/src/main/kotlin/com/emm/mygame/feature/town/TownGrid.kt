@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -73,14 +75,17 @@ private fun PlaceGrid(
         val columns: Int = if (maxWidth / LocalDensity.current.fontScale < twoCardsWidth) 1 else GRID_COLUMNS
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
             content.places.chunked(columns).forEach { row: List<PlaceCard> ->
-                Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                ) {
                     row.forEach { place: PlaceCard ->
                         PlaceTile(
                             place = place,
                             start = content.start,
                             onIntent = onIntent,
                             onOpen = { onPlaceOpen(place.kind) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).fillMaxHeight(),
                         )
                     }
                     repeat(columns - row.size) { Spacer(modifier = Modifier.weight(1f).height(MyGameSpacing.step1)) }
