@@ -38,13 +38,12 @@ class MyGameTabHeaderTest {
 
     @Test
     @Config(qualifiers = "w360dp-h640dp")
-    fun `wraps a long title beside the ring instead of dropping the ring`() {
+    fun `stacks the ring under a title that would take three lines beside it`() {
         drawHeader(title = MyGameLabel(text = LONG_TITLE, translation = null))
 
-        val title: DpRect = boundsOf(LONG_TITLE)
         val ring: DpRect = boundsOf(RING_NAME)
-        assertTrue("the title ends before the ring", title.right <= ring.left)
-        assertTrue("the ring sits on the title's rows", ring.top >= title.top && ring.bottom <= title.bottom)
+        assertEquals(0f, ring.left.value, HALF_PIXEL)
+        assertTrue("the ring sits under the title", ring.top >= boundsOf(LONG_TITLE).bottom)
     }
 
     @Test
@@ -71,6 +70,24 @@ class MyGameTabHeaderTest {
 
     @Test
     @Config(qualifiers = "w360dp-h640dp")
+    fun `gives the title its width before the ring's line`() {
+        drawHeader(title = MyGameLabel(text = TOWN_TITLE, translation = null), under = { Under() })
+
+        assertEquals(1, titleLayout(TOWN_TITLE).lineCount)
+        assertTrue("the ring ends the title's row", boundsOf(RING_NAME).left >= boundsOf(TOWN_TITLE).right)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp", fontScale = 2.0f)
+    fun `wraps a town title over at most two lines beside the ring`() {
+        drawHeader(title = MyGameLabel(text = TOWN_TITLE, translation = null), under = { Under() })
+
+        assertTrue("the title takes at most two lines", titleLayout(TOWN_TITLE).lineCount <= 2)
+        assertTrue("the ring ends the title's row", boundsOf(RING_NAME).left >= boundsOf(TOWN_TITLE).right)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp")
     fun `reads a translated title as one heading`() {
         drawHeader(title = MyGameLabel(text = TITLE, translation = TRANSLATION))
 
@@ -83,14 +100,19 @@ class MyGameTabHeaderTest {
     fun `draws the title in the headline style`() {
         drawHeader(title = MyGameLabel(text = TITLE, translation = null))
 
+        val layout: TextLayoutResult = titleLayout(TITLE)
+        assertEquals(MyGameTypography.headline.fontSize, layout.layoutInput.style.fontSize)
+        assertEquals(MyGameTypography.headline.fontWeight, layout.layoutInput.style.fontWeight)
+    }
+
+    private fun titleLayout(text: String): TextLayoutResult {
         val layouts: MutableList<TextLayoutResult> = mutableListOf()
-        composeRule.onNodeWithText(TITLE, useUnmergedTree = true)
+        composeRule.onNodeWithText(text, useUnmergedTree = true)
             .fetchSemanticsNode()
             .config[SemanticsActions.GetTextLayoutResult]
             .action
             ?.invoke(layouts)
-        assertEquals(MyGameTypography.headline.fontSize, layouts.single().layoutInput.style.fontSize)
-        assertEquals(MyGameTypography.headline.fontWeight, layouts.single().layoutInput.style.fontWeight)
+        return layouts.single()
     }
 
     private fun drawHeader(title: MyGameLabel, under: @Composable () -> Unit = {}) {
@@ -120,6 +142,7 @@ class MyGameTabHeaderTest {
         const val TITLE: String = "Aprender"
         const val TRANSLATION: String = "Learn"
         const val LONG_TITLE: String = "Saint Bartholomew of the Rivers · Pueblo"
+        const val TOWN_TITLE: String = "Qaville · Pueblo"
         const val UNDER: String = "Noticias del pueblo"
         const val RING_NAME: String = "0 de 5 palabras aprendidas"
     }
