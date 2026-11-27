@@ -93,7 +93,7 @@ class VerificationBannerNavigationTest {
         signedIn(session = unverifiedSession, town = TownReadResult.Read(heldTown))
         waitForLine(BANNER_LINE)
         composeRule.onNode(hasText("Escuela") and hasClickAction() and !isSelectable()).performScrollTo().performClick()
-        composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
+        composeRule.onNodeWithText("Ir a tus lecciones").performScrollTo().performClick()
         waitForHeading(LEARN_TITLE)
 
         val bar: Rect = composeRule.onNode(hasTestTag(NAVIGATION_BAR)).fetchSemanticsNode().boundsInRoot

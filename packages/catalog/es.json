@@ -426,7 +426,7 @@
   "android.town.town_finish_with_clock": "{timeLeft} · {clock}",
   "android.town.town_full": "Lleno: {capacity}",
   "android.town.town_full_at": "Lleno {clock}",
-  "android.town.town_go_to_school": "Ir a la escuela",
+  "android.town.town_go_to_lessons": "Ir a tus lecciones",
   "android.town.town_goal_close": "Cerrar la meta",
   "android.town.town_goal_people": "Gente libre necesaria: {count}.",
   "android.town.town_goal_ready": "Tienes lo que hace falta.",

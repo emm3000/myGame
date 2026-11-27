@@ -9,9 +9,12 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
@@ -111,6 +115,20 @@ class TownHiringScreenTest {
         composeRule.onNodeWithText("Contratar 3 trabajadores · 3:00").performScrollTo().performClick()
 
         assertEquals(listOf<TownIntent>(TownIntent.PlaceHiringTapped(TownHireKind.Worker)), intents)
+    }
+
+    @Test
+    fun `outlines the open hire button in go`() {
+        show(hiring)
+
+        composeRule.onAllNodes(hasTestTag(GO_OUTLINED_PILL) and hasText(HIRE_THREE_WORKERS)).assertCountEquals(1)
+    }
+
+    @Test
+    fun `outlines the blocked hire button in go`() {
+        show(blocked(shortOfMoney))
+
+        composeRule.onAllNodes(hasTestTag(GO_OUTLINED_PILL) and hasText(HIRE_THREE_WORKERS)).assertCountEquals(1)
     }
 
     @Test
@@ -434,6 +452,7 @@ class TownHiringScreenTest {
     )
 
     private companion object {
+        const val HIRE_THREE_WORKERS: String = "Contratar 3 trabajadores · 3:00"
         const val HIRE_SHORT: String =
             "No tienes recursos suficientes para esta contratación. Espera a que crezcan tus reservas."
         const val HIRING_OVER: String = "Esta contratación ya terminó."

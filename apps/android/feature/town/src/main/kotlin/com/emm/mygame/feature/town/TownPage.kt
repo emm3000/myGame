@@ -114,7 +114,7 @@ private fun PlaceOwnParts(
 ) {
     when (place) {
         TownBuildingKind.School -> {
-            MyGameNavRow(title = chromeResource(R.string.town_go_to_school), onClick = onSchoolOpen)
+            MyGameNavRow(title = chromeResource(R.string.town_go_to_lessons), onClick = onSchoolOpen)
         }
         TownBuildingKind.Office -> {
             HiringSection(hiring = content.hiring, onIntent = onIntent)
