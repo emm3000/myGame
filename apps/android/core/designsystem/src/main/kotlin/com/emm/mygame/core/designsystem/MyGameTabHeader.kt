@@ -75,13 +75,16 @@ private fun MeasureScope.oneRow(parts: TabHeaderParts, width: Int, startMaxWidth
     val unders: List<Placeable> = parts.unders.measureEach(startConstraints)
     val startShare: Int = maxOf(titles.maxWidth(), unders.maxWidth()) + gap
     val rings: List<Placeable> = parts.rings.measureEach(Constraints(maxWidth = maxOf(0, width - startShare)))
-    val rowHeight: Int = maxOf(titles.maxHeight(), rings.maxHeight())
-    return layout(width, rowHeight + unders.maxHeight()) {
-        titles.forEach { placeable: Placeable -> placeable.place(0, (rowHeight - placeable.height) / 2) }
-        rings.forEach { placeable: Placeable ->
-            placeable.place(width - placeable.width, (rowHeight - placeable.height) / 2)
-        }
-        unders.forEach { placeable: Placeable -> placeable.place(0, rowHeight) }
+    val titleHeight: Int = titles.maxHeight()
+    val ringHeight: Int = rings.maxHeight()
+    val center: Int = maxOf(titleHeight, ringHeight) / 2
+    val titleTop: Int = center - titleHeight / 2
+    val ringTop: Int = center - ringHeight / 2
+    val underTop: Int = titleTop + titleHeight
+    return layout(width, maxOf(underTop + unders.maxHeight(), ringTop + ringHeight)) {
+        titles.forEach { placeable: Placeable -> placeable.place(0, titleTop) }
+        rings.forEach { placeable: Placeable -> placeable.place(width - placeable.width, ringTop) }
+        unders.forEach { placeable: Placeable -> placeable.place(0, underTop) }
     }
 }
 
