@@ -100,6 +100,15 @@ class TodayRowsScreenTest {
     }
 
     @Test
+    fun `while reviews lead, the running lesson's row opens the running lesson's words`() {
+        show(contentWith(first = TodayUiState.FirstCard.Reviews(count = 4, readFirst = null), lesson = runningLesson))
+
+        composeRule.onNodeWithText(LESSON_ONE_READY_IN).performScrollTo().performClick()
+
+        assertEquals(listOf(firstLesson), openedLessons)
+    }
+
+    @Test
     fun `the running lesson stays a row of In progress while reviews lead`() {
         show(contentWith(first = TodayUiState.FirstCard.Reviews(count = 4, readFirst = null), lesson = runningLesson))
 
