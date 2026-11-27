@@ -51,21 +51,17 @@ fun MyGameSwitchRow(
 ) {
     val colors: MyGameColors = MyGameTheme.colors
     val ink: Color = if (isEnabled) colors.ink else colors.inkMuted
-    val outline: Shape = RoundedCornerShape(MyGameRadii.md)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = MyGameSizes.control)
-            .clip(outline)
-            .background(if (isEnabled) colors.surface else colors.surfaceSunken)
-            .border(MyGameStrokeWidths.hairline, colors.lineStrong, outline)
             .toggleable(value = isChecked, enabled = isEnabled, role = Role.Switch, onValueChange = onCheckedChange)
-            .padding(horizontal = MyGameSpacing.step3, vertical = MyGameSpacing.step2),
+            .padding(vertical = MyGameSpacing.step2),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            MyGameText(label = label, style = MyGameTypography.gloss, color = ink)
+            MyGameText(label = label, style = MyGameTypography.label, color = ink)
             supportingText?.let { line: MyGameLabel ->
                 MyGameText(label = line, style = MyGameTypography.caption, color = colors.inkMuted)
             }

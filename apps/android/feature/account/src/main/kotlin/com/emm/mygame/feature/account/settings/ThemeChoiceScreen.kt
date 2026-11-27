@@ -3,17 +3,16 @@ package com.emm.mygame.feature.account.settings
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameChoiceRow
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
+import com.emm.mygame.core.designsystem.MyGameSegment
+import com.emm.mygame.core.designsystem.MyGameSegmentedChoice
+import com.emm.mygame.core.designsystem.MyGameSegments
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.feature.account.R
+import com.emm.mygame.feature.account.scaffold.ChoiceGroupTitle
 
 @Composable
 internal fun ThemeChoiceScreen(
@@ -22,23 +21,16 @@ internal fun ThemeChoiceScreen(
     modifier: Modifier = Modifier,
 ) {
     val question: String = stringResource(R.string.settings_theme_title)
+    val segments: List<MyGameSegment> = ThemePick.entries.map { pick: ThemePick ->
+        MyGameSegment(
+            label = stringResource(optionOf(pick)),
+            isChosen = pick == state.picked,
+            onClick = { onIntent(ThemeChoiceIntent.Picked(pick)) },
+        )
+    }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameSectionTitle(text = question)
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-            modifier = Modifier
-                .selectableGroup()
-                .semantics { contentDescription = question },
-        ) {
-            ThemePick.entries.forEach { pick: ThemePick ->
-                MyGameChoiceRow(
-                    label = stringResource(optionOf(pick)),
-                    isChosen = pick == state.picked,
-                    isEnabled = true,
-                    onClick = { onIntent(ThemeChoiceIntent.Picked(pick)) },
-                )
-            }
-        }
+        ChoiceGroupTitle(text = question)
+        MyGameSegmentedChoice(groupName = question, segments = MyGameSegments(segments))
     }
 }
 

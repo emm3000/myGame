@@ -30,7 +30,7 @@ internal fun ReminderSetting(
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
         MyGameSwitchRow(
             label = stringResource(R.string.settings_reminder_title),
             supportingText = stringResource(R.string.settings_reminder_line),
@@ -55,7 +55,7 @@ private fun ReminderTime(time: LocalTime, onIntent: (SettingsIntent) -> Unit, mo
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
         MyGameText(
             text = stringResource(R.string.settings_reminder_time),
-            style = MyGameTypography.gloss,
+            style = MyGameTypography.label,
             color = MyGameTheme.colors.ink,
         )
         MyGameTimeField(

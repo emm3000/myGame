@@ -93,7 +93,7 @@ class MyGameSwitchRowTest {
     }
 
     @Test
-    fun `the switch row draws a hairline line-strong outline`() {
+    fun `the switch row draws no frame of its own`() {
         show {
             Box(modifier = Modifier.background(MyGameTheme.colors.surface).padding(rowRoom)) {
                 MyGameSwitchRow(label = "Study reminder", isChecked = false, onCheckedChange = {})
@@ -103,10 +103,8 @@ class MyGameSwitchRowTest {
         val pixels: PixelMap = composeRule.onRoot().captureToImage().toPixelMap()
         val middle: Int = pixels.height / 2
         val edge: Int = with(composeRule.density) { rowRoom.roundToPx() }
-        val inside: Int = with(composeRule.density) { (rowRoom + MyGameStrokeWidths.hairline).roundToPx() }
 
-        assertEquals("the edge", hexOf(lightColors.lineStrong), hexOf(pixels[edge, middle]))
-        assertEquals("inside the hairline", hexOf(lightColors.surface), hexOf(pixels[inside, middle]))
+        assertEquals("where a frame would be", hexOf(lightColors.surface), hexOf(pixels[edge, middle]))
     }
 }
 
