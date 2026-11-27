@@ -103,7 +103,20 @@ const officeOf = (buildings: ReadonlyArray<BuildingContent>): OfficeContent => {
   if (unoffered !== undefined) {
     throw new Error(`No office level offers ${unoffered}`)
   }
+  refuseDroppedHires(office)
   return office
+}
+
+const refuseDroppedHires = (office: OfficeContent): void => {
+  for (const level of office.levels) {
+    const dropped = office.levels
+      .filter((lower) => lower.level < level.level)
+      .flatMap((lower) => lower.effect.hires)
+      .find((hire) => !level.effect.hires.includes(hire))
+    if (dropped !== undefined) {
+      throw new Error(`Office level ${level.level} drops ${dropped}`)
+    }
+  }
 }
 
 const keyOf = (building: BuildingKind, level: number): string => `${building}:${level}`

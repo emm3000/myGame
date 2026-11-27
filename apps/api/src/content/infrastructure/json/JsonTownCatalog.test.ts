@@ -174,4 +174,18 @@ describe('JsonTownCatalog', () => {
 
     expect(startingUpOn(directory)).toThrow(/No office level offers truck/)
   })
+
+  it('fails at start-up unless an office level keeps every hire a lower level offers', () => {
+    const directory = withTownContent(
+      rewritten('office.json', (office) => ({
+        ...office,
+        levels: (office.levels as ReadonlyArray<Record<string, unknown>>).map((level) => ({
+          ...level,
+          effect: { hires: (level.level as number) < 3 ? ['worker'] : ['truck'] },
+        })),
+      })),
+    )
+
+    expect(startingUpOn(directory)).toThrow(/Office level 3 drops worker/)
+  })
 })
