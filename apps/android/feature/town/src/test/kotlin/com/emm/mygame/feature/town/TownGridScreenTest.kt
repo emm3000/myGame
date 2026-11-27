@@ -100,7 +100,19 @@ class TownGridScreenTest : TownScreenFixture() {
         assertTrue("Granja sits under Hogares", boundsOf(card("Hogares")).bottom <= boundsOf(card("Granja")).top)
     }
 
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `a requested place the town lacks draws the grid, which scrolls to its last card`() {
+        show(townWithoutOffice, place = TownBuildingKind.Office)
+
+        card("Almacén").performScrollTo().assertIsDisplayed()
+    }
+
     private fun boundsOf(node: SemanticsNodeInteraction): DpRect = node.getUnclippedBoundsInRoot()
+
+    private val townWithoutOffice: TownUiState.Content = riverton.copy(
+        places = riverton.places.filter { place: PlaceCard -> place.kind != TownBuildingKind.Office },
+    )
 
     private fun card(place: String): SemanticsNodeInteraction =
         composeRule.onNode(hasText(place) and hasClickAction())
