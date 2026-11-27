@@ -28,10 +28,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
-import com.emm.mygame.core.designsystem.BLOCK_HUE
 import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.HAIRLINE
-import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -158,9 +156,9 @@ class SchoolLookTest {
     private fun chevronOf(title: String): SemanticsMatcher =
         hasTestTag(NAV_ROW_CHEVRON) and hasAnyAncestor(hasTestTag(LESSON_ROW) and hasAnyDescendant(hasText(title)))
 
-    private val theBlock: SemanticsMatcher = SemanticsMatcher.keyIsDefined(BLOCK_HUE)
+    private val theCard: SemanticsMatcher = hasTestTag(SHOWN_LESSON_CARD)
 
-    private val inTheBlock: SemanticsMatcher = hasAnyAncestor(theBlock)
+    private val inTheCard: SemanticsMatcher = hasAnyAncestor(theCard)
 
     @Test
     fun `draws the study mark directly above the lesson rows`() {
@@ -208,20 +206,29 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `puts the next lesson in a block with its pill under it`() {
+    fun `puts the next lesson's study button inside its card`() {
         show(idleSchool)
 
-        composeRule.onNode(hasText("Lección 1") and theBlock).assertExists()
-        val blockBottom: Dp = composeRule.onNode(theBlock)
-            .getUnclippedBoundsInRoot().bottom
-        val pillTop: Dp = composeRule.onNodeWithTag(GO_OUTLINED_PILL).getUnclippedBoundsInRoot().top
-        assertTrue(blockBottom <= pillTop)
-        composeRule.onAllNodes(hasTestTag(GO_OUTLINED_PILL) and inTheBlock).assertCountEquals(0)
+        composeRule.onNode(hasText("Lección 1") and inTheCard).assertExists()
+        composeRule
+            .onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 1 · 2:30") and inTheCard)
+            .assertExists()
     }
 
     @Test
-    fun `sets the lesson in display and its theme in reading on the block's ink`() {
-        val (ink: Color, muted: Color) = showReadingBlockInks(idleSchool.copy(lessons = listOf(openFirst)))
+    fun `puts a blocked study button and its reason inside the card`() {
+        show(secondWhileFirstRuns)
+
+        composeRule
+            .onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 2 · 2:30") and inTheCard)
+            .assertExists()
+        composeRule.onNode(hasText(SLOT_BUSY_REASON, substring = true) and inTheCard, useUnmergedTree = true)
+            .assertExists()
+    }
+
+    @Test
+    fun `sets the lesson in display and its theme in reading on the card's ink`() {
+        val (ink: Color, muted: Color) = showCardInks(idleSchool.copy(lessons = listOf(openFirst)))
 
         assertEquals(40.sp, textStyleOf(composeRule, "Lección 1").fontSize)
         assertEquals(ink, textStyleOf(composeRule, "Lección 1").color)
@@ -230,36 +237,27 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `takes the block's hue from the lesson's place in the curriculum`() {
-        show(idleSchool.copy(lessons = listOf(studiedFirst, studiedSecond, openThird)))
-
-        composeRule.onNode(
-            hasText("Lección 3") and SemanticsMatcher.expectValue(BLOCK_HUE, MyGameBlockHue.Periwinkle),
-        ).assertExists()
-    }
-
-    @Test
-    fun `opens the block on the first open lesson past a running one`() {
+    fun `opens the card on the first open lesson past a running one`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(hasText("Lección 2") and theBlock).assertExists()
+        composeRule.onNode(hasText("Lección 2") and inTheCard).assertExists()
     }
 
     @Test
-    fun `shows the running lesson in the block when no other is open`() {
+    fun `shows the running lesson in the card when no other is open`() {
         show(idleSchool.copy(slot = firstRunning, lessons = listOf(runningFirst, studiedSecond)))
 
-        composeRule.onNode(hasText("Lección 1") and theBlock).assertExists()
-        composeRule.onNode(hasText("En estudio") and theBlock).assertExists()
+        composeRule.onNode(hasText("Lección 1") and inTheCard).assertExists()
+        composeRule.onNode(hasText("En estudio") and inTheCard).assertExists()
     }
 
     @Test
-    fun `sets the running lesson's mark in its block in caption on the block's muted ink`() {
-        val (_, muted: Color) = showReadingBlockInks(
+    fun `sets the running lesson's mark in its card in caption on the muted ink`() {
+        val (_, muted: Color) = showCardInks(
             idleSchool.copy(slot = firstRunning, lessons = listOf(runningFirst, studiedSecond)),
         )
 
-        val mark: TextStyle = textStyleOf(composeRule, hasText("En estudio") and inTheBlock)
+        val mark: TextStyle = textStyleOf(composeRule, hasText("En estudio") and inTheCard)
         assertEquals(15.sp, mark.fontSize)
         assertEquals(FontWeight.Normal, mark.fontWeight)
         assertEquals(muted, mark.color)
@@ -363,10 +361,10 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `gives a selected row the block`() {
+    fun `gives a selected row the card`() {
         show(idleSchool.copy(selected = thirdLesson))
 
-        composeRule.onNode(hasText("Lección 3") and theBlock).assertExists()
+        composeRule.onNode(hasText("Lección 3") and inTheCard).assertExists()
     }
 
     @Test
@@ -377,14 +375,7 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `keeps the hue of a selected lesson's place`() {
-        show(idleSchool.copy(selected = secondLesson))
-
-        composeRule.onNode(SemanticsMatcher.expectValue(BLOCK_HUE, MyGameBlockHue.Mint)).assertExists()
-    }
-
-    @Test
-    fun `moves the lesson the block left down to the rows`() {
+    fun `moves the lesson the card left down to the rows`() {
         show(idleSchool.copy(selected = thirdLesson))
 
         composeRule.onNodeWithText("Lección 1").performScrollTo().performClick()
@@ -393,7 +384,7 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `brings the block back into view on a selection`() {
+    fun `brings the card back into view on a selection`() {
         var state: SchoolUiState by mutableStateOf(idleSchool)
         composeRule.setContent {
             MyGameTheme {
@@ -410,21 +401,7 @@ class SchoolLookTest {
 
         state = idleSchool.copy(selected = thirdLesson)
 
-        composeRule.onNode(hasText("Lección 3") and theBlock).assertIsDisplayed()
-    }
-
-    @Test
-    fun `outlines the open study button in go`() {
-        show(idleSchool)
-
-        composeRule.onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 1 · 2:30")).assertExists()
-    }
-
-    @Test
-    fun `outlines the blocked study button in go while a lesson runs`() {
-        show(secondWhileFirstRuns)
-
-        composeRule.onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 2 · 2:30")).assertExists()
+        composeRule.onNode(hasText("Lección 3") and inTheCard).assertIsDisplayed()
     }
 
     @Test
@@ -539,11 +516,11 @@ class SchoolLookTest {
         assertEquals(40.sp, textStyleOf(composeRule, "Aprender").fontSize)
     }
 
-    private fun showReadingBlockInks(state: SchoolUiState): Pair<Color, Color> {
+    private fun showCardInks(state: SchoolUiState): Pair<Color, Color> {
         var inks: Pair<Color, Color> = Color.Unspecified to Color.Unspecified
         composeRule.setContent {
             MyGameTheme {
-                inks = MyGameTheme.colors.onBlock to MyGameTheme.colors.onBlockMuted
+                inks = MyGameTheme.colors.ink to MyGameTheme.colors.inkMuted
                 SchoolScreen(
                     state = state,
                     onIntent = { },
@@ -579,6 +556,8 @@ class SchoolLookTest {
 
     private companion object {
         const val WINTER_STUDY: String = "Invierno: las lecciones tardan el 75 % del tiempo"
+
+        const val SLOT_BUSY_REASON: String = "La escuela está estudiando la lección 1."
 
         val seasonWords: Map<SeasonKind, String> = mapOf(
             SeasonKind.Spring to "Primavera",
