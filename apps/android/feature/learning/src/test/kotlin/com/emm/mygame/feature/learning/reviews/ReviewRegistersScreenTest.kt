@@ -5,10 +5,10 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.emm.mygame.core.designsystem.BLOCK_HUE
-import com.emm.mygame.core.designsystem.MyGameBlockHue
-import com.emm.mygame.core.designsystem.MyGameRegisteredRow
-import com.emm.mygame.core.designsystem.MyGameRegistering
+import com.emm.mygame.core.designsystem.control.MyGameRegisteredRow
+import com.emm.mygame.core.designsystem.control.MyGameRegistering
+import com.emm.mygame.core.designsystem.frame.BLOCK_HUE
+import com.emm.mygame.core.designsystem.frame.MyGameBlockHue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

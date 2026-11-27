@@ -17,9 +17,9 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import com.emm.mygame.core.designsystem.HAIRLINE
-import com.emm.mygame.core.designsystem.MyGameColors
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.frame.HAIRLINE
+import com.emm.mygame.core.designsystem.theme.MyGameColors
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot

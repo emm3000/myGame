@@ -1,0 +1,88 @@
+package com.emm.mygame.core.designsystem.control
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import com.emm.mygame.core.designsystem.art.MyGameIcon
+import com.emm.mygame.core.designsystem.art.MyGameIcons
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameColors
+import com.emm.mygame.core.designsystem.theme.MyGamePreviewSurface
+import com.emm.mygame.core.designsystem.theme.MyGameRadii
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
+import com.emm.mygame.core.designsystem.theme.PreviewMyGame
+
+@Composable
+fun MyGameErrorBanner(message: String, actionLabel: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameErrorBanner(
+        message = MyGameLabel(text = message, translation = null),
+        actionLabel = MyGameLabel(text = actionLabel, translation = null),
+        onAction = onAction,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameErrorBanner(message: String, actionLabel: MyGameLabel, onAction: () -> Unit, modifier: Modifier = Modifier) {
+    MyGameErrorBanner(
+        message = MyGameLabel(text = message, translation = null),
+        actionLabel = actionLabel,
+        onAction = onAction,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun MyGameErrorBanner(
+    message: MyGameLabel,
+    actionLabel: MyGameLabel,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors: MyGameColors = MyGameTheme.colors
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
+        verticalAlignment = Alignment.Top,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colors.destructiveSoft, RoundedCornerShape(MyGameRadii.md))
+            .padding(horizontal = MyGameSpacing.step4, vertical = MyGameSpacing.step3),
+    ) {
+        MyGameIcon(icon = MyGameIcons.alert, tint = colors.destructiveInk)
+        Column {
+            MyGameText(
+                label = message,
+                style = MyGameTypography.body,
+                color = colors.destructiveInk,
+                modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+            )
+            MyGameTextLink(label = actionLabel, onClick = onAction)
+        }
+    }
+}
+
+@PreviewMyGame
+@Composable
+private fun MyGameErrorBannerPreview() {
+    MyGamePreviewSurface {
+        MyGameErrorBanner(message = "We could not read your town.", actionLabel = "Try again", onAction = {})
+        MyGameErrorBanner(
+            message = MyGameLabel(text = "We could not read your reviews.", translation = "No pudimos leer tu repaso."),
+            actionLabel = MyGameLabel(text = "Try again", translation = "Intentar de nuevo"),
+            onAction = {},
+        )
+    }
+}

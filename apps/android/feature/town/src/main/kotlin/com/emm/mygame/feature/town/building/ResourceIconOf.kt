@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.town.building
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.art.MyGameIcons
 import com.emm.mygame.core.model.town.TownResourceKind
 
 internal fun resourceIconOf(kind: TownResourceKind): ImageVector = when (kind) {

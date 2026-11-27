@@ -15,6 +15,10 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.control.MyGameGoOutlinedButton
+import com.emm.mygame.core.designsystem.theme.MyGameStrokeWidths
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.lightColors
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

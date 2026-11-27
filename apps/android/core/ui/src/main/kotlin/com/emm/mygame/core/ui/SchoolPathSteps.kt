@@ -1,6 +1,6 @@
 package com.emm.mygame.core.ui
 
-import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 
 data class SchoolPathSteps(val studied: Step, val read: Step, val reviewed: Step, val learned: Step) {
 

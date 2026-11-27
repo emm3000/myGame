@@ -11,6 +11,11 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.navigation.MyGameRing
+import com.emm.mygame.core.designsystem.navigation.RingMark
+import com.emm.mygame.core.designsystem.navigation.ringMarksOf
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

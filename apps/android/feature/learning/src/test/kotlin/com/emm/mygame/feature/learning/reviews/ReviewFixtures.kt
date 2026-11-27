@@ -7,7 +7,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.ReceiveTurbine
-import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.control.INK_PILL
 import com.emm.mygame.core.model.learning.DueReview
 import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.learning.FrameSpan
@@ -27,13 +27,13 @@ import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.hiringOf
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 internal val isPlaced: SemanticsMatcher = SemanticsMatcher("is placed") { node -> node.layoutInfo.isPlaced }
 

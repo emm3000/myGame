@@ -1,10 +1,9 @@
-file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGameFrameText.kt
-file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/MyGamePill.kt
+file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/control/MyGamePill.kt
+file-lines core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/frame/MyGameFrameText.kt
 file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
 file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
 file-name app/src/main/kotlin/com/emm/mygame/ReminderNotificationAsk.kt
-file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/EnglishText.kt
-file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/TabularFigures.kt
+file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/text/EnglishText.kt
+file-name core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem/text/TabularFigures.kt
 file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/NavRowMatcher.kt
 file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/TextStyleLookup.kt
-package-files core/designsystem/src/main/kotlin/com/emm/mygame/core/designsystem

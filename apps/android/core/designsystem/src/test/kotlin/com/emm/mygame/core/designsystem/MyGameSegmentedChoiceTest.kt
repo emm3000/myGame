@@ -24,6 +24,13 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.control.MyGameSegment
+import com.emm.mygame.core.designsystem.control.MyGameSegmentedChoice
+import com.emm.mygame.core.designsystem.control.MyGameSegments
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.lightColors
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

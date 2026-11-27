@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.emm.mygame.core.designsystem.MyGameSegment
-import com.emm.mygame.core.designsystem.MyGameSegmentedChoice
-import com.emm.mygame.core.designsystem.MyGameSegments
-import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.control.MyGameSegment
+import com.emm.mygame.core.designsystem.control.MyGameSegmentedChoice
+import com.emm.mygame.core.designsystem.control.MyGameSegments
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
 import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.feature.account.R
 import com.emm.mygame.feature.account.scaffold.ChoiceGroupTitle

@@ -25,6 +25,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.control.MyGameOutlinedDoor
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.PILL_CHEVRON
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

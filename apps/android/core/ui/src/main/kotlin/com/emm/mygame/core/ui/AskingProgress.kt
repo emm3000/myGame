@@ -7,12 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameMetaText
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTrack
-import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.control.MyGameTrack
+import com.emm.mygame.core.designsystem.text.MyGameMetaText
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 
 @Composable
 fun AskingProgress(band: String, progress: String, shownIndex: Int, total: Int, modifier: Modifier = Modifier) {

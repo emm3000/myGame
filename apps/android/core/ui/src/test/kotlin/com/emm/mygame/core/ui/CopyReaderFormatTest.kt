@@ -1,12 +1,12 @@
 package com.emm.mygame.core.ui
 
-import com.emm.mygame.core.designsystem.MyGameLabel
-import java.time.LocalDateTime
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import java.time.LocalDateTime
 
 @RunWith(RobolectricTestRunner::class)
 class CopyReaderFormatTest {

@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.school.words
 
-import com.emm.mygame.core.designsystem.MyGameArt
-import com.emm.mygame.core.designsystem.MyGameArtTint
+import com.emm.mygame.core.designsystem.art.MyGameArt
+import com.emm.mygame.core.designsystem.art.MyGameArtTint
 import com.emm.mygame.core.designsystem.R as DesignSystemR
 
 private val silhouettesByWord: Map<String, Int> = mapOf(

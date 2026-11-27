@@ -1,7 +1,7 @@
 package com.emm.mygame.core.ui
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.art.MyGameIcons
 import com.emm.mygame.core.model.town.SeasonKind
 
 fun seasonIconOf(kind: SeasonKind): ImageVector = when (kind) {

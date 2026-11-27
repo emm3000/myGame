@@ -2,9 +2,9 @@ package com.emm.mygame.feature.town.building
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
-import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGamePlaceTile
+import com.emm.mygame.core.designsystem.art.MyGamePlaceTile
+import com.emm.mygame.core.designsystem.control.MyGameGoOutlinedButton
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.core.projection.town.building.CostLine
 import com.emm.mygame.core.projection.town.building.NextLevelLine

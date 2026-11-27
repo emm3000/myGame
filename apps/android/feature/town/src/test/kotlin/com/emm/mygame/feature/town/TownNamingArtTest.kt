@@ -8,9 +8,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.emm.mygame.core.designsystem.MyGameArt
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.PLACE_ART
+import com.emm.mygame.core.designsystem.art.MyGameArt
+import com.emm.mygame.core.designsystem.art.PLACE_ART
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.feature.town.building.placeArtOf
 import com.emm.mygame.feature.town.naming.NamingStatus

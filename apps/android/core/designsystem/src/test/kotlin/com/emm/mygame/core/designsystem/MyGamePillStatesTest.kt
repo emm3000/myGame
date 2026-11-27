@@ -8,6 +8,14 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.emm.mygame.core.designsystem.control.BLOCKED_LOCK
+import com.emm.mygame.core.designsystem.control.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.WORKING_DOTS
+import com.emm.mygame.core.designsystem.control.WORKING_DOT_ALPHAS
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

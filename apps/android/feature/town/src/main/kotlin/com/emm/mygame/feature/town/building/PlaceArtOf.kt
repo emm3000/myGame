@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.town.building
 
-import com.emm.mygame.core.designsystem.MyGameArt
-import com.emm.mygame.core.designsystem.MyGameArtTint
-import com.emm.mygame.core.designsystem.R as DesignSystemR
+import com.emm.mygame.core.designsystem.art.MyGameArt
+import com.emm.mygame.core.designsystem.art.MyGameArtTint
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.core.designsystem.R as DesignSystemR
 
 internal fun placeArtOf(kind: TownBuildingKind, level: Int): MyGameArt = MyGameArt(
     drawable = levelsOf(kind)[level],

@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import com.emm.mygame.core.designsystem.MyGameTextField
+import com.emm.mygame.core.designsystem.control.MyGameTextField
 import com.emm.mygame.core.model.learning.REVIEW_ANSWER_MAX_LENGTH
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.learning.R

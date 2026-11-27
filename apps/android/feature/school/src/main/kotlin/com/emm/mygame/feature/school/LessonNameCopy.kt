@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.school
 
-import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.CopyReader

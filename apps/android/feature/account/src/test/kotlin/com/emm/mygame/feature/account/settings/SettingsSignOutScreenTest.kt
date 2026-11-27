@@ -21,9 +21,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
-import com.emm.mygame.core.designsystem.MyGameSizes
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.WORKING_DOTS
+import com.emm.mygame.core.designsystem.control.WORKING_DOTS
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.account.PlayerScaffold
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

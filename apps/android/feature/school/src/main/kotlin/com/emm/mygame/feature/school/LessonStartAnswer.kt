@@ -2,7 +2,7 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.control.MyGameInlineAlert
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy

@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameChoiceRow
-import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.control.MyGameChoiceRow
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
 import com.emm.mygame.core.model.learning.ReviewChoice
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.toMyGameFrame

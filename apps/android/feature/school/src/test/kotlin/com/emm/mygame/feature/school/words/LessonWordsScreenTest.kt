@@ -29,17 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import com.emm.mygame.core.designsystem.BLOCK_HUE
-import com.emm.mygame.core.designsystem.FRAME_STYLE
-import com.emm.mygame.core.designsystem.INK_PILL
-import com.emm.mygame.core.designsystem.MyGameBlockHue
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.control.INK_PILL
+import com.emm.mygame.core.designsystem.frame.BLOCK_HUE
+import com.emm.mygame.core.designsystem.frame.FRAME_STYLE
+import com.emm.mygame.core.designsystem.frame.MyGameBlockHue
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.uitesting.outlinedDoorOf
 import com.emm.mygame.core.uitesting.textStyleOf
 import com.emm.mygame.feature.school.secondLesson
-import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -47,6 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class LessonWordsScreenTest {

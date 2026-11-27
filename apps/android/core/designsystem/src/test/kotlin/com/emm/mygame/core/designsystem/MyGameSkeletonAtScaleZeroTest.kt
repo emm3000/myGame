@@ -6,6 +6,13 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import com.emm.mygame.core.designsystem.frame.MyGameSkeleton
+import com.emm.mygame.core.designsystem.frame.MyGameSkeletonBlocks
+import com.emm.mygame.core.designsystem.frame.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.frame.SKELETON_PULSE
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

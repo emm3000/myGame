@@ -12,8 +12,8 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
-import com.emm.mygame.core.designsystem.INK_PILL
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.INK_PILL
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
 import com.emm.mygame.core.model.placement.Placement
 import com.emm.mygame.core.model.placement.PlacementReadResult
 import org.junit.Assert.assertTrue

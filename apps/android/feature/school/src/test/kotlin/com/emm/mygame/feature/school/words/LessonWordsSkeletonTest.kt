@@ -14,9 +14,9 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTransitions
-import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.frame.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import com.emm.mygame.core.model.town.LessonName
 import org.junit.Assert.assertEquals
 import org.junit.Rule

@@ -3,13 +3,13 @@ package com.emm.mygame.core.ui
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameBlockHue
-import com.emm.mygame.core.designsystem.MyGameFrameGround
-import com.emm.mygame.core.designsystem.MyGameFrameText
-import com.emm.mygame.core.designsystem.MyGameSunkenCard
-import com.emm.mygame.core.designsystem.MyGameSupportLine
-import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.frame.MyGameBlock
+import com.emm.mygame.core.designsystem.frame.MyGameBlockHue
+import com.emm.mygame.core.designsystem.frame.MyGameFrameGround
+import com.emm.mygame.core.designsystem.frame.MyGameFrameText
+import com.emm.mygame.core.designsystem.frame.MyGameSunkenCard
+import com.emm.mygame.core.designsystem.text.MyGameSupportLine
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.WordSupport
 

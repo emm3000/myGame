@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import com.emm.mygame.core.designsystem.R
 
 object MyGameTypeFamilies {
     val sans: FontFamily = FontFamily(

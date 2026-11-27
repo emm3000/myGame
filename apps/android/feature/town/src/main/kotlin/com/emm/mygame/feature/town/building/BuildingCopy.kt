@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.town.building
 
-import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.designsystem.text.formatQuantity
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownWorkRefusal

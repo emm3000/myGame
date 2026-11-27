@@ -9,6 +9,13 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import com.emm.mygame.core.designsystem.art.MyGameAchievement
+import com.emm.mygame.core.designsystem.art.SEAL
+import com.emm.mygame.core.designsystem.frame.BLOCK_HUE
+import com.emm.mygame.core.designsystem.frame.MyGameBlockHue
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test

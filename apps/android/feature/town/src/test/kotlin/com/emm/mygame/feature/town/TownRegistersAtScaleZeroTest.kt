@@ -3,7 +3,7 @@ package com.emm.mygame.feature.town
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.emm.mygame.core.designsystem.MyGameRegisteredRow
+import com.emm.mygame.core.designsystem.control.MyGameRegisteredRow
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import org.junit.Assert.assertEquals

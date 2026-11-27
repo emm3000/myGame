@@ -3,11 +3,11 @@ package com.emm.mygame.feature.shell.bar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.emm.mygame.core.designsystem.MyGameIcons
-import com.emm.mygame.core.designsystem.MyGameNavigationBar
-import com.emm.mygame.core.designsystem.MyGameNavigationItem
-import com.emm.mygame.core.designsystem.MyGameNavigationItems
-import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.designsystem.art.MyGameIcons
+import com.emm.mygame.core.designsystem.navigation.MyGameNavigationBar
+import com.emm.mygame.core.designsystem.navigation.MyGameNavigationItem
+import com.emm.mygame.core.designsystem.navigation.MyGameNavigationItems
+import com.emm.mygame.core.designsystem.text.formatQuantity
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.ui.PlayerCopy

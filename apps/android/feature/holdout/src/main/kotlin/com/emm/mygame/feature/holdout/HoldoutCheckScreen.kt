@@ -16,15 +16,15 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameSizes
-import com.emm.mygame.core.designsystem.MyGameSkeleton
-import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameSunkenCard
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.control.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.frame.MyGameSkeleton
+import com.emm.mygame.core.designsystem.frame.MyGameSkeletonBlocks
+import com.emm.mygame.core.designsystem.frame.MyGameSunkenCard
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import com.emm.mygame.core.ui.fixedCopyResource
 
 internal const val HOLDOUT_CHECK_END_CARD: String = "holdout_check_end_card"

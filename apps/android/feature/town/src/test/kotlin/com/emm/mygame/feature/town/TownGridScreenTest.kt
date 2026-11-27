@@ -13,7 +13,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
-import com.emm.mygame.core.designsystem.MyGameRing
+import com.emm.mygame.core.designsystem.navigation.MyGameRing
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.projection.town.building.BlockReason
 import com.emm.mygame.core.uitesting.assertRingOnTitleRow

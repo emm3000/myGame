@@ -1,5 +1,6 @@
 package com.emm.mygame.core.designsystem
 
+import com.emm.mygame.core.designsystem.text.formatQuantity
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
