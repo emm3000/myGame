@@ -14,8 +14,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.Destination
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownReadResult
-import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import com.emm.mygame.core.model.town.school.RetainedWords
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
@@ -87,7 +87,6 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `reads the town for the ring over a screen that reads none`() {
-        reports.answerNews(TownNewsReadResult.Read(emptyList()))
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(playedTown(retainedWords = threeOfFive))) }
 
         composeRule.setContent {
@@ -96,7 +95,11 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.News),
+                    backStack = rememberNavBackStack(
+                        Destination.Today,
+                        Destination.School,
+                        Destination.SchoolText(TextId("text-1")),
+                    ),
                 )
             }
         }

@@ -6,5 +6,7 @@ internal sealed interface FrameKind {
 
     data class Place(val doesScreenReadTown: Boolean) : FrameKind
 
+    data object Door : FrameKind
+
     data object Task : FrameKind
 }
