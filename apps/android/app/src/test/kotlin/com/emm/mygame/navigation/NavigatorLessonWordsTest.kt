@@ -73,7 +73,7 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
     }
 
     @Test
-    fun `opens the reviews above a lesson's words`() {
+    fun `opens the reviews in the place of a lesson's words`() {
         val backStack: MutableList<NavKey> = mutableListOf(
             Destination.Today,
             firstWords,
@@ -81,10 +81,7 @@ class NavigatorLessonWordsTest : NavigatorFixture() {
 
         Navigator(backStack, NavigationLinks()).openReviews()
 
-        assertEquals(
-            listOf(Destination.Today, firstWords, Destination.Review),
-            backStack,
-        )
+        assertEquals(listOf(Destination.Today, Destination.Review), backStack)
     }
 
     @Test
