@@ -162,6 +162,7 @@ internal fun List<SchoolUiState.LessonCard>.featuredWith(selected: LessonId?): S
         card.state != SchoolUiState.LessonState.Studied
     }
     return unstudied.firstOrNull { card: SchoolUiState.LessonCard -> card.lesson == selected }
+        ?: unstudied.firstOrNull { card: SchoolUiState.LessonCard -> card.state == SchoolUiState.LessonState.Studying }
         ?: unstudied.firstOrNull { card: SchoolUiState.LessonCard -> card.state is SchoolUiState.LessonState.Open }
         ?: unstudied.firstOrNull()
 }

@@ -3,10 +3,12 @@ package com.emm.mygame.feature.school
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -17,12 +19,13 @@ import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameMetaText
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWorkingDots
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
@@ -41,24 +44,22 @@ internal fun ShownLesson(
 ) {
     val running: SchoolUiState.SlotLine.Running? = content.slot as? SchoolUiState.SlotLine.Running
     val open: SchoolUiState.LessonState.Open? = card.state as? SchoolUiState.LessonState.Open
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(SHOWN_LESSON_CARD)
-                .background(MyGameTheme.colors.surfaceSunken, RoundedCornerShape(MyGameRadii.md))
-                .padding(MyGameSpacing.step4),
-        ) {
-            LessonHeading(card = card, isStep = content.isStepLesson(card))
-            if (open != null) {
-                StudyAction(card = card, block = open.block, content = content, onIntent = onIntent)
-            } else {
-                LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
-            }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag(SHOWN_LESSON_CARD)
+            .background(MyGameTheme.colors.surfaceSunken, RoundedCornerShape(MyGameRadii.md))
+            .padding(MyGameSpacing.step4),
+    ) {
+        LessonHeading(card = card, isStep = content.isStepLesson(card))
+        if (open != null) {
+            StudyAction(card = card, block = open.block, content = content, onIntent = onIntent)
+        } else {
+            LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
         }
         running?.let { slot: SchoolUiState.SlotLine.Running ->
-            ReadWordsRow(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
+            ReadWordsButton(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
         }
     }
 }
@@ -90,13 +91,23 @@ private fun LessonHeading(card: SchoolUiState.LessonCard, isStep: Boolean, modif
             color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.semantics { testTag = LESSON_SIZE_LABEL },
         )
-        if (card.state == SchoolUiState.LessonState.Studying) {
-            MyGameText(
-                label = copy.chrome(R.string.school_lesson_studying),
-                style = MyGameTypography.caption,
-                color = MyGameTheme.colors.inkMuted,
-            )
-        }
+        if (card.state == SchoolUiState.LessonState.Studying) StudyingLine()
+    }
+}
+
+@Composable
+private fun StudyingLine(modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier,
+    ) {
+        MyGameWorkingDots(tint = MyGameTheme.colors.ink)
+        MyGameText(
+            label = rememberPlayerCopy().chrome(R.string.school_lesson_studying),
+            style = MyGameTypography.label,
+            color = MyGameTheme.colors.ink,
+        )
     }
 }
 
@@ -123,7 +134,7 @@ private fun StudyAction(
 }
 
 @Composable
-private fun ReadWordsRow(
+private fun ReadWordsButton(
     running: LessonId,
     name: LessonName,
     shown: LessonId,
@@ -131,8 +142,10 @@ private fun ReadWordsRow(
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameNavRow(
-        title = copy.readWordsLabelOf(running, name, shown),
+    MyGameOutlinedButton(
+        label = copy.readWordsLabelOf(running, name, shown),
+        isBusy = false,
+        busyDescription = copy.chrome(R.string.school_waiting),
         onClick = { onLessonOpen(running) },
         modifier = modifier,
     )
