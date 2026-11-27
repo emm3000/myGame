@@ -61,8 +61,9 @@ fun MyGameFrameText(
     style: TextStyle,
     onPieceTap: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    ground: MyGameFrameGround = MyGameFrameGround.Block,
 ) {
-    val ink: TextStyle = style.copy(color = MyGameTheme.colors.onBlock)
+    val ink: TextStyle = style.copy(color = ground.ink())
     FlowRow(
         itemVerticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -75,7 +76,7 @@ fun MyGameFrameText(
         frameChunksOf(frame).forEach { chunk: FrameChunk ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 chunk.runs.forEach { run: FrameRun ->
-                    FrameRunText(run = run, openPiece = openPiece, ink = ink, onPieceTap = onPieceTap)
+                    FrameRunText(run = run, openPiece = openPiece, ink = ink, ground = ground, onPieceTap = onPieceTap)
                 }
             }
         }
@@ -121,7 +122,13 @@ private fun slicesOf(piece: MyGameFramePiece, index: Int, offset: Int, starts: S
 }
 
 @Composable
-private fun FrameRunText(run: FrameRun, openPiece: Int?, ink: TextStyle, onPieceTap: (Int) -> Unit) {
+private fun FrameRunText(
+    run: FrameRun,
+    openPiece: Int?,
+    ink: TextStyle,
+    ground: MyGameFrameGround,
+    onPieceTap: (Int) -> Unit,
+) {
     when (run) {
         is FrameRun.Plain -> PlainText(text = run.text, ink = ink)
         is FrameRun.Word -> WordOnTap(
@@ -130,7 +137,7 @@ private fun FrameRunText(run: FrameRun, openPiece: Int?, ink: TextStyle, onPiece
             ink = ink,
             onTap = { onPieceTap(run.pieceIndex) },
         )
-        is FrameRun.Beside -> BesideSupport(beside = run, ink = ink)
+        is FrameRun.Beside -> BesideSupport(beside = run, ink = ink, muted = ground.inkMuted())
     }
 }
 
@@ -145,14 +152,14 @@ private fun PlainText(text: String, ink: TextStyle) {
 }
 
 @Composable
-private fun BesideSupport(beside: FrameRun.Beside, ink: TextStyle) {
+private fun BesideSupport(beside: FrameRun.Beside, ink: TextStyle, muted: Color) {
     MyGameText(
         text = buildAnnotatedString {
             append(beside.support.spokenText())
             withStyle(ink.toSpanStyle()) { append(beside.closing) }
         },
         style = MyGameTypography.gloss,
-        color = MyGameTheme.colors.onBlockMuted,
+        color = muted,
         modifier = Modifier
             .padding(start = MyGameSpacing.step1)
             .clearAndSetSemantics { testTag = BESIDE_SUPPORT },
@@ -163,7 +170,7 @@ private fun BesideSupport(beside: FrameRun.Beside, ink: TextStyle) {
 private fun WordOnTap(text: String, isOpen: Boolean, ink: TextStyle, onTap: () -> Unit) {
     val interactions: MutableInteractionSource = remember { MutableInteractionSource() }
     val isFocused: Boolean by interactions.collectIsFocusedAsState()
-    val ringColor: Color = MyGameTheme.colors.onBlock
+    val ringColor: Color = ink.color
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
