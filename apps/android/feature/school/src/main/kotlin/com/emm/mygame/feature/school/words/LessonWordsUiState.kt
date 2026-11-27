@@ -33,8 +33,8 @@ sealed interface LessonWordsUiState {
         val isLastWord: Boolean
             get() = index == words.lastIndex
 
-        val isReturningToOpener: Boolean
-            get() = isLastWord && wayOn == null && !isNextStepThisLesson
+        val isWaitingForLessonEnd: Boolean
+            get() = isLastWord && remaining != null
 
         val openSupport: WordSupport?
             get() = shownSupportOf()?.takeIf { support: WordSupport -> support.shown == WordSupport.Shown.OnTap }

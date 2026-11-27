@@ -57,7 +57,6 @@ class LessonWordsLanguageTest {
         name = LessonName.Released(PlacementBand.Second, set = 1),
         theme = null,
         index = 1,
-        remaining = null,
     )
 
     private fun show(language: CopyLanguage, state: LessonWordsUiState = firstWordWhileStudying) {
