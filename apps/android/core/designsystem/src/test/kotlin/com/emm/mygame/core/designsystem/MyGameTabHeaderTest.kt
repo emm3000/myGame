@@ -1,9 +1,14 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
@@ -13,6 +18,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -76,7 +82,7 @@ class MyGameTabHeaderTest {
     fun `gives the title its width before the ring's line`() {
         drawHeader(title = MyGameLabel(text = TOWN_TITLE, translation = null), under = { Under() })
 
-        assertEquals(1, textLayoutOf(TOWN_TITLE).lineCount)
+        assertEquals(1, titleLayout(TOWN_TITLE).lineCount)
         assertTrue("the ring ends the title's row", boundsOf(RING_NAME).left >= boundsOf(TOWN_TITLE).right)
     }
 
@@ -87,7 +93,7 @@ class MyGameTabHeaderTest {
 
         val ring: DpRect = boundsOf(RING_NAME)
         val isBesideOnTwoLines: Boolean =
-            textLayoutOf(TOWN_TITLE).lineCount <= 2 && ring.left >= boundsOf(TOWN_TITLE).right
+            titleLayout(TOWN_TITLE).lineCount <= 2 && ring.left >= boundsOf(TOWN_TITLE).right
         val isStacked: Boolean = ring.left.value < HALF_PIXEL && ring.top >= boundsOf(UNDER).bottom
         assertTrue("the title sits beside the ring on two lines at most, or stacks", isBesideOnTwoLines || isStacked)
     }
@@ -105,9 +111,26 @@ class MyGameTabHeaderTest {
         val under: DpRect = boundsOf(UNDER)
         val ring: DpRect = boundsOf(LONG_RING_NAME)
         val header: DpRect = composeRule.onNodeWithTag(HEADER).getUnclippedBoundsInRoot()
-        assertEquals(3, textLayoutOf(LONG_RING_NAME).lineCount)
+        assertEquals(3, titleLayout(LONG_RING_NAME).lineCount)
         assertEquals(title.bottom.value, under.top.value, ONE_DP)
         assertEquals(maxOf(under.bottom, ring.bottom).value, header.bottom.value, ONE_DP)
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h640dp")
+    fun `centers a ring of odd height on a title of even height to the pixel`() {
+        composeRule.setContent {
+            MyGameTheme {
+                MyGameTabHeader(title = MyGameLabel(text = TITLE, translation = null), ring = { OddRing() })
+            }
+        }
+
+        val title: Rect = pixelBoundsOf(composeRule.onNodeWithText(TITLE))
+        val ring: Rect = pixelBoundsOf(composeRule.onNodeWithTag(RING))
+        assertEquals(32f, title.height, 0f)
+        assertEquals(21f, ring.height, 0f)
+        assertEquals(0f, title.top, 0f)
+        assertEquals(5f, ring.top, 0f)
     }
 
     @Test
@@ -124,12 +147,12 @@ class MyGameTabHeaderTest {
     fun `draws the title in the headline style`() {
         drawHeader(title = MyGameLabel(text = TITLE, translation = null))
 
-        val layout: TextLayoutResult = textLayoutOf(TITLE)
+        val layout: TextLayoutResult = titleLayout(TITLE)
         assertEquals(MyGameTypography.headline.fontSize, layout.layoutInput.style.fontSize)
         assertEquals(MyGameTypography.headline.fontWeight, layout.layoutInput.style.fontWeight)
     }
 
-    private fun textLayoutOf(text: String): TextLayoutResult {
+    private fun titleLayout(text: String): TextLayoutResult {
         val layouts: MutableList<TextLayoutResult> = mutableListOf()
         composeRule.onNodeWithText(text, useUnmergedTree = true)
             .fetchSemanticsNode()
@@ -152,6 +175,14 @@ class MyGameTabHeaderTest {
         }
     }
 
+    private fun pixelBoundsOf(node: SemanticsNodeInteraction): Rect = node.fetchSemanticsNode().boundsInRoot
+
+    @Composable
+    private fun OddRing() {
+        val side: Dp = with(LocalDensity.current) { ODD_RING_PIXELS.toDp() }
+        Box(modifier = Modifier.size(side).testTag(RING))
+    }
+
     private fun centerOf(bounds: DpRect): Float = (bounds.top.value + bounds.bottom.value) / 2
 
     private fun boundsOf(text: String): DpRect = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot()
@@ -170,6 +201,8 @@ class MyGameTabHeaderTest {
         const val HALF_PIXEL: Float = 0.5f
         const val ONE_DP: Float = 1f
         const val HEADER: String = "header"
+        const val RING: String = "ring"
+        const val ODD_RING_PIXELS: Int = 21
         const val TITLE: String = "Aprender"
         const val TRANSLATION: String = "Learn"
         const val LONG_TITLE: String = "Saint Bartholomew of the Rivers · Pueblo"
