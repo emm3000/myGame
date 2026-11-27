@@ -3,7 +3,9 @@ package com.emm.mygame.navigation
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasText
 import com.emm.mygame.Destination
+import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -13,16 +15,18 @@ import java.util.concurrent.TimeUnit
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DoorRingNavigationTest(private val door: Door) : AppNavigationFixture() {
 
-    enum class Door(val shown: Destination) {
-        News(Destination.News),
-        Map(Destination.Map),
+    enum class Door(val stack: List<Destination>, val backLink: String) {
+        News(listOf(Destination.Today, Destination.Town, Destination.News), "Pueblo"),
+        Map(listOf(Destination.Today, Destination.Town, Destination.Map), "Pueblo"),
+        SchoolText(listOf(Destination.Today, Destination.School, Destination.SchoolText(TextId("text-1"))), "Aprender"),
     }
 
     @Test
     fun `a door's page draws no ring`() {
         reports.answerNews(TownNewsReadResult.Read(emptyList()))
-        showingStack(Destination.Today, Destination.Town, door.shown, town = playedTown(retainedWords = threeOfFive))
-        link("Pueblo")
+        showingStack(*door.stack.toTypedArray(), town = playedTown(retainedWords = threeOfFive))
+        runBlocking { towns.read() }
+        link(door.backLink)
         ShadowLooper.idleMainLooper(1, TimeUnit.SECONDS)
         composeRule.waitForIdle()
 

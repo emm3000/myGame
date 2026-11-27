@@ -2,7 +2,6 @@ package com.emm.mygame.navigation
 
 import androidx.compose.ui.test.assertIsDisplayed
 import com.emm.mygame.Destination
-import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
@@ -19,7 +18,6 @@ class PageRingNavigationTest(private val page: Page) : AppNavigationFixture() {
         Learn(listOf(Destination.Today, Destination.School)),
         Me(listOf(Destination.Today, Destination.Settings)),
         Place(listOf(Destination.Today, Destination.Town, Destination.Place(TownBuildingKind.Farm))),
-        SchoolText(listOf(Destination.Today, Destination.School, Destination.SchoolText(TextId("text-1")))),
     }
 
     @Test

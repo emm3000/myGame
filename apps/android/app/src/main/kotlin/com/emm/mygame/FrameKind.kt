@@ -4,7 +4,7 @@ internal sealed interface FrameKind {
 
     data object Home : FrameKind
 
-    data class Place(val doesScreenReadTown: Boolean) : FrameKind
+    data object Place : FrameKind
 
     data object Door : FrameKind
 

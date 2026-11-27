@@ -22,7 +22,7 @@ internal fun EntryProviderScope<NavKey>.namingEntry(chrome: SignedInChrome) {
 
 internal fun EntryProviderScope<NavKey>.placeEntry(chrome: SignedInChrome) {
     entry<Destination.Place> { shown: Destination.Place ->
-        SignedInFrame(kind = FrameKind.Place(doesScreenReadTown = true), chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Place, chrome = chrome) {
             TownRoute(
                 towns = chrome.dependencies.towns,
                 clock = chrome.dependencies.clock,
