@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

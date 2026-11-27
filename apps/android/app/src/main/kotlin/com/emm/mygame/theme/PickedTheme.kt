@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.theme
 
 import android.graphics.Color
 import androidx.activity.ComponentActivity

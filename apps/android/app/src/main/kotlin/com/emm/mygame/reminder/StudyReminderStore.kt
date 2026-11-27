@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.reminder
 
 import android.content.SharedPreferences
 import com.emm.mygame.core.model.account.PlayerChromePhase

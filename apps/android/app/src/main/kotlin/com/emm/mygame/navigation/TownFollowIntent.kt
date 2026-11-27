@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.navigation
 
 internal sealed interface TownFollowIntent {
 

@@ -7,13 +7,14 @@ import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts
-import java.time.LocalTime
-import kotlin.time.Instant
+import com.emm.mygame.reminder.StudyReminderStore
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import java.time.LocalTime
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class StudyReminderStoreTest {

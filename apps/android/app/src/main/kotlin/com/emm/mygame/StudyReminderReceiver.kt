@@ -3,6 +3,8 @@ package com.emm.mygame
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.emm.mygame.reminder.StudyReminderAlarm
+import com.emm.mygame.reminder.StudyReminderStore
 
 class StudyReminderReceiver : BroadcastReceiver() {
 
