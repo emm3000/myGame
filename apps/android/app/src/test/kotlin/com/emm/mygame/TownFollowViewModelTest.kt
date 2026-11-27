@@ -58,7 +58,9 @@ class TownFollowViewModelTest {
         isLessonFinishFollowed: Boolean = true,
     ) {
         towns.hold(HeldTown(town, gap = Duration.ZERO))
-        viewModel.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = isLessonFinishFollowed))
+        viewModel.onIntent(
+            TownFollowIntent.ScreenShown(isLessonFinishFollowed = isLessonFinishFollowed, isTownReadOnOpen = true),
+        )
         runCurrent()
     }
 
@@ -78,6 +80,49 @@ class TownFollowViewModelTest {
         passing(2.minutes + 1.seconds)
 
         assertEquals(1, towns.readCount)
+    }
+
+    @Test
+    fun `reads the town once when a followed screen opens with no town held`() = runTest {
+        val viewModel: TownFollowViewModel = followOf(TestClock(testScheduler, deviceStart))
+
+        viewModel.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = true, isTownReadOnOpen = true))
+        viewModel.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = true, isTownReadOnOpen = true))
+        runCurrent()
+
+        assertEquals(1, towns.readCount)
+    }
+
+    @Test
+    fun `reads at the lesson's finish when the read on open answers a lesson already past it`() = runTest {
+        val clock = TestClock(testScheduler, deviceStart)
+        val viewModel: TownFollowViewModel = followOf(clock)
+        towns.answerRead(TownReadResult.Read(runningTown(readAt = clock.now() - 1.minutes, finishesAt = clock.now())))
+
+        viewModel.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = true, isTownReadOnOpen = true))
+        runCurrent()
+
+        assertEquals(2, towns.readCount)
+    }
+
+    @Test
+    fun `leaves the read on open to a followed screen that reads the town`() = runTest {
+        val viewModel: TownFollowViewModel = followOf(TestClock(testScheduler, deviceStart))
+
+        viewModel.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = true, isTownReadOnOpen = false))
+        runCurrent()
+
+        assertEquals(0, towns.readCount)
+    }
+
+    @Test
+    fun `sends no read when a followed screen opens with a town held`() = runTest {
+        val clock = TestClock(testScheduler, deviceStart)
+        val viewModel: TownFollowViewModel = followOf(clock)
+
+        followingOver(viewModel, runningTown(readAt = clock.now(), finishesAt = clock.now() + 2.minutes))
+
+        assertEquals(0, towns.readCount)
     }
 
     @Test
