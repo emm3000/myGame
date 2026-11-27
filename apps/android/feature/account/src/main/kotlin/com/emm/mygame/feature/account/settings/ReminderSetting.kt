@@ -26,6 +26,7 @@ private val anyDay: LocalDate = LocalDate.ofEpochDay(0)
 @Composable
 internal fun ReminderSetting(
     reminder: SettingsUiState.Reminder,
+    isEnabled: Boolean,
     onIntent: (SettingsIntent) -> Unit,
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
@@ -35,7 +36,7 @@ internal fun ReminderSetting(
             label = stringResource(R.string.settings_reminder_title),
             supportingText = stringResource(R.string.settings_reminder_line),
             isChecked = reminder.isOn,
-            isEnabled = reminder.ask != SettingsUiState.NotificationAsk.Asking,
+            isEnabled = isEnabled && reminder.ask != SettingsUiState.NotificationAsk.Asking,
             onCheckedChange = { isOn: Boolean -> onIntent(SettingsIntent.ReminderSwitched(isOn)) },
         )
         if (reminder.ask == SettingsUiState.NotificationAsk.Denied) {

@@ -55,7 +55,9 @@ internal fun SettingsScreen(
             ),
     ) {
         MyGameTabHeader(title = title, ring = ring)
-        if (state.shownSettings()?.reminder?.isOffered == true) ReminderOffer(onIntent = onIntent)
+        if (state.shownSettings()?.reminder?.isOffered == true) {
+            ReminderOffer(isEnabled = state is SettingsUiState.Loaded, onIntent = onIntent)
+        }
         themeChoice()
         MyGameSkeleton(
             isLoading = state == SettingsUiState.Loading,
@@ -80,11 +82,12 @@ private fun SignOut(isBusy: Boolean, onIntent: (SettingsIntent) -> Unit, modifie
 }
 
 @Composable
-private fun ReminderOffer(onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun ReminderOffer(isEnabled: Boolean, onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
     MyGameTextLink(
         label = stringResource(R.string.settings_reminder_offer),
         onClick = { onIntent(SettingsIntent.ReminderSwitched(isOn = true)) },
         modifier = modifier,
+        isEnabled = isEnabled,
     )
 }
 
@@ -99,6 +102,7 @@ private fun SettingsState(
         is SettingsUiState.SigningOut -> if (state.kept != null) {
             ScaffoldSetting(
                 loaded = state.kept,
+                isEnabled = false,
                 onIntent = onIntent,
                 onNotificationSettingsOpen = onNotificationSettingsOpen,
             )
@@ -110,6 +114,7 @@ private fun SettingsState(
         )
         is SettingsUiState.Loaded -> ScaffoldSetting(
             loaded = state,
+            isEnabled = true,
             onIntent = onIntent,
             onNotificationSettingsOpen = onNotificationSettingsOpen,
         )
@@ -119,6 +124,7 @@ private fun SettingsState(
 @Composable
 private fun ScaffoldSetting(
     loaded: SettingsUiState.Loaded,
+    isEnabled: Boolean,
     onIntent: (SettingsIntent) -> Unit,
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
@@ -127,7 +133,7 @@ private fun ScaffoldSetting(
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
             ScaffoldChoice(
                 picked = loaded.shown,
-                isEnabled = !loaded.isSaving,
+                isEnabled = isEnabled && !loaded.isSaving,
                 onPick = { scaffold: PlayerScaffold -> onIntent(SettingsIntent.ScaffoldPicked(scaffold)) },
             )
             MyGameText(
@@ -139,6 +145,7 @@ private fun ScaffoldSetting(
         }
         ReminderSetting(
             reminder = loaded.reminder,
+            isEnabled = isEnabled,
             onIntent = onIntent,
             onNotificationSettingsOpen = onNotificationSettingsOpen,
         )

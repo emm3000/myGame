@@ -142,6 +142,22 @@ class MyGameControlsTest {
     }
 
     @Test
+    fun `refuses a tap on a disabled text link`() {
+        show { MyGameTextLink(label = "Turn on the reminder", onClick = { taps += 1 }, isEnabled = false) }
+
+        composeRule.onNodeWithText("Turn on the reminder").assertIsNotEnabled().performClick()
+
+        assertEquals(0, taps)
+    }
+
+    @Test
+    fun `draws a disabled text link's label in muted ink`() {
+        show { MyGameTextLink(label = "Turn on the reminder", onClick = {}, isEnabled = false) }
+
+        assertEquals(lightColors.inkMuted, styleOf("Turn on the reminder").color)
+    }
+
+    @Test
     fun `takes a tap on a text link at rest`() {
         show {
             MyGameTextLink(label = "Sign out", isBusy = false, busyDescription = "Signing out", onClick = { taps += 1 })

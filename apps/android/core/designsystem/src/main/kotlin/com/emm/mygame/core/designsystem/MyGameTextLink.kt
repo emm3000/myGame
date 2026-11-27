@@ -17,14 +17,19 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
-fun MyGameTextLink(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    MyGameTextLink(label = MyGameLabel(text = label, translation = null), onClick = onClick, modifier = modifier)
+fun MyGameTextLink(label: String, onClick: () -> Unit, modifier: Modifier = Modifier, isEnabled: Boolean = true) {
+    MyGameTextLink(
+        label = MyGameLabel(text = label, translation = null),
+        onClick = onClick,
+        modifier = modifier,
+        isEnabled = isEnabled,
+    )
 }
 
 @Composable
-fun MyGameTextLink(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    MyGameTextTarget(isEnabled = true, onClick = onClick, modifier = modifier) {
-        MyGameTextLinkLabel(label = label)
+fun MyGameTextLink(label: MyGameLabel, onClick: () -> Unit, modifier: Modifier = Modifier, isEnabled: Boolean = true) {
+    MyGameTextTarget(isEnabled = isEnabled, onClick = onClick, modifier = modifier) {
+        MyGameTextLinkLabel(label = label, isEnabled = isEnabled)
     }
 }
 
@@ -49,17 +54,17 @@ fun MyGameTextLink(
         if (isBusy) {
             MyGameTextLinkWorking(busyDescription = busyDescription)
         } else {
-            MyGameTextLinkLabel(label = MyGameLabel(text = label, translation = null))
+            MyGameTextLinkLabel(label = MyGameLabel(text = label, translation = null), isEnabled = true)
         }
     }
 }
 
 @Composable
-private fun MyGameTextLinkLabel(label: MyGameLabel) {
+private fun MyGameTextLinkLabel(label: MyGameLabel, isEnabled: Boolean) {
     MyGameText(
         label = label,
         style = MyGameTypography.label.copy(textDecoration = TextDecoration.Underline),
-        color = MyGameTheme.colors.ink,
+        color = if (isEnabled) MyGameTheme.colors.ink else MyGameTheme.colors.inkMuted,
     )
 }
 
