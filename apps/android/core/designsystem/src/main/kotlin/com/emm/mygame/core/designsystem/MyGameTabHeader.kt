@@ -57,18 +57,24 @@ private val tabHeaderMeasurePolicy: MultiContentMeasurePolicy =
         val parts = TabHeaderParts(titles = measurables[0], rings = measurables[1], unders = measurables[2])
         val width: Int = constraints.maxWidth
         val gap: Int = MyGameSpacing.step4.roundToPx()
-        val startMinWidth: Int = maxOf(parts.titles.minIntrinsicWidthOf(), parts.unders.minIntrinsicWidthOf())
-        val isOneRow: Boolean =
-            parts.rings.isEmpty() || startMinWidth + gap + parts.rings.minIntrinsicWidthOf() <= width
-        if (isOneRow) oneRow(parts, width, ringMaxWidth = width - gap - startMinWidth, gap) else stacked(parts, width)
+        val startMaxWidth: Int = if (parts.rings.isEmpty()) width else width - gap - parts.rings.minIntrinsicWidthOf()
+        val isOneRow: Boolean = parts.rings.isEmpty() || parts.fitsStartIn(startMaxWidth)
+        if (isOneRow) oneRow(parts, width, startMaxWidth, gap) else stacked(parts, width)
     }
 
-private fun MeasureScope.oneRow(parts: TabHeaderParts, width: Int, ringMaxWidth: Int, gap: Int): MeasureResult {
-    val rings: List<Placeable> = parts.rings.measureEach(Constraints(maxWidth = maxOf(0, ringMaxWidth)))
-    val ringShare: Int = rings.maxOfOrNull { placeable: Placeable -> placeable.width + gap } ?: 0
-    val startConstraints = Constraints(maxWidth = width - ringShare)
+private fun TabHeaderParts.fitsStartIn(startMaxWidth: Int): Boolean {
+    val startMinWidth: Int = maxOf(titles.minIntrinsicWidthOf(), unders.minIntrinsicWidthOf())
+    val oneLineHeight: Int = titles.minIntrinsicHeightAt(Constraints.Infinity)
+    val wrappedHeight: Int = titles.minIntrinsicHeightAt(startMaxWidth)
+    return startMinWidth <= startMaxWidth && wrappedHeight <= TITLE_LINES_BESIDE_RING * oneLineHeight
+}
+
+private fun MeasureScope.oneRow(parts: TabHeaderParts, width: Int, startMaxWidth: Int, gap: Int): MeasureResult {
+    val startConstraints = Constraints(maxWidth = maxOf(0, startMaxWidth))
     val titles: List<Placeable> = parts.titles.measureEach(startConstraints)
     val unders: List<Placeable> = parts.unders.measureEach(startConstraints)
+    val startShare: Int = maxOf(titles.maxWidth(), unders.maxWidth()) + gap
+    val rings: List<Placeable> = parts.rings.measureEach(Constraints(maxWidth = maxOf(0, width - startShare)))
     val rowHeight: Int = maxOf(titles.maxHeight(), rings.maxHeight())
     return layout(width, rowHeight + unders.maxHeight()) {
         titles.forEach { placeable: Placeable -> placeable.place(0, (rowHeight - placeable.height) / 2) }
@@ -99,7 +105,14 @@ private fun List<Measurable>.measureEach(constraints: Constraints): List<Placeab
 private fun List<Measurable>.minIntrinsicWidthOf(): Int =
     maxOfOrNull { measurable: Measurable -> measurable.minIntrinsicWidth(Constraints.Infinity) } ?: 0
 
+private fun List<Measurable>.minIntrinsicHeightAt(width: Int): Int =
+    maxOfOrNull { measurable: Measurable -> measurable.minIntrinsicHeight(width) } ?: 0
+
 private fun List<Placeable>.maxHeight(): Int = maxOfOrNull(Placeable::height) ?: 0
+
+private fun List<Placeable>.maxWidth(): Int = maxOfOrNull(Placeable::width) ?: 0
+
+private const val TITLE_LINES_BESIDE_RING: Int = 2
 
 @PreviewMyGame
 @Composable
