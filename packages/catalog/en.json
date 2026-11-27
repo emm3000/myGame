@@ -18,7 +18,7 @@
   "android.account.reset_password_to_sign_in": "Sign in to your town",
   "android.account.reset_password_unexpected": "We could not reach the server. Try again in a moment.",
   "android.account.reset_password_weak_password": "Your password needs at least 8 characters.",
-  "android.account.scaffold_change_line": "You can change it at any time in Settings.",
+  "android.account.scaffold_change_line": "You can change it at any time in the Me tab.",
   "android.account.scaffold_es": "Spanish: a translation beside each new word",
   "android.account.scaffold_label": "Help language",
   "android.account.scaffold_none": "None: everything in English, with English definitions",

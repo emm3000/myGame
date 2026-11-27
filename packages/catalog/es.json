@@ -18,7 +18,7 @@
   "android.account.reset_password_to_sign_in": "Entra en tu pueblo",
   "android.account.reset_password_unexpected": "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.",
   "android.account.reset_password_weak_password": "Tu contraseña necesita al menos 8 caracteres.",
-  "android.account.scaffold_change_line": "Puedes cambiarlo cuando quieras en Ajustes.",
+  "android.account.scaffold_change_line": "Puedes cambiarlo cuando quieras en la pestaña Yo.",
   "android.account.scaffold_es": "Español: una traducción junto a cada palabra nueva",
   "android.account.scaffold_label": "Idioma de ayuda",
   "android.account.scaffold_none": "Ninguno: todo en inglés, con definiciones en inglés",
