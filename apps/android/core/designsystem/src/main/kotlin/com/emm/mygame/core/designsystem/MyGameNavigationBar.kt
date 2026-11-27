@@ -1,13 +1,9 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,15 +17,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
+import kotlin.math.roundToInt
 
 const val NAVIGATION_BAR: String = "navigation_bar"
+
+internal fun navigationLabelTagOf(label: MyGameLabel): String = "${NAVIGATION_BAR}_label_${label.text}"
 
 @Immutable
 data class MyGameNavigationItems(val tabs: List<MyGameNavigationItem>)
@@ -47,21 +53,57 @@ data class MyGameNavigationItem(
 fun MyGameNavigationBar(items: MyGameNavigationItems, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().background(MyGameTheme.colors.surfaceRaised).testTag(NAVIGATION_BAR)) {
         MyGameHairline()
-        Row(modifier = Modifier.fillMaxWidth().selectableGroup()) {
-            items.tabs.forEach { item: MyGameNavigationItem -> NavigationTab(item = item) }
+        Layout(
+            content = { items.tabs.forEach { item: MyGameNavigationItem -> NavigationTab(item = item) } },
+            modifier = Modifier.fillMaxWidth().selectableGroup(),
+            measurePolicy = TabsMeasurePolicy,
+        )
+    }
+}
+
+private object TabsMeasurePolicy : MeasurePolicy {
+    override fun MeasureScope.measure(measurables: List<Measurable>, constraints: Constraints): MeasureResult {
+        val floor: Int = MyGameSizes.control.roundToPx()
+        val needs: List<Int> = measurables.map { tab: Measurable ->
+            tab.maxIntrinsicWidth(Constraints.Infinity).coerceAtLeast(floor)
+        }
+        val room: Int = if (constraints.hasBoundedWidth) constraints.maxWidth else needs.sum()
+        val widths: List<Int> = tabWidthsOf(needs = needs, room = room, floor = floor)
+        val tabs: List<Placeable> = measurables.zip(widths) { tab: Measurable, width: Int ->
+            tab.measure(constraints.copy(minWidth = width, maxWidth = width, minHeight = 0))
+        }
+        return layout(room, tabs.maxOfOrNull { tab: Placeable -> tab.height } ?: 0) {
+            tabs.fold(0) { start: Int, tab: Placeable ->
+                tab.placeRelative(start, 0)
+                start + tab.width
+            }
         }
     }
 }
 
+private fun tabWidthsOf(needs: List<Int>, room: Int, floor: Int): List<Int> {
+    val count: Float = needs.size.toFloat()
+    val total: Int = needs.sum()
+    val floors: Float = floor * count
+    val canShareEqually: Boolean = needs.all { need: Int -> need * needs.size <= room } || room <= floors
+    val canFitEveryNeed: Boolean = total <= room
+    val shares: List<Float> = when {
+        canShareEqually -> needs.map { room / count }
+        canFitEveryNeed -> needs.map { need: Int -> need + (room - total) / count }
+        else -> needs.map { need: Int -> floor + (room - floors) * (need - floor) / (total - floors) }
+    }
+    val edges: List<Int> = shares.runningFold(0f) { edge: Float, share: Float -> edge + share }.map(Float::roundToInt)
+    return edges.zipWithNext { start: Int, end: Int -> end - start }
+}
+
 @Composable
-private fun RowScope.NavigationTab(item: MyGameNavigationItem) {
+private fun NavigationTab(item: MyGameNavigationItem) {
     val colors: MyGameColors = MyGameTheme.colors
     val color: Color = if (item.isOpen) colors.ink else colors.inkMuted
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         modifier = Modifier
-            .weight(1f)
             .defaultMinSize(minHeight = MyGameSizes.secondary)
             .selectable(selected = item.isOpen, role = Role.Tab, onClick = item.onClick)
             .semantics { contentDescription = listOfNotNull(item.label.spoken, item.count).joinToString(", ") },
@@ -76,39 +118,17 @@ private fun RowScope.NavigationTab(item: MyGameNavigationItem) {
             MyGameIcon(icon = item.icon, tint = color)
             item.count?.let { count: String -> TabCount(count = count, modifier = Modifier.align(Alignment.TopEnd)) }
         }
-        TabLabel(
+        MyGameText(
             label = item.label,
-            style = (if (item.isOpen) MyGameTypography.label else MyGameTypography.caption).copy(color = color),
-            modifier = Modifier.padding(bottom = MyGameSpacing.step1).clearAndSetSemantics {},
+            style = (if (item.isOpen) MyGameTypography.label else MyGameTypography.caption)
+                .copy(textAlign = TextAlign.Center),
+            color = color,
+            modifier = Modifier
+                .padding(horizontal = MyGameSpacing.step1)
+                .padding(bottom = MyGameSpacing.step1)
+                .clearAndSetSemantics { testTag = navigationLabelTagOf(item.label) },
         )
     }
-}
-
-@Composable
-private fun TabLabel(label: MyGameLabel, style: TextStyle, modifier: Modifier = Modifier) {
-    val translation: String? = label.translation
-    if (translation == null) {
-        OneLine(line = label.text, style = style, modifier = modifier)
-        return
-    }
-    MyGameTranslatedLines(text = label.text, translation = translation, style = style, modifier = modifier) {
-            line: String,
-            lineStyle: TextStyle,
-        ->
-        OneLine(line = line, style = lineStyle.copy(color = style.color))
-    }
-}
-
-@Composable
-private fun OneLine(line: String, style: TextStyle, modifier: Modifier = Modifier) {
-    val fontScale: Float = LocalDensity.current.fontScale.coerceAtLeast(1f)
-    BasicText(
-        text = line,
-        style = style,
-        maxLines = 1,
-        autoSize = TextAutoSize.StepBased(minFontSize = style.fontSize / fontScale, maxFontSize = style.fontSize),
-        modifier = modifier,
-    )
 }
 
 @Composable
