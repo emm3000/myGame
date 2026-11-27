@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownResourceKind
@@ -281,5 +283,41 @@ class MapScreenTest {
 
         composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Zona anterior")).assertIsDisplayed()
         composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Zona siguiente")).assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws a free site's send button as a go outline named for its site`() {
+        show(contentOf().copy(sites = listOf(MapUiState.SiteRow.Free(site = 2))))
+
+        composeRule
+            .onNode(hasTestTag(GO_OUTLINED_PILL) and hasContentDescription("Enviar un equipo al sitio 2"))
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the open team form's send button as a go outline`() {
+        show(contentOf(form = readyForm))
+
+        composeRule
+            .onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Enviar el equipo"))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the blocked team form's send button as a go outline`() {
+        show(contentOf(form = nobodyForm))
+
+        composeRule
+            .onNode(
+                hasTestTag(GO_OUTLINED_PILL) and
+                    hasText("Enviar el equipo") and
+                    SemanticsMatcher.expectValue(
+                        SemanticsProperties.StateDescription,
+                        "Elige al menos un trabajador o un camión para el equipo.",
+                    ),
+            )
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 }

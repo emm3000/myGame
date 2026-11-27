@@ -7,9 +7,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,5 +54,22 @@ class MyGameGoOutlinedButtonTest {
 
         assertEquals("the edge's outer pixel", go, Integer.toHexString(pixels[outer, middle].toArgb()))
         assertEquals("the edge's inner pixel", go, Integer.toHexString(pixels[inner, middle].toArgb()))
+    }
+
+    @Test
+    fun `an outlined go button is read by its accessible name when one is given`() {
+        composeRule.setContent {
+            MyGameTheme {
+                MyGameGoOutlinedButton(
+                    label = "Send a team",
+                    isBusy = false,
+                    busyDescription = "Sending",
+                    onClick = {},
+                    accessibleName = "Send a team to site 2",
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Send a team to site 2").assertIsDisplayed()
     }
 }
