@@ -297,7 +297,7 @@ grayscale screenshot keeps.**
 | State | The cue |
 |---|---|
 | **Can** | the solid fill or the closed outline of ADR 050, with a label that names the verb and, where there is one, the cost |
-| **Working** | three dots that pulse in turn, and beside them, in view, what is happening: the busy description that today reaches only a screen reader. The dots replace the hourglass. With the system's motion reduced the dots stand still |
+| **Working** | three dots that rise, grow and brighten in turn, a wave like a typing indicator, and beside them, in view, what is happening: the busy description that today reaches only a screen reader. The dots replace the hourglass. With the system's motion reduced the dots stand still |
 | **Blocked** | ADR 050's dashed frame, a lock, and in view beside the control the reason and what lifts it: the count held against the count needed, or the time the shortfall is covered |
 
 A refusal is drawn beside the control whose tap was refused. It no
