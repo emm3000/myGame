@@ -6,10 +6,12 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.performClick
 import com.emm.mygame.Destination
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.NAVIGATION_BAR
 import com.emm.mygame.core.model.report.ReportReadResult
+import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -19,12 +21,12 @@ import java.util.concurrent.TimeUnit
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class SignedInFrameNavigationTest(private val screen: Screen) : AppNavigationFixture() {
 
-    enum class Screen(val stack: List<Destination>) {
+    enum class Screen(val stack: List<Destination>, val doorAbove: String? = null) {
         Today(listOf(Destination.Today)),
         Town(listOf(Destination.Today, Destination.Town)),
         School(listOf(Destination.Today, Destination.School)),
         Settings(listOf(Destination.Today, Destination.Settings)),
-        News(listOf(Destination.Today, Destination.Town, Destination.News)),
+        News(listOf(Destination.Today, Destination.Town), doorAbove = "Noticias del pueblo"),
         Map(listOf(Destination.Today, Destination.Town, Destination.Map)),
     }
 
@@ -42,8 +44,10 @@ class SignedInFrameNavigationTest(private val screen: Screen) : AppNavigationFix
 
     private fun showingTheScreen() {
         reports.answerRead(ReportReadResult.Read(nothingDue))
+        reports.answerNews(TownNewsReadResult.Read(emptyList()))
         showingStack(*screen.stack.toTypedArray(), town = runningTown())
         composeRule.waitUntil(WAIT_MILLIS) { towns.readCount > 0 }
+        screen.doorAbove?.let { door: String -> link(door).performClick() }
         ShadowLooper.idleMainLooper(1, TimeUnit.SECONDS)
         composeRule.waitForIdle()
     }

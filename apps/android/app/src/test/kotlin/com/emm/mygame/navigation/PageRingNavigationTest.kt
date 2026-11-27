@@ -19,8 +19,6 @@ class PageRingNavigationTest(private val page: Page) : AppNavigationFixture() {
         Learn(listOf(Destination.Today, Destination.School)),
         Me(listOf(Destination.Today, Destination.Settings)),
         Place(listOf(Destination.Today, Destination.Town, Destination.Place(TownBuildingKind.Farm))),
-        News(listOf(Destination.Today, Destination.Town, Destination.News)),
-        Map(listOf(Destination.Today, Destination.Town, Destination.Map)),
         SchoolText(listOf(Destination.Today, Destination.School, Destination.SchoolText(TextId("text-1")))),
     }
 

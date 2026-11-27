@@ -44,7 +44,7 @@ internal fun FramedScreen(
             is FrameKind.Place -> FrameHeader(chrome = chrome) {
                 RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = kind.doesScreenReadTown)
             }
-            FrameKind.Task -> FrameHeader(chrome = chrome)
+            FrameKind.Door, FrameKind.Task -> FrameHeader(chrome = chrome)
         }
         Box(
             modifier = Modifier
