@@ -31,11 +31,11 @@ class TodayNavigationTest : AppNavigationFixture() {
     }
 
     @Test
-    fun `a running lesson's row in In progress opens its words`() {
+    fun `Read the words on the running lesson's first card opens its words`() {
         signedInReading(TownReadResult.Read(runningTown()))
         repeat(2) { learning.answerRead(noReviews) }
 
-        link(LESSON_ONE_READY).performClick()
+        wayOn(READ_THE_WORDS).performClick()
 
         waitForLine("I drink water.")
     }
@@ -56,7 +56,7 @@ class TodayNavigationTest : AppNavigationFixture() {
     fun `a task screen draws no bar`() {
         signedInReading(TownReadResult.Read(runningTown()))
         repeat(2) { learning.answerRead(noReviews) }
-        link(LESSON_ONE_READY).performClick()
+        wayOn(READ_THE_WORDS).performClick()
         waitForLine("I drink water.")
 
         composeRule.onAllNodes(hasTestTag(NAVIGATION_BAR)).assertCountEquals(0)
@@ -86,5 +86,6 @@ class TodayNavigationTest : AppNavigationFixture() {
         const val NAMING_TITLE: String = "Ponle nombre a tu pueblo"
         const val JOB_ON_THE_WAY: String = "Tu equipo va en camino, llega en"
         const val MAP_TITLE: String = "Mapa"
+        const val READ_THE_WORDS: String = "Leer las palabras"
     }
 }
