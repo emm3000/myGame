@@ -1,6 +1,5 @@
 package com.emm.mygame.feature.placement
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,7 +9,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -29,7 +28,7 @@ fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit,
         PlacementOfferUiState.Offered -> R.string.placement_offer_link
         PlacementOfferUiState.Asking -> R.string.placement_offer_resume_link
     }
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+    MyGameSunkenCard(modifier = modifier) {
         Column {
             MyGameText(
                 text = fixedCopyResource(R.string.placement_title),

@@ -12,7 +12,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
@@ -20,6 +19,7 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameTabHeader
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTitleLine
@@ -133,15 +133,8 @@ private fun InProgress(content: TodayUiState.Content, copy: PlayerCopy, navigati
 
 @Composable
 private fun WorkRow(title: MyGameLabel, status: MyGameLabel) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        MyGameTitleLine(
-            title = title,
-            status = status,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MyGameSpacing.step2, vertical = MyGameSpacing.step3),
-        )
-        MyGameHairline()
+    MyGameSunkenCard {
+        MyGameTitleLine(title = title, status = status, modifier = Modifier.fillMaxWidth())
     }
 }
 

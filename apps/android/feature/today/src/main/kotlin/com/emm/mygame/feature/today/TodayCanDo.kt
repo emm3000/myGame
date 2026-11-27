@@ -9,6 +9,7 @@ import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -73,7 +74,7 @@ private fun NextLevelRow(
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
+    MyGameSunkenCard(modifier = modifier) {
         MyGameText(
             label = copy.nextLevelTitleOf(building, next),
             style = MyGameTypography.body,
