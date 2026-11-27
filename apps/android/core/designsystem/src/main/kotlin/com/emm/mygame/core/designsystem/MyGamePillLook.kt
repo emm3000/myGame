@@ -16,4 +16,5 @@ internal data class MyGamePillLook(
     val badgeGround: Color,
     val badgeInk: Color,
     val hasOuterFocusRing: Boolean,
+    val hasForwardChevron: Boolean,
 )

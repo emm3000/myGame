@@ -45,6 +45,7 @@ import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import com.emm.mygame.core.uitesting.textStyleOf
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
@@ -414,6 +415,13 @@ class SchoolLookTest {
         show(secondShownWhileFirstRuns)
 
         composeRule.onNode(readWordsOf("Lección 1 · Leer las palabras") and inTheCard).assertExists()
+    }
+
+    @Test
+    fun `draws Read the words as an outlined door with its chevron`() {
+        show(secondShownWhileFirstRuns)
+
+        composeRule.onNode(outlinedDoorOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).assertExists()
     }
 
     @Test

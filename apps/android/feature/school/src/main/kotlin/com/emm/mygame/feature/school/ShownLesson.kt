@@ -19,7 +19,7 @@ import androidx.compose.ui.semantics.testTag
 import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameMetaText
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -142,10 +142,8 @@ private fun ReadWordsButton(
     modifier: Modifier = Modifier,
 ) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameOutlinedButton(
+    MyGameOutlinedDoor(
         label = copy.readWordsLabelOf(running, name, shown),
-        isBusy = false,
-        busyDescription = copy.chrome(R.string.school_waiting),
         onClick = { onLessonOpen(running) },
         modifier = modifier,
     )

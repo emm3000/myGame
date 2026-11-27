@@ -4,11 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.PreviewMyGame
@@ -41,9 +40,9 @@ private fun HoldoutCheckRowLine(
         "band" to row.band.number.toString(),
         "week" to row.week.number.toString(),
     )
-    MyGameNavRow(
-        title = MyGameLabel(text = fixedCopyResource(R.string.holdout_open), translation = null),
-        body = AnnotatedString(due),
+    MyGameOutlinedDoor(
+        label = MyGameLabel(text = fixedCopyResource(R.string.holdout_open), translation = null),
+        caption = MyGameLabel(text = due, translation = null),
         onClick = { onHoldoutCheckOpen(row) },
         modifier = modifier,
     )

@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.intl.LocaleList
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -87,7 +88,9 @@ class SchoolTextScreenTest {
     fun `leads back to your lessons when the text is not open`() {
         draw(SchoolTextUiState.NotOpen)
 
-        composeRule.onNodeWithText("Ir a tus lecciones").performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("Ir a tus lecciones"), useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
 
         assertEquals(1, schoolOpens)
     }

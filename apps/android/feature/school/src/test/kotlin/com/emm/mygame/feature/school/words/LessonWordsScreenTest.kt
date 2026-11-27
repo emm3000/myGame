@@ -36,7 +36,7 @@ import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.LessonName
-import com.emm.mygame.core.uitesting.navRowOf
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import com.emm.mygame.core.uitesting.textStyleOf
 import com.emm.mygame.feature.school.secondLesson
 import kotlin.time.Duration.Companion.minutes
@@ -239,19 +239,21 @@ class LessonWordsScreenTest {
     }
 
     @Test
-    fun `opens the reviews from the way on's nav row before the last word`() {
+    fun `opens the reviews from the way on's outlined door before the last word`() {
         draw(finishedFirstWord)
 
-        composeRule.onNode(navRowOf("Empezar los repasos"), useUnmergedTree = true).performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("Empezar los repasos"), useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
 
         assertEquals(listOf<LessonWordsUiState.WayOn>(LessonWordsUiState.WayOn.Reviews), wayOns)
     }
 
     @Test
-    fun `opens the next lesson from the way on's nav row before the last word`() {
+    fun `opens the next lesson from the way on's outlined door before the last word`() {
         draw(finishedFirstWord.copy(wayOn = LessonWordsUiState.WayOn.Lesson(secondLesson)))
 
-        composeRule.onNode(navRowOf("Siguiente lección"), useUnmergedTree = true).performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("Siguiente lección"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(listOf<LessonWordsUiState.WayOn>(LessonWordsUiState.WayOn.Lesson(secondLesson)), wayOns)
     }

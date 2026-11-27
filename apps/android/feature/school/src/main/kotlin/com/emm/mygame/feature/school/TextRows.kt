@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.englishTextOf
@@ -22,9 +22,9 @@ internal fun TextRows(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1), modifier = modifier) {
         MyGameSectionTitle(label = chromeResource(R.string.school_texts))
         content.texts.forEach { card: SchoolUiState.TextCard ->
-            MyGameNavRow(
-                title = MyGameLabel(text = card.title, translation = null),
-                titleLineOf = ::englishTextOf,
+            MyGameOutlinedDoor(
+                label = MyGameLabel(text = card.title, translation = null),
+                labelLineOf = ::englishTextOf,
                 onClick = { onTextOpen(card.text) },
             )
         }

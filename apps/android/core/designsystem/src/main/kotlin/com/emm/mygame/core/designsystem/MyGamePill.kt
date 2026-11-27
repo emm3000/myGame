@@ -7,11 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.semantics.Role
@@ -41,12 +44,16 @@ import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 
 const val BLOCKED_LOCK: String = "BLOCKED_LOCK"
+
+const val PILL_CHEVRON: String = "pill_chevron"
 
 val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
 
@@ -67,6 +74,8 @@ internal fun MyGamePill(
     blockedReason: MyGameLabel? = null,
     accessibleName: String? = null,
     badge: String? = null,
+    labelLineOf: (String) -> AnnotatedString = ::AnnotatedString,
+    caption: MyGameLabel? = null,
 ) {
     val state: PillState = when {
         isBusy -> PillState.Working(busyDescription)
@@ -76,7 +85,7 @@ internal fun MyGamePill(
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier.fillMaxWidth()) {
         PillFace(
             look = look,
-            label = label,
+            text = MyGamePillText(label = label, caption = caption, labelLineOf = labelLineOf),
             state = state,
             onClick = onClick,
             accessibleName = accessibleName,
@@ -89,7 +98,7 @@ internal fun MyGamePill(
 @Composable
 private fun PillFace(
     look: MyGamePillLook,
-    label: MyGameLabel,
+    text: MyGamePillText,
     state: PillState,
     onClick: () -> Unit,
     accessibleName: String?,
@@ -122,8 +131,27 @@ private fun PillFace(
             .padding(horizontal = look.sidePadding, vertical = MyGameSpacing.step2),
     ) {
         StateMark(state = state, ink = ink)
-        PillLabel(look = look, label = label, ink = ink, accessibleName = accessibleName, badge = badge)
+        Box(modifier = Modifier.weight(1f, fill = false)) {
+            PillLabel(
+                look = look,
+                text = text,
+                ink = ink,
+                accessibleName = accessibleName,
+                badge = badge,
+            )
+        }
+        if (look.hasForwardChevron) PillChevron(ink = ink)
     }
+}
+
+@Composable
+private fun PillChevron(ink: Color) {
+    val side: Dp = with(LocalDensity.current) { MyGameSizes.iconSmall.value.sp.toDp() }
+    MyGameIcon(
+        icon = MyGameIcons.forward,
+        tint = ink,
+        modifier = Modifier.semantics { testTag = PILL_CHEVRON }.size(side),
+    )
 }
 
 @Composable
@@ -153,20 +181,54 @@ private fun PillStateLine(state: PillState) {
 }
 
 @Composable
-private fun PillLabel(look: MyGamePillLook, label: MyGameLabel, ink: Color, accessibleName: String?, badge: String?) {
-    val text: @Composable () -> Unit = {
-        MyGameText(
-            label = label,
-            style = look.style.copy(textAlign = TextAlign.Center),
-            color = ink,
+private fun PillLabel(
+    look: MyGamePillLook,
+    text: MyGamePillText,
+    ink: Color,
+    accessibleName: String?,
+    badge: String?,
+) {
+    val lines: @Composable () -> Unit = {
+        PillLines(
+            look = look,
+            text = text,
+            ink = ink,
             modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
         )
     }
     if (badge == null) {
-        text()
+        lines()
         return
     }
-    Layout(contents = listOf(text, { PillBadge(figure = badge, look = look) }), measurePolicy = LabelAndCount)
+    Layout(contents = listOf(lines, { PillBadge(figure = badge, look = look) }), measurePolicy = LabelAndCount)
+}
+
+@Composable
+private fun PillLines(look: MyGamePillLook, text: MyGamePillText, ink: Color, modifier: Modifier = Modifier) {
+    val caption: MyGameLabel? = text.caption
+    if (caption == null) {
+        PillLabelLine(look = look, text = text, ink = ink, modifier = modifier)
+        return
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        PillLabelLine(look = look, text = text, ink = ink)
+        MyGameText(
+            label = caption,
+            style = MyGameTypography.caption.copy(textAlign = TextAlign.Center),
+            color = MyGameTheme.colors.inkMuted,
+        )
+    }
+}
+
+@Composable
+private fun PillLabelLine(look: MyGamePillLook, text: MyGamePillText, ink: Color, modifier: Modifier = Modifier) {
+    MyGameText(
+        label = text.label,
+        style = look.style.copy(textAlign = TextAlign.Center),
+        color = ink,
+        styledLineOf = text.labelLineOf,
+        modifier = modifier,
+    )
 }
 
 private object LabelAndCount : MultiContentMeasurePolicy {

@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.uitesting.navRowOf
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import com.emm.mygame.feature.town.TownScreenFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -39,10 +39,10 @@ class HiringSectionScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `opens the map from the office page's nav row`() {
+    fun `opens the map from the office page's outlined door`() {
         show(riverton, place = TownBuildingKind.Office)
 
-        composeRule.onNode(navRowOf("Ir al mapa"), useUnmergedTree = true).performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("Ir al mapa"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, mapOpens)
     }

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -75,6 +75,6 @@ private fun News(
             busyDescription = copy.chrome(R.string.today_waiting),
             onClick = { onIntent(TodayIntent.NewsCloseTapped) },
         )
-        MyGameNavRow(title = copy.chrome(R.string.today_news_all), onClick = onNewsOpen)
+        MyGameOutlinedDoor(label = copy.chrome(R.string.today_news_all), onClick = onNewsOpen)
     }
 }
