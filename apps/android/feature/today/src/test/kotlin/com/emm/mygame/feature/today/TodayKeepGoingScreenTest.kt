@@ -1,11 +1,25 @@
 package com.emm.mygame.feature.today
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.BLOCK_HUE
+import com.emm.mygame.core.designsystem.FRAME_STYLE
+import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
@@ -17,12 +31,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class TodayKeepGoingScreenTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
+
+    private var colors: MyGameColors? = null
 
     @Test
     fun `each frame is drawn under Read more with its card-word token's support`() {
@@ -31,6 +48,40 @@ class TodayKeepGoingScreenTest {
         composeRule.onNodeWithText(READ_MORE).performScrollTo()
         composeRule.onNodeWithText(RIVER_BESIDE, substring = true).performScrollTo()
         composeRule.onNodeWithText(HOME_BESIDE, substring = true).performScrollTo()
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `draws Read more's frames on surface-sunken`() {
+        show(contentWith(TodayUiState.KeepGoing.Frames(sentences = listOf(riverFrame), tapped = null)))
+
+        val frame: DpRect = composeRule.onNodeWithText(RIVER_BESIDE, substring = true)
+            .performScrollTo()
+            .getBoundsInRoot()
+
+        val pixels: PixelMap = composeRule.onRoot().captureToImage().toPixelMap()
+        val insideCardX: Int = with(composeRule.density) { (frame.left - 8.dp).roundToPx() }
+        val middle: Int = with(composeRule.density) { ((frame.top + frame.bottom) / 2).roundToPx() }
+        assertEquals(hexOf(colors?.surfaceSunken), hexOf(pixels[insideCardX, middle]))
+    }
+
+    @Test
+    fun `draws Read more on no block hue`() {
+        show(contentWith(TodayUiState.KeepGoing.Frames(sentences = listOf(riverFrame), tapped = null)))
+
+        val blocksHoldingFrame: SemanticsMatcher =
+            SemanticsMatcher.keyIsDefined(BLOCK_HUE) and hasAnyDescendant(hasText(RIVER_BESIDE, substring = true))
+        assertEquals(0, composeRule.onAllNodes(blocksHoldingFrame, useUnmergedTree = true).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun `inks Read more's frames in ink, readable on the dark sunken card`() {
+        show(contentWith(TodayUiState.KeepGoing.Frames(sentences = listOf(riverFrame), tapped = null)), isDark = true)
+
+        val riverFrameText: SemanticsMatcher =
+            hasText(RIVER_BESIDE, substring = true) and SemanticsMatcher.keyIsDefined(FRAME_STYLE)
+        val style: Color = composeRule.onNode(riverFrameText).fetchSemanticsNode().config[FRAME_STYLE].color
+        assertEquals(hexOf(colors?.ink), hexOf(style))
     }
 
     @Test
@@ -63,9 +114,10 @@ class TodayKeepGoingScreenTest {
         assertEquals(0, composeRule.onAllNodes(hasText(READ_MORE)).fetchSemanticsNodes().size)
     }
 
-    private fun show(state: TodayUiState, onTextOpen: (TextId) -> Unit = {}) {
+    private fun show(state: TodayUiState, onTextOpen: (TextId) -> Unit = {}, isDark: Boolean = false) {
         composeRule.setContent {
-            MyGameTheme(darkTheme = false) {
+            MyGameTheme(darkTheme = isDark) {
+                colors = MyGameTheme.colors
                 TodayScreen(
                     state = state,
                     onIntent = {},
@@ -82,6 +134,8 @@ class TodayKeepGoingScreenTest {
             }
         }
     }
+
+    private fun hexOf(color: Color?): String = Integer.toHexString(color?.toArgb() ?: 0)
 
     private fun contentWith(keepGoing: TodayUiState.KeepGoing?): TodayUiState.Content = TodayUiState.Content(
         eyebrow = TodayUiState.Eyebrow.WhatIsNext,

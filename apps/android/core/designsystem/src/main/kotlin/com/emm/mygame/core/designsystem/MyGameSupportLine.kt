@@ -7,11 +7,15 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 
 @Composable
-fun MyGameSupportLine(support: MyGameWordSupport, modifier: Modifier = Modifier) {
+fun MyGameSupportLine(
+    support: MyGameWordSupport,
+    modifier: Modifier = Modifier,
+    ground: MyGameFrameGround = MyGameFrameGround.Block,
+) {
     MyGameText(
         text = support.spokenText(),
         style = MyGameTypography.gloss,
-        color = MyGameTheme.colors.onBlockMuted,
+        color = ground.inkMuted(),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     )
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.emm.mygame.core.designsystem.MyGameFrameGround
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
@@ -34,6 +35,7 @@ internal fun TodayKeepGoing(
                 sentences = ReadingSentences(keepGoing.sentences),
                 tapped = keepGoing.tapped,
                 onSpanTap = { at: ReadingSpan -> onIntent(TodayIntent.FrameWordTapped(at)) },
+                ground = MyGameFrameGround.Sunken,
             )
         }
     }
