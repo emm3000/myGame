@@ -35,14 +35,15 @@ internal fun TownScreen(
     ring: @Composable () -> Unit = {},
 ) {
     val isContent: Boolean = state is TownUiState.Content
-    val isPage: Boolean = place != null && isContent
+    val shown: PlaceCard? =
+        (state as? TownUiState.Content)?.places?.firstOrNull { card: PlaceCard -> card.kind == place }
     Column(
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
         modifier = modifier
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
-            .then(if (isPage) Modifier else Modifier.verticalScroll(rememberScrollState()))
+            .then(if (shown != null) Modifier else Modifier.verticalScroll(rememberScrollState()))
             .padding(horizontal = MyGameSpacing.step4)
             .padding(vertical = if (isContent) MyGameSpacing.step2 else MyGameSpacing.step8),
     ) {
@@ -52,7 +53,6 @@ internal fun TownScreen(
             blocks = townBlocks,
         ) {
             TownState(state = state, onIntent = onIntent) { content: TownUiState.Content ->
-                val shown: PlaceCard? = content.places.firstOrNull { card: PlaceCard -> card.kind == place }
                 if (shown == null) {
                     TownGrid(
                         content = content,
