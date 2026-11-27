@@ -10,6 +10,7 @@ import type { HeldCard } from '../../domain/HeldCard'
 import { heldCardsOf } from '../../domain/HeldCards'
 import type { Lesson, LessonWord } from '../../domain/Lesson'
 import type { FrameLearner } from '../../frames/domain/FrameLearner'
+import type { FrameToken } from '../../frames/domain/FrameToken'
 import { inMemoryFrames, type ResolvedFrame } from '../../frames/testing/inMemoryFrames'
 import type { Scaffold } from '../../scaffold/domain/Scaffold'
 import { reviewPromptOf } from './reviewPromptOf'
@@ -17,6 +18,22 @@ import { reviewPromptOf } from './reviewPromptOf'
 const enteredAt = Instant.fromEpochMilliseconds(Date.parse('2026-11-10T09:00:00Z'))
 
 const enteredCard = MemoryCard.entered(enteredAt)
+
+const learningCardPastADefinition = (): MemoryCard => {
+  const stored = {
+    state: 'learning',
+    step: 1,
+    stability: 31,
+    difficulty: 2.0975,
+    lastReviewAt: Instant.fromEpochMilliseconds(Date.parse('2026-11-12T09:10:00Z')),
+    lastRating: 'good',
+    enteredAt,
+    retainedAt: null,
+  } as StoredMemoryCard
+  const card = MemoryCard.restore(stored)
+  assert(card.ok)
+  return card.value
+}
 
 const cardInReview = (): MemoryCard => {
   const stored = {
@@ -51,11 +68,11 @@ const schoolFrame = 'My home is by the school in town.'
 
 const schoolGappedFrame = 'My home is by the ____ in town.'
 
-const tokensAround = (school: string): ResolvedFrame['tokens'] => [
+const tokensAround = (school: FrameToken): ResolvedFrame['tokens'] => [
   { text: 'My ', wordId: null },
   { text: 'home', wordId: 'home' },
   { text: ' is by the ', wordId: null },
-  { text: school, wordId: null },
+  school,
   { text: ' in ', wordId: null },
   { text: 'town', wordId: 'town' },
   { text: '.', wordId: null },
@@ -63,15 +80,34 @@ const tokensAround = (school: string): ResolvedFrame['tokens'] => [
 
 const findOutGappedFrame = 'We will ____ ____ on the map.'
 
+const findOutGappedFrameWithFind = 'We will ____ ____ what they find.'
+
 const resolvedFrames: ReadonlyArray<ResolvedFrame> = [
-  { wordId: 'school', frame: schoolFrame, tokens: tokensAround('school') },
-  { wordId: 'school', frame: schoolGappedFrame, tokens: tokensAround('____') },
+  {
+    wordId: 'school',
+    frame: schoolFrame,
+    tokens: tokensAround({ text: 'school', wordId: 'school' }),
+  },
+  {
+    wordId: 'school',
+    frame: schoolGappedFrame,
+    tokens: tokensAround({ text: '____', wordId: null }),
+  },
   {
     wordId: 'find-out',
     frame: findOutGappedFrame,
     tokens: [
       { text: 'We will ____ ____ on the ', wordId: null },
       { text: 'map', wordId: 'map' },
+      { text: '.', wordId: null },
+    ],
+  },
+  {
+    wordId: 'find-out',
+    frame: findOutGappedFrameWithFind,
+    tokens: [
+      { text: 'We will ____ ____ what they ', wordId: null },
+      { text: 'find', wordId: 'find-out' },
       { text: '.', wordId: null },
     ],
   },
@@ -149,6 +185,15 @@ describe('reviewPromptOf', () => {
     expect(supportedOf(prompt.frame)).toEqual(['town'])
   })
 
+  it('never supports the reviewed word on a recognition, even by a support no choice shows', () => {
+    const card = learningCardPastADefinition()
+    const cards = lessonCards.map((held) => (held.wordId === 'school' ? { ...held, card } : held))
+    const prompt = reviewPromptOf({ ...recognitionOfSchool, card }, learnerOf('es', cards))
+
+    assert(prompt.mode === 'recognition')
+    expect(prompt.frame.find(({ text }) => text === 'school')?.support).toBeNull()
+  })
+
   it('shows a recall with the gloss and the gapped frame under es', () => {
     const prompt = reviewPromptOf(recallOfSchool, learnerOf('es'))
 
@@ -171,6 +216,14 @@ describe('reviewPromptOf', () => {
 
     assert(prompt.mode === 'recall')
     expect(prompt.gappedFrame.map(({ support }) => support)).toEqual([null, null, null])
+  })
+
+  it('never supports a word of the recalled unit outside its gap', () => {
+    const shown = { ...recallOfFindOut, shownFrame: findOutGappedFrameWithFind }
+    const prompt = reviewPromptOf(shown, learnerOf('es', []))
+
+    assert(prompt.mode === 'recall')
+    expect(supportedOf(prompt.gappedFrame)).toEqual([])
   })
 
   it('keeps a support holding no form of the answer on a recall', () => {

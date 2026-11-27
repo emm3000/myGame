@@ -9,7 +9,7 @@ import { lessonOne } from '../../curriculum/testing/lessonOne'
 import type { HeldCard } from '../../domain/HeldCard'
 import { heldCardsOf } from '../../domain/HeldCards'
 import type { LaterFrame, Lesson, LessonWord } from '../../domain/Lesson'
-import { inMemoryFrames } from '../testing/inMemoryFrames'
+import { inMemoryFrames, type ResolvedFrame } from '../testing/inMemoryFrames'
 import type { FrameSpans } from './FrameSpan'
 import type { KeepGoingTerms } from './KeepGoingTerms'
 import { type KeepGoingWord, keepGoingWordsOf } from './keepGoingWordsOf'
@@ -98,11 +98,49 @@ const lessonOfEqualHash: Lesson = {
   words: [wordWithId(lowerOfEqualHash), wordWithId(higherOfEqualHash)],
 }
 
+const homeInItsAnchor: ResolvedFrame = {
+  wordId: 'home',
+  frame: anchorOfHome.frame,
+  tokens: [
+    { text: 'We have a new ', wordId: null },
+    { text: 'home', wordId: 'home' },
+    { text: ' in this town.', wordId: null },
+  ],
+}
+
+const findOut: LessonWord = {
+  id: 'find-out',
+  acceptedForms: ['find out'],
+  gloss: 'averiguar',
+  definition: 'to learn something you did not know',
+  frames: [
+    {
+      frame: 'Can you find out what time the office closes?',
+      gappedFrame: 'Can you ____ ____ what time the office closes?',
+    },
+  ],
+}
+
+const lessonOfFindOut: Lesson = { ...lessonOne, id: 'lesson-27', words: [findOut] }
+
+const findOutInItsAnchor: ResolvedFrame = {
+  wordId: 'find-out',
+  frame: 'Can you find out what time the office closes?',
+  tokens: [
+    { text: 'Can you ', wordId: null },
+    { text: 'find', wordId: 'find-out' },
+    { text: ' ', wordId: null },
+    { text: 'out', wordId: 'find-out' },
+    { text: ' what time the office closes?', wordId: null },
+  ],
+}
+
 const keepGoingTerms: KeepGoingTerms = { wordsPerRead: 10, secondsBeforeDue: 86_400 }
 
 type Read = {
   readonly cards: ReadonlyArray<HeldCard>
   readonly lessons?: ReadonlyArray<Lesson>
+  readonly frames?: ReadonlyArray<ResolvedFrame>
   readonly stage?: Stage
   readonly terms?: KeepGoingTerms
   readonly at?: Instant
@@ -111,6 +149,7 @@ type Read = {
 const keepGoingOf = ({
   cards,
   lessons = [lessonOne],
+  frames = [],
   stage = ['lesson-1'],
   terms = keepGoingTerms,
   at = readAt,
@@ -124,7 +163,7 @@ const keepGoingOf = ({
       lessons: {
         ...inMemoryLessons(lessons, []),
         ...inMemoryBands([]),
-        ...inMemoryFrames([], new Map()),
+        ...inMemoryFrames(frames, new Map()),
       },
     },
     at,
@@ -204,6 +243,26 @@ describe('keepGoingWordsOf', () => {
       lowerOfEqualHash,
       higherOfEqualHash,
     ])
+  })
+
+  it("supports the read word's own token by its own card", () => {
+    const [offered] = keepGoingOf({ cards: [dueInThreeDays('home')], frames: [homeInItsAnchor] })
+
+    expect(offered?.frames[0][1]).toEqual({
+      text: 'home',
+      support: { shown: 'beside', text: 'hogar', language: 'es' },
+    })
+  })
+
+  it('supports no word of a read unit', () => {
+    const [offered] = keepGoingOf({
+      cards: [dueInThreeDays('find-out')],
+      lessons: [lessonOfFindOut],
+      frames: [findOutInItsAnchor],
+      stage: ['lesson-27'],
+    })
+
+    expect(offered?.frames[0].filter(({ support }) => support !== null)).toEqual([])
   })
 
   it('never offers a word with no card, so never a held-out word', () => {

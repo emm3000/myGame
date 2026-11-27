@@ -515,3 +515,33 @@ before the code ships it.
 - **This replaces the `lessonRunning` row of the table under *Today*.**
   Under *The navigation bar*, a running lesson is a row of *In progress*
   on Today only while another step leads.
+
+## Amendment (2026-11-27): Read more supports the read word
+
+Decided under the owner's delegation for #2085. *Read more* drew lesson
+1's anchors with no support at all: each anchor's only card word is the
+word it teaches, and the content load dropped that word's token for
+every reader, as ADR 038's amendment of 2026-11-12 asks for a review.
+
+*Read more* supports the read word's own token. A frame read in *Read
+more* asks nothing, so no support can answer it: the token of the word
+the frame teaches carries that word's own support, by its own card's
+level, like every other card-word token. ADR 038's rule that no token of
+the reviewed or read word carries a support stays whole for a
+recognition, a recall and the lesson's word reading, where the task is
+the word or its gloss already sits beside it. A unit is the exception in
+*Read more* too: its words resolve to their single-word cards, whose
+glosses are not the unit's sense, so none of its own tokens carries a
+support. The day line is what makes this safe: a word due within a day
+is not offered.
+
+- **The content load marks the read word's tokens, the domain withholds
+  them.** A frame's tokens of its own word resolve to the word's own id,
+  each word of a unit included, so a unit's words never take the
+  glosses of their single-word cards. A recognition, a recall and the
+  word reading withhold every token of that id; *Read more* withholds
+  them only for a unit.
+- **This replaces *Each frame is drawn as a text is, every card-word
+  token with its own support (ADR 038)* under *What Keep going offers*
+  only for the read word's own token.** Every other card-word token is
+  supported as that bullet says.

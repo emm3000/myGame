@@ -54,7 +54,11 @@ describe('the learning routes', () => {
       assert(recognition.mode === 'recognition')
       expect([recognition.word, recognition.frame]).toEqual([
         'school',
-        [{ text: "We're at school.", support: null }],
+        [
+          { text: "We're at ", support: null },
+          { text: 'school', support: null },
+          { text: '.', support: null },
+        ],
       ])
       expect(recognition.choices.map(({ gloss }) => gloss).sort()).toEqual([
         'comida',
