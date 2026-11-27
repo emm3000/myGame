@@ -8,7 +8,7 @@ One row for each module of `apps/android/settings.gradle.kts`. A new module adds
 
 | Module | What it holds |
 |---|---|
-| `app` | The composition root: five files at the root (`MainActivity`, `MyGameApplication`, `StudyReminderReceiver`, `Destination`, `AppDependencies`), the names the system and the saved back stack hold, and four packages: `navigation` (`AppNavigation`, `Navigator`, one `<Feature>Entries` per feature module, and `TownFollowIntent` and `TownFollowViewModel`, which only `AppNavigation` drives), `account` (the player's language around every screen), `reminder` (the study reminder's alarm, store, sink and notifications) and `theme` (the picked theme and its store) |
+| `app` | The composition root: five files at the root (`MainActivity`, `MyGameApplication`, `StudyReminderReceiver`, `Destination`, `AppDependencies`), the names the system and the saved back stack hold, and four packages: `navigation` (`AppNavigation`, `Navigator`, one `*Entries` file per feature module with destinations, and `TownFollowIntent` and `TownFollowViewModel`, which only `AppNavigation` drives), `account` (the player's language around every screen), `reminder` (the study reminder's alarm, store, sink and notifications) and `theme` (the picked theme and its store) |
 | `core:model` | Pure Kotlin, JVM only: one package per feature, holding its types, the `*Result` and `*Refusal` an api answer is read into, and its ports (`TownRepository`, `ReportRepository`) |
 | `core:network` | The client generated from `apps/api/openapi.json`, in its build directory; one package per feature, named as in `core:model`, holding the `Api*` adapters that implement its ports and their `*Mapping` files; and `platform`, what names no game word: the endpoint, the bearer, the token store and `ApiRepositories`, which builds every adapter |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the values it reads |
@@ -18,10 +18,10 @@ One row for each module of `apps/android/settings.gradle.kts`. A new module adds
 | `core:uitesting` | Android, read only by a test configuration: the Compose test helpers features' tests share |
 | `feature:account` | Sign in, sign up, the password reset, the verification and the settings, one package each, with `auth` and `scaffold` for what several draw |
 | `feature:holdout` | The holdout check |
-| `feature:jobs` | The jobs screen, flat, its files still named `Map*` |
+| `feature:jobs` | The jobs screen, flat, its screen's set still named `Map*`, after the old map screen |
 | `feature:learning` | The due reviews, in `reviews` |
 | `feature:placement` | The placement offer and its run |
-| `feature:report` | The Report at its root, Town News in `news` |
+| `feature:report` | Town News, in `news` |
 | `feature:school` | The school at its root, the lesson's words in `words`, a text in `text` |
 | `feature:shell` | What signed-in screens are drawn in: the frame at its root, the navigation bar in `bar`, the retained-words ring in `ring`; only `app` reads it |
 | `feature:today` | The Today tab: the first card, Keep going and While you were away |
@@ -111,9 +111,9 @@ Starting a lesson:
 
 A new thing goes in its feature's package of the module for its role. A new feature word is a new package in every module that holds the feature.
 
-A new signed-in screen adds, in order: its `UiState`, `Intent`, `Effect`, `ViewModel` and their test, its `UiStateMapping` when it maps the model, its `Screen`, `ScreenPreview` and `Route`, in its feature's package; its strings under `android.<module>.*` in `packages/catalog/en.json` and `packages/catalog/es.json`, then `pnpm --filter @mygame/catalog generate`; its member of `apps/android/app/src/main/kotlin/com/emm/mygame/Destination.kt`, pinned in `apps/android/app/src/test/kotlin/com/emm/mygame/DestinationTest.kt`; its entry in its `<Feature>Entries.kt`, in a `SignedInFrame` of its `FrameKind`; and the way to open it in `apps/android/app/src/main/kotlin/com/emm/mygame/navigation/Navigator.kt`. A new feature module also adds its `include` to `settings.gradle.kts`, its row above and its `robolectric.properties`.
+A new signed-in screen adds, in order: its `UiState`, `Intent`, `Effect`, `ViewModel` and their test, its `UiStateMapping` when it maps the model, its `Screen`, `ScreenPreview` and `Route`, in its feature's package; its strings under `android.<module>.*` in `packages/catalog/en.json` and `packages/catalog/es.json`, then `pnpm --filter @mygame/catalog generate`; its member of `apps/android/app/src/main/kotlin/com/emm/mygame/Destination.kt`, pinned in `apps/android/app/src/test/kotlin/com/emm/mygame/DestinationTest.kt`; its entry in its feature's `*Entries.kt`, in a `SignedInFrame` of its `FrameKind`; and the way to open it in `apps/android/app/src/main/kotlin/com/emm/mygame/navigation/Navigator.kt`. A new feature module also adds its `include` to `settings.gradle.kts`, its row above and its `robolectric.properties`.
 
-A new field of the api touches, in order: `apps/api/openapi.json`, written by `pnpm --filter @mygame/api openapi:write`, which regenerates the client; the field's type in its feature's package of `core:model`; the `*Mapping.kt` of `core:network` that reads it; the `*Fixtures.kt` of `core:testing` that build the type; and the `UiStateMapping`, `UiState` and screen that draw it.
+A new field of the api touches, in order: `apps/api/openapi.json`, written by `pnpm --filter @mygame/api openapi:write`, from which `core:network`'s `openApiGenerate` task regenerates the client on the next build; the field's type in its feature's package of `core:model`; the `*Mapping.kt` of `core:network` that reads it; the `*Fixtures.kt` of `core:testing` that build the type; and the `UiStateMapping`, `UiState` and screen that draw it.
 
 ## The checks
 
