@@ -77,9 +77,9 @@ private fun MeasureScope.oneRow(parts: TabHeaderParts, width: Int, startMaxWidth
     val rings: List<Placeable> = parts.rings.measureEach(Constraints(maxWidth = maxOf(0, width - startShare)))
     val titleHeight: Int = titles.maxHeight()
     val ringHeight: Int = rings.maxHeight()
-    val center: Int = maxOf(titleHeight, ringHeight) / 2
-    val titleTop: Int = center - titleHeight / 2
-    val ringTop: Int = center - ringHeight / 2
+    val rowHeight: Int = maxOf(titleHeight, ringHeight)
+    val titleTop: Int = (rowHeight - titleHeight) / 2
+    val ringTop: Int = (rowHeight - ringHeight) / 2
     val underTop: Int = titleTop + titleHeight
     return layout(width, maxOf(underTop + unders.maxHeight(), ringTop + ringHeight)) {
         titles.forEach { placeable: Placeable -> placeable.place(0, titleTop) }
