@@ -3,19 +3,15 @@ package com.emm.mygame.feature.account.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
@@ -29,7 +25,6 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.MyGameWorkingDots
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.ui.rememberRevealOnce
 import com.emm.mygame.feature.account.R
@@ -75,38 +70,13 @@ internal fun SettingsScreen(
 
 @Composable
 private fun SignOut(isBusy: Boolean, onIntent: (SettingsIntent) -> Unit, modifier: Modifier = Modifier) {
-    val waiting: String = stringResource(R.string.settings_waiting)
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-        verticalAlignment = Alignment.CenterVertically,
+    MyGameTextLink(
+        label = stringResource(R.string.settings_sign_out),
+        isBusy = isBusy,
+        busyDescription = stringResource(R.string.settings_waiting),
+        onClick = { onIntent(SettingsIntent.SignOutTapped) },
         modifier = modifier,
-    ) {
-        MyGameTextLink(
-            label = stringResource(R.string.settings_sign_out),
-            isBusy = isBusy,
-            busyDescription = waiting,
-            onClick = { onIntent(SettingsIntent.SignOutTapped) },
-        )
-        if (isBusy) WorkingLine(text = waiting)
-    }
-}
-
-@Composable
-private fun WorkingLine(text: String, modifier: Modifier = Modifier) {
-    val ink: Color = MyGameTheme.colors.inkMuted
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier,
-    ) {
-        MyGameWorkingDots(tint = ink)
-        MyGameText(
-            text = text,
-            style = MyGameTypography.label,
-            color = ink,
-            modifier = Modifier.semantics { hideFromAccessibility() },
-        )
-    }
+    )
 }
 
 @Composable

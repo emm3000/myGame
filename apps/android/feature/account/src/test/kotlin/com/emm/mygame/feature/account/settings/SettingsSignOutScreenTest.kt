@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -92,8 +93,10 @@ class SettingsSignOutScreenTest {
     fun `holds the sign-out while it is under way`() {
         draw(SettingsUiState.SigningOut(kept = loaded))
 
-        composeRule.onNodeWithText(SIGN_OUT, useUnmergedTree = true).assertIsDisplayed()
-        composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).assertIsNotEnabled()
+        composeRule
+            .onNode(hasContentDescription(SIGN_OUT) and hasClickAction())
+            .assertIsDisplayed()
+            .assertIsNotEnabled()
     }
 
     @Test
@@ -101,15 +104,15 @@ class SettingsSignOutScreenTest {
         draw(SettingsUiState.SigningOut(kept = loaded))
 
         composeRule
-            .onNode(hasText(SIGN_OUT) and hasClickAction())
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Esperando"))
+            .onNode(hasContentDescription(SIGN_OUT) and hasClickAction())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, WAITING))
     }
 
     @Test
     fun `sends nothing from the sign-out while the session ends`() {
         draw(SettingsUiState.SigningOut(kept = loaded))
 
-        composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).performClick()
+        composeRule.onNode(hasContentDescription(SIGN_OUT) and hasClickAction()).performClick()
 
         assertEquals(emptyList<SettingsIntent>(), sentIntents)
     }
@@ -123,7 +126,7 @@ class SettingsSignOutScreenTest {
     }
 
     @Test
-    fun `draws the working dots and the waiting line in view beside the sign-out`() {
+    fun `draws the working dots and the waiting line in place of the sign-out's label`() {
         draw(SettingsUiState.SigningOut(kept = loaded))
 
         composeRule.onNodeWithTag(WORKING_DOTS, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
