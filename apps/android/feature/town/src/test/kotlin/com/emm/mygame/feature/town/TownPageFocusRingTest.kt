@@ -22,7 +22,6 @@ import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameStrokeWidths
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
@@ -109,7 +108,8 @@ class TownPageFocusRingTest {
             }
         }
         composeRule.runOnIdle { inputModes?.requestInputMode(InputMode.Keyboard) }
-        val build: SemanticsNodeInteraction = composeRule.onNodeWithTag(GO_OUTLINED_PILL).performScrollTo().requestFocus()
+        val build: SemanticsNodeInteraction =
+            composeRule.onNodeWithTag(GO_OUTLINED_PILL).performScrollTo().requestFocus()
 
         val bounds: DpRect = build.getBoundsInRoot()
         val pixels: PixelMap = composeRule.onRoot().captureToImage().toPixelMap()
