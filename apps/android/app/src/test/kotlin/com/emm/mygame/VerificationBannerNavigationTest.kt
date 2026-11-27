@@ -10,6 +10,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -93,7 +94,7 @@ class VerificationBannerNavigationTest {
         waitForLine(BANNER_LINE)
         composeRule.onNode(hasText("Escuela") and hasClickAction() and !isSelectable()).performScrollTo().performClick()
         composeRule.onNodeWithText("Ir a la escuela").performScrollTo().performClick()
-        waitForLine(SCHOOL_TITLE)
+        waitForHeading(LEARN_TITLE)
 
         val bar: Rect = composeRule.onNode(hasTestTag(NAVIGATION_BAR)).fetchSemanticsNode().boundsInRoot
 
@@ -204,6 +205,12 @@ class VerificationBannerNavigationTest {
         }
     }
 
+    private fun waitForHeading(heading: String) {
+        composeRule.waitUntil(WAIT_MILLIS) {
+            composeRule.onAllNodes(hasText(heading) and isHeading()).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private fun isResendAtTheFoot(): Boolean {
         val resend: Rect = boundsOf(RESEND)
         val screen: Rect = composeRule.onRoot().fetchSemanticsNode().boundsInRoot
@@ -216,7 +223,7 @@ class VerificationBannerNavigationTest {
         const val TOWN_HEADER: String = "Riverton · Pueblo"
         const val BANNER_LINE: String = "Confirma tu correo"
         const val RESEND: String = "Reenviar"
-        const val SCHOOL_TITLE: String = "Escuela"
+        const val LEARN_TITLE: String = "Aprender"
         const val SESSION_READS: Int = 2
         const val READS_AVAILABLE: Int = 5
         const val WAIT_MILLIS: Long = 5_000

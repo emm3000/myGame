@@ -119,14 +119,14 @@ class SchoolLanguageTest {
     }
 
     @Test
-    fun `draws the school in Spanish in the Spanish phase`() {
+    fun `draws Learn in Spanish in the Spanish phase`() {
         show(spanishPhase)
 
-        assertDrawn("Escuela", "Lección 1", "5 palabras · Habilidad: comida +5\u00A0%")
+        assertDrawn("Aprender", "Lección 1", "5 palabras · Habilidad: comida +5\u00A0%")
         assertDrawn("Estudiar la lección 1 · 2:30", "Palabras en aprendizaje: 0 de 10", "Lecciones", "5 palabras")
         assertDrawn("Tus habilidades")
         assertDrawn("Aún no tienes habilidades.")
-        assertNotDrawn("School", "Lesson 1", "Study lesson 1 · 2:30", "Lessons", "Your skills")
+        assertNotDrawn("Learn", "Lesson 1", "Study lesson 1 · 2:30", "Lessons", "Your skills")
         assertNotDrawn("Words in learning: 0 of 10", "You have no skills.", "5 words")
     }
 
@@ -134,7 +134,7 @@ class SchoolLanguageTest {
     fun `draws English over Spanish in the both phase`() {
         show(bothPhase)
 
-        assertEnglishOverSpanish("School", "Escuela")
+        assertEnglishOverSpanish("Learn", "Aprender")
         assertEnglishOverSpanish("Lesson 1", "Lección 1")
         assertEnglishOverSpanish("5 words · food skill: +5\u00A0%", "5 palabras · Habilidad: comida +5\u00A0%")
         assertEnglishOverSpanish("Study lesson 1 · 2:30", "Estudiar la lección 1 · 2:30")
@@ -160,23 +160,23 @@ class SchoolLanguageTest {
     }
 
     @Test
-    fun `draws the school in English in the English phase`() {
+    fun `draws Learn in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("School", "Lesson 1", "5 words · food skill: +5\u00A0%", "Study lesson 1 · 2:30")
+        assertDrawn("Learn", "Lesson 1", "5 words · food skill: +5\u00A0%", "Study lesson 1 · 2:30")
         assertDrawn("Words in learning: 0 of 10", "Lessons", "5 words")
         assertDrawn("Your skills", "You have no skills.")
-        assertNotDrawn("Escuela", "Lección 1", "Lecciones", "Tus habilidades")
+        assertNotDrawn("Aprender", "Lección 1", "Lecciones", "Tus habilidades")
     }
 
     @Test
     @Config(qualifiers = "es")
-    fun `draws the school in English under none`() {
+    fun `draws Learn in English under none`() {
         show(noScaffold)
 
-        assertDrawn("School", "Lesson 1", "Lessons", "Your skills", englishReleasedTitle)
+        assertDrawn("Learn", "Lesson 1", "Lessons", "Your skills", englishReleasedTitle)
         assertDescribed("$englishReleasedTitle · Study the returning words · 2:30")
-        assertNotDrawn("Escuela", "Lección 1", "Lecciones", spanishReleasedTitle)
+        assertNotDrawn("Aprender", "Lección 1", "Lecciones", spanishReleasedTitle)
     }
 
     @Test
@@ -235,10 +235,10 @@ class SchoolLanguageTest {
     }
 
     @Test
-    fun `draws the unreachable school in Spanish with the retry in English in the English phase`() {
+    fun `draws an unreachable Learn in Spanish with the retry in English in the English phase`() {
         show(englishPhase, SchoolUiState.Failed)
 
-        assertDrawn("School", "Try again", "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
+        assertDrawn("Learn", "Try again", "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento.")
         assertNotDrawn("Volver a intentarlo", "We could not reach the server. Try again in a moment.")
     }
 }

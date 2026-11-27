@@ -2,7 +2,7 @@
 <resources>
     <string name="placement_band">Band {band}</string>
     <string name="placement_choose">Choose a meaning to go on.</string>
-    <string name="placement_closed_none">You have no placement to take. Your lessons wait in the school.</string>
+    <string name="placement_closed_none">You have no placement to take. Your lessons wait in the Learn tab.</string>
     <string name="placement_done">Continue</string>
     <string name="placement_failed">We couldn\'t read your placement.</string>
     <string name="placement_loading">Reading your placement…</string>

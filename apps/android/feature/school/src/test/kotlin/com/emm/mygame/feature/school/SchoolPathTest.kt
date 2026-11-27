@@ -18,8 +18,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
+import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
@@ -187,7 +187,7 @@ class SchoolPathTest {
         show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen)))
 
         val blockTop: Dp = topOf("Lección 2")
-        val pillTop: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().top
+        val pillTop: Dp = composeRule.onNodeWithTag(GO_OUTLINED_PILL).getUnclippedBoundsInRoot().top
         assertTrue(blockTop < pillTop)
         assertTrue(pillTop < topOf("Palabras en aprendizaje: 0 de 10"))
         assertTrue(topOf("Palabras en aprendizaje: 0 de 10") < topOf("Lección 1"))

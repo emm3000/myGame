@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.BLOCK_HUE
+import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameIcons
@@ -212,9 +213,9 @@ class SchoolLookTest {
         composeRule.onNode(hasText("Lección 1") and theBlock).assertExists()
         val blockBottom: Dp = composeRule.onNode(theBlock)
             .getUnclippedBoundsInRoot().bottom
-        val pillTop: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().top
+        val pillTop: Dp = composeRule.onNodeWithTag(GO_OUTLINED_PILL).getUnclippedBoundsInRoot().top
         assertTrue(blockBottom <= pillTop)
-        composeRule.onAllNodes(hasTestTag(OUTLINED_PILL) and inTheBlock).assertCountEquals(0)
+        composeRule.onAllNodes(hasTestTag(GO_OUTLINED_PILL) and inTheBlock).assertCountEquals(0)
     }
 
     @Test
@@ -267,7 +268,7 @@ class SchoolLookTest {
     fun `draws the learning load under the pill and the rows under the load`() {
         show(idleSchool)
 
-        val pillBottom: Dp = composeRule.onNodeWithTag(OUTLINED_PILL).getUnclippedBoundsInRoot().bottom
+        val pillBottom: Dp = composeRule.onNodeWithTag(GO_OUTLINED_PILL).getUnclippedBoundsInRoot().bottom
         val loadTop: Dp = composeRule.onNodeWithText("Palabras en aprendizaje: 0 de 10")
             .getUnclippedBoundsInRoot().top
         val rowsTop: Dp = composeRule.onNodeWithText("Lecciones").getUnclippedBoundsInRoot().top
@@ -371,7 +372,7 @@ class SchoolLookTest {
     fun `gives a selected row the pill`() {
         show(idleSchool.copy(selected = thirdLesson))
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Estudiar la lección 3 · 2:30")).assertExists()
+        composeRule.onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 3 · 2:30")).assertExists()
     }
 
     @Test
@@ -411,10 +412,17 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `quiets the study pill while a lesson runs`() {
+    fun `outlines the open study button in go`() {
+        show(idleSchool)
+
+        composeRule.onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 1 · 2:30")).assertExists()
+    }
+
+    @Test
+    fun `outlines the blocked study button in go while a lesson runs`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Estudiar la lección 2 · 2:30")).assertExists()
+        composeRule.onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 2 · 2:30")).assertExists()
     }
 
     @Test
@@ -522,10 +530,10 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `sets the school's name in display`() {
+    fun `sets Learn's title in display`() {
         show(idleSchool)
 
-        assertEquals(40.sp, textStyleOf(composeRule, "Escuela").fontSize)
+        assertEquals(40.sp, textStyleOf(composeRule, "Aprender").fontSize)
     }
 
     private fun showReadingBlockInks(state: SchoolUiState): Pair<Color, Color> {
