@@ -1,6 +1,10 @@
 package com.emm.mygame.core.designsystem
 
+import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
@@ -22,12 +26,22 @@ class MyGameChoiceRowTest {
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
 
-    private fun show(look: MyGameChoiceLook) {
+    private fun show(look: MyGameChoiceLook, isEnabled: Boolean = true) {
         composeRule.setContent {
             MyGameTheme {
-                MyGameChoiceRow(label = "Spanish", isChosen = true, isEnabled = true, onClick = {}, look = look)
+                MyGameChoiceRow(label = "Spanish", isChosen = true, isEnabled = isEnabled, onClick = {}, look = look)
             }
         }
+    }
+
+    private fun labelPixels(): Set<Int> {
+        val pixels: PixelMap = composeRule
+            .onNodeWithText("Spanish", useUnmergedTree = true)
+            .captureToImage()
+            .toPixelMap()
+        return (0 until pixels.width)
+            .flatMap { x: Int -> (0 until pixels.height).map { y: Int -> pixels[x, y].toArgb() } }
+            .toSet()
     }
 
     @Test
@@ -55,5 +69,32 @@ class MyGameChoiceRowTest {
         show(MyGameChoiceLook.Answer)
 
         composeRule.onNode(isSelectable() and hasText("Spanish")).assertHeightIsAtLeast(MyGameSizes.secondary)
+    }
+
+    @Test
+    fun `draws a disabled row's label in muted ink`() {
+        show(MyGameChoiceLook.Setting, isEnabled = false)
+
+        val pixels: Set<Int> = labelPixels()
+
+        assertEquals("a muted ink pixel", true, lightColors.inkMuted.toArgb() in pixels)
+        assertEquals("no ink pixel", false, lightColors.ink.toArgb() in pixels)
+    }
+
+    @Test
+    fun `draws an enabled row's label in ink`() {
+        show(MyGameChoiceLook.Setting)
+
+        assertEquals("an ink pixel", true, lightColors.ink.toArgb() in labelPixels())
+    }
+
+    @Test
+    fun `still draws a disabled chosen row's dot`() {
+        show(MyGameChoiceLook.Setting, isEnabled = false)
+
+        val pixels: PixelMap = composeRule.onNode(isSelectable() and hasText("Spanish")).captureToImage().toPixelMap()
+        val dotX: Int = with(composeRule.density) { (MyGameSpacing.step3 + MyGameSizes.iconSmall / 2).roundToPx() }
+
+        assertEquals("the dot's center", lightColors.action.toArgb(), pixels[dotX, pixels.height / 2].toArgb())
     }
 }

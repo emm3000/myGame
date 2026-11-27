@@ -49,7 +49,7 @@ fun MyGameChoiceRow(
         MyGameText(
             text = label,
             style = if (isChosen) measures.chosenStyle else measures.style,
-            color = colors.ink,
+            color = if (isEnabled) colors.ink else colors.inkMuted,
         )
     }
 }
