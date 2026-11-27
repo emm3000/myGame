@@ -4,23 +4,26 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.learning.reviews.ReviewRoute
+import com.emm.mygame.feature.shell.FrameKind
 
-internal fun EntryProviderScope<NavKey>.reviewEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
+internal fun EntryProviderScope<NavKey>.reviewEntry(
+    dependencies: AppDependencies,
+    navigator: Navigator,
+    onTaskAnswer: () -> Unit,
+) {
     entry<Destination.Review> {
         SignedInFrame(
             kind = FrameKind.Task,
-            chrome = chrome,
+            dependencies = dependencies,
+            navigator = navigator,
         ) {
             ReviewRoute(
                 learning = dependencies.learning,
                 towns = dependencies.towns,
                 clock = dependencies.clock,
-                onAnswer = chrome.onTaskAnswered,
-                onDone = chrome.navigator::back,
+                onAnswer = onTaskAnswer,
+                onDone = navigator::back,
             )
         }
     }

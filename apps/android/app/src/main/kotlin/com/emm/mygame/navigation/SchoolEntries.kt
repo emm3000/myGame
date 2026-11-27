@@ -4,8 +4,6 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.feature.holdout.HoldoutCheckRow
@@ -16,20 +14,23 @@ import com.emm.mygame.feature.school.words.LessonWordsNavigation
 import com.emm.mygame.feature.school.words.LessonWordsRoute
 import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.school.text.SchoolTextRoute
+import com.emm.mygame.feature.shell.FrameKind
 import com.emm.mygame.feature.shell.bar.Tab
 import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 
-internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
+internal fun EntryProviderScope<NavKey>.schoolEntry(
+    dependencies: AppDependencies,
+    navigator: Navigator,
+    onTaskAnswer: () -> Unit,
+) {
     entry<Destination.School> {
-        SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Home, dependencies = dependencies, navigator = navigator) {
             SchoolRoute(
                 towns = dependencies.towns,
                 clock = dependencies.clock,
                 onNoTown = navigator::townUnnamed,
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
-                onLessonStart = chrome.onTaskAnswered,
+                onLessonStart = onTaskAnswer,
                 onTextOpen = { text: TextId -> navigator.openAbove(Destination.School, Destination.SchoolText(text)) },
                 onReviewsOpen = navigator::openReviews,
                 holdoutChecks = {
@@ -50,13 +51,12 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     }
 }
 
-internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
+internal fun EntryProviderScope<NavKey>.lessonWordsEntry(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.LessonWords> { shown: Destination.LessonWords ->
         SignedInFrame(
             kind = FrameKind.Task,
-            chrome = chrome,
+            dependencies = dependencies,
+            navigator = navigator,
         ) {
             LessonWordsRoute(
                 walk = LessonWalk(shown.lesson, shown.walked),
@@ -74,11 +74,9 @@ internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome)
     }
 }
 
-internal fun EntryProviderScope<NavKey>.schoolTextEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
+internal fun EntryProviderScope<NavKey>.schoolTextEntry(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.SchoolText> { shown: Destination.SchoolText ->
-        SignedInFrame(kind = FrameKind.Door, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Door, dependencies = dependencies, navigator = navigator) {
             SchoolTextRoute(
                 text = shown.text,
                 texts = dependencies.texts,

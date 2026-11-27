@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,14 +21,16 @@ import com.emm.mygame.core.designsystem.MyGameBackLink
 import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
 import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 
 @Composable
-internal fun FramedScreen(
+fun FramedScreen(
     kind: FrameKind,
-    chrome: SignedInChrome,
+    towns: TownReader,
+    navigation: ShellNavigation,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -42,10 +44,10 @@ internal fun FramedScreen(
     ) {
         when (kind) {
             FrameKind.Home -> Unit
-            FrameKind.Place -> FrameHeader(chrome = chrome) {
-                RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = true)
+            FrameKind.Place -> FrameHeader(navigation = navigation) {
+                RetainedWordsRing(towns = towns, doesScreenReadTown = true)
             }
-            FrameKind.Door, FrameKind.Task -> FrameHeader(chrome = chrome)
+            FrameKind.Door, FrameKind.Task -> FrameHeader(navigation = navigation)
         }
         Box(
             modifier = Modifier
@@ -59,7 +61,7 @@ internal fun FramedScreen(
 }
 
 @Composable
-private fun FrameHeader(chrome: SignedInChrome, ring: @Composable () -> Unit = {}) {
+private fun FrameHeader(navigation: ShellNavigation, ring: @Composable () -> Unit = {}) {
     MyGameHeader(
         modifier = Modifier
             .statusBarsPadding()
@@ -67,11 +69,11 @@ private fun FrameHeader(chrome: SignedInChrome, ring: @Composable () -> Unit = {
             .frameHeaderTurn(),
         end = ring,
     ) {
-        if (chrome.navigator.isOnTabRoot) return@MyGameHeader
+        if (navigation.isOnTabRoot) return@MyGameHeader
         MyGameBackLink(
-            label = chromeResource(chrome.navigator.tabUnder.label),
-            isEnabled = chrome.navigator.areLinksEnabled,
-            onClick = { chrome.navigator.openTab(chrome.navigator.tabUnder) },
+            label = chromeResource(navigation.tabUnder.label),
+            isEnabled = navigation.areLinksEnabled,
+            onClick = { navigation.onTabOpen(navigation.tabUnder) },
         )
     }
 }

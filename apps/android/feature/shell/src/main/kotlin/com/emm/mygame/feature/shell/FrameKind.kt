@@ -1,6 +1,6 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell
 
-internal sealed interface FrameKind {
+sealed interface FrameKind {
 
     data object Home : FrameKind
 

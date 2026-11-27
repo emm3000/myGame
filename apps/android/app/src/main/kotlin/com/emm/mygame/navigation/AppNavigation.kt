@@ -33,7 +33,6 @@ import com.emm.mygame.NavigationLinks
 import com.emm.mygame.PlayerLanguageIntent
 import com.emm.mygame.PlayerLanguageUiState
 import com.emm.mygame.PlayerLanguageViewModel
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.TownFollowIntent
 import com.emm.mygame.TownFollowViewModel
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -84,13 +83,7 @@ internal fun AppNavigation(
             dependencies = dependencies,
             navigator = navigator,
             backStack = backStack,
-            chrome = { navigator: Navigator ->
-                SignedInChrome(
-                    dependencies = dependencies,
-                    navigator = navigator,
-                    onTaskAnswered = { follow.onIntent(TownFollowIntent.TaskAnswered) },
-                )
-            },
+            onTaskAnswer = { follow.onIntent(TownFollowIntent.TaskAnswered) },
             modifier = Modifier.weight(1f),
         )
         val isSessionOpen: Boolean = shown.isSignedIn()
@@ -114,7 +107,7 @@ private fun AppScreens(
     dependencies: AppDependencies,
     navigator: Navigator,
     backStack: NavBackStack<NavKey>,
-    chrome: (Navigator) -> SignedInChrome,
+    onTaskAnswer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavDisplay(
@@ -126,26 +119,30 @@ private fun AppScreens(
         ),
         entryProvider = entryProvider {
             signedOutEntries(dependencies, navigator)
-            signedInEntries(chrome(navigator))
+            signedInEntries(dependencies, navigator, onTaskAnswer)
         },
         modifier = modifier,
     )
 }
 
-private fun EntryProviderScope<NavKey>.signedInEntries(chrome: SignedInChrome) {
-    todayEntry(chrome)
-    namingEntry(chrome)
-    townEntry(chrome)
-    placeEntry(chrome)
-    schoolEntry(chrome)
-    newsEntry(chrome)
-    settingsEntry(chrome)
-    jobsEntry(chrome)
-    placementEntry(chrome)
-    holdoutCheckEntry(chrome)
-    lessonWordsEntry(chrome)
-    schoolTextEntry(chrome)
-    reviewEntry(chrome)
+private fun EntryProviderScope<NavKey>.signedInEntries(
+    dependencies: AppDependencies,
+    navigator: Navigator,
+    onTaskAnswer: () -> Unit,
+) {
+    todayEntry(dependencies, navigator)
+    namingEntry(dependencies, navigator)
+    townEntry(dependencies, navigator)
+    placeEntry(dependencies, navigator)
+    schoolEntry(dependencies, navigator, onTaskAnswer)
+    newsEntry(dependencies, navigator)
+    settingsEntry(dependencies, navigator)
+    jobsEntry(dependencies, navigator)
+    placementEntry(dependencies, navigator, onTaskAnswer)
+    holdoutCheckEntry(dependencies, navigator, onTaskAnswer)
+    lessonWordsEntry(dependencies, navigator)
+    schoolTextEntry(dependencies, navigator)
+    reviewEntry(dependencies, navigator, onTaskAnswer)
 }
 
 private fun NavKey?.isSignedIn(): Boolean = when (this as? Destination) {
