@@ -1,6 +1,6 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell.ring
 
-internal sealed interface RetainedWordsIntent {
+sealed interface RetainedWordsIntent {
 
     data object ScreenShown : RetainedWordsIntent
 

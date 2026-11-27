@@ -8,7 +8,6 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
-import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.account.password.ForgotPasswordRoute
 import com.emm.mygame.feature.account.password.ResetPasswordRoute
@@ -18,6 +17,7 @@ import com.emm.mygame.feature.account.settings.SettingsSources
 import com.emm.mygame.feature.account.signin.SignInRoute
 import com.emm.mygame.feature.account.signup.SignUpRoute
 import com.emm.mygame.feature.account.verification.VerifyEmailRoute
+import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 import com.emm.mygame.openNotificationSettings
 import com.emm.mygame.rememberNotificationAsk
 

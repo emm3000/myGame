@@ -23,6 +23,7 @@ import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.frameHeaderTurn
+import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 
 @Composable
 internal fun FramedScreen(

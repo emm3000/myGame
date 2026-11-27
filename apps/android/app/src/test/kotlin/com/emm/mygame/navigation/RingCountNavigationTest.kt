@@ -31,7 +31,7 @@ private val ringLine: SemanticsMatcher = SemanticsMatcher("the ring's line") { n
 }
 
 @RunWith(RobolectricTestRunner::class)
-class RetainedWordsRingNavigationTest : AppNavigationFixture() {
+class RingCountNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `hides the ring while the count is null`() {

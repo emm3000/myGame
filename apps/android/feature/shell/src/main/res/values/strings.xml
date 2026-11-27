@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_navigation_learn">Learn</string>
+    <string name="shell_navigation_me">Me</string>
+    <string name="shell_navigation_today">Today</string>
+    <string name="shell_navigation_town">Town</string>
+    <string name="shell_retained_words">{count} of {total, plural, =1 {1 word} other {{total, number,0} words}} learned</string>
+</resources>

@@ -1,4 +1,4 @@
-package com.emm.mygame.navigation
+package com.emm.mygame.feature.shell.bar
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +14,7 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 
 @Composable
-internal fun AppNavigationBar(
+fun AppNavigationBar(
     open: Tab,
     town: TownSnapshot?,
     onTabOpen: (Tab) -> Unit,

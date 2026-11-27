@@ -7,6 +7,7 @@ export type AndroidModule =
   | 'placement'
   | 'report'
   | 'school'
+  | 'shell'
   | 'today'
   | 'town'
   | 'ui'
@@ -25,6 +26,7 @@ export const androidModules: ReadonlyArray<AndroidModule> = [
   'placement',
   'report',
   'school',
+  'shell',
   'today',
   'town',
   'ui',
