@@ -27,6 +27,7 @@ fun SchoolRoute(
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
+    ring: @Composable () -> Unit = {},
     viewModel: SchoolViewModel = viewModel { SchoolViewModel(towns, clock) },
 ) {
     val state: SchoolUiState by viewModel.state.collectAsStateWithLifecycle()
@@ -55,5 +56,6 @@ fun SchoolRoute(
         onReviewsOpen = onReviewsOpen,
         holdoutChecks = holdoutChecks,
         placement = placement,
+        ring = ring,
     )
 }

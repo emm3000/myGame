@@ -12,16 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameTabHeader
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -38,6 +37,7 @@ internal fun SettingsScreen(
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     themeChoice: @Composable () -> Unit = {},
+    ring: @Composable () -> Unit = {},
 ) {
     val title: String = stringResource(R.string.settings_title)
     Column(
@@ -54,14 +54,7 @@ internal fun SettingsScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        MyGameHeader {
-            MyGameText(
-                text = title,
-                style = MyGameTypography.title,
-                color = MyGameTheme.colors.ink,
-                modifier = Modifier.semantics { heading() },
-            )
-        }
+        MyGameTabHeader(title = title, ring = ring)
         if ((state as? SettingsUiState.Loaded)?.reminder?.isOffered == true) ReminderOffer(onIntent = onIntent)
         themeChoice()
         MyGameSkeleton(

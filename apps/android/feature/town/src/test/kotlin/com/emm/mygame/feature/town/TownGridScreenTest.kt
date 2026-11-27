@@ -1,20 +1,23 @@
 package com.emm.mygame.feature.town
 
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpRect
+import com.emm.mygame.core.designsystem.MyGameRing
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.projection.town.building.BlockReason
+import com.emm.mygame.core.uitesting.assertRingOnTitleRow
+import com.emm.mygame.core.uitesting.tabRingLabel
 import com.emm.mygame.feature.town.building.PlaceCard
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -68,11 +71,22 @@ class TownGridScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `the ring keeps its header on Town`() {
-        show(riverton, ring = { BasicText(RING) })
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `draws Town's title and the ring on one row`() {
+        show(riverton, ring = { MyGameRing(count = 0, total = 5, countBefore = 0, label = tabRingLabel) })
 
-        composeRule.onNodeWithText(RING).assertIsDisplayed()
-        composeRule.onNodeWithText("Riverton · Pueblo").assertIsDisplayed()
+        assertRingOnTitleRow(composeRule, title = "Riverton · Pueblo")
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `sets Town News under Town's title`() {
+        show(riverton, ring = { MyGameRing(count = 0, total = 5, countBefore = 0, label = tabRingLabel) })
+
+        val title: DpRect = composeRule.onNode(isHeading() and hasText("Riverton · Pueblo")).getUnclippedBoundsInRoot()
+        val news: DpRect = composeRule.onNodeWithText("Noticias del pueblo").getUnclippedBoundsInRoot()
+        assertEquals(title.left, news.left)
+        assertTrue("Town News sits under the title", news.top >= title.bottom)
     }
 
     @Test
@@ -132,7 +146,6 @@ class TownGridScreenTest : TownScreenFixture() {
     )
 
     private companion object {
-        const val RING: String = "Ring"
         const val BUILD_FOR_MONEY: String = "Construir por 150 de dinero"
         const val STARTABLE_PLACES: Int = 4
     }

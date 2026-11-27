@@ -13,13 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.emm.mygame.core.designsystem.MyGameHairline
-import com.emm.mygame.core.designsystem.MyGameHeader
+import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameTabHeader
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -56,12 +56,12 @@ internal fun TownGrid(
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val isNarrow: Boolean = maxWidth / LocalDensity.current.fontScale < twoCardsWidth
         Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4)) {
-            MyGameHeader(modifier = Modifier.frameHeaderTurn(), end = ring) {
-                Column {
-                    TownTitle(name = content.name, label = content.label)
-                    MyGameTextLink(label = chromeResource(R.string.town_news_link), onClick = onNewsOpen)
-                }
-            }
+            MyGameTabHeader(
+                title = rememberPlayerCopy().townTitleOf(name = content.name, label = content.label),
+                modifier = Modifier.frameHeaderTurn(),
+                ring = ring,
+                under = { MyGameTextLink(label = chromeResource(R.string.town_news_link), onClick = onNewsOpen) },
+            )
             content.season?.let { season: SeasonLine -> SeasonRow(season = season) }
             TownStocks(content = content, columns = if (isNarrow) NARROW_STOCK_COLUMNS else STOCK_COLUMNS)
             PlaceGrid(
@@ -144,16 +144,8 @@ private fun StockCell(stock: StockLine, modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-internal fun TownTitle(name: String, label: TownLabel, modifier: Modifier = Modifier) {
-    MyGameText(
-        label = rememberPlayerCopy().chrome {
-            text(R.string.town_title, "name" to name, "label" to text(labelOf(label)))
-        },
-        style = MyGameTypography.title,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier.semantics { heading() },
-    )
+private fun PlayerCopy.townTitleOf(name: String, label: TownLabel): MyGameLabel = chrome {
+    text(R.string.town_title, "name" to name, "label" to text(labelOf(label)))
 }
 
 private fun labelOf(label: TownLabel): Int = when (label) {

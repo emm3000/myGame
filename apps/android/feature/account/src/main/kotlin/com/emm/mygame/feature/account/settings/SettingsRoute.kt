@@ -17,6 +17,7 @@ fun SettingsRoute(
     rememberNotificationAsk: @Composable (onAnswer: (Boolean) -> Unit) -> () -> Unit,
     navigation: SettingsNavigation,
     modifier: Modifier = Modifier,
+    ring: @Composable () -> Unit = {},
     viewModel: SettingsViewModel = viewModel {
         SettingsViewModel(
             sources.sessions,
@@ -54,5 +55,6 @@ fun SettingsRoute(
         onNotificationSettingsOpen = navigation.onNotificationSettingsOpen,
         modifier = modifier,
         themeChoice = { ThemeChoiceRoute(sources.themes) },
+        ring = ring,
     )
 }

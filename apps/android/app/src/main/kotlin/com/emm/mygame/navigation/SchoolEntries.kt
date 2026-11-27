@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
+import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
@@ -21,10 +22,7 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.School> {
-        SignedInFrame(
-            kind = FrameKind.Place(doesScreenReadTown = true),
-            chrome = chrome,
-        ) {
+        SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
             SchoolRoute(
                 towns = dependencies.towns,
                 clock = dependencies.clock,
@@ -45,6 +43,7 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
                         onPlacementOpen = { navigator.openOnTab(Destination.Placement) },
                     )
                 },
+                ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
             )
         }
     }

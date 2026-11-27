@@ -11,11 +11,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameHairline
-import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
@@ -23,10 +20,9 @@ import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
+import com.emm.mygame.core.designsystem.MyGameTabHeader
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTitleLine
-import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedCopyResource
@@ -56,14 +52,7 @@ internal fun TodayScreen(
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        MyGameHeader(end = ring) {
-            MyGameText(
-                label = chromeResource(R.string.today_title),
-                style = MyGameTypography.title,
-                color = MyGameTheme.colors.ink,
-                modifier = Modifier.semantics { heading() },
-            )
-        }
+        MyGameTabHeader(title = chromeResource(R.string.today_title), ring = ring)
         MyGameSkeleton(
             isLoading = state == TodayUiState.Loading,
             loadingLabel = chromeResource(R.string.today_loading).spoken,
