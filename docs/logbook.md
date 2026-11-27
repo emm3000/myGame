@@ -6,12 +6,26 @@ Rule: every session adds its section below before the orchestrator's `/clear`, a
 
 ## Still to validate
 
+### Session 2026-11-27 (S46, fast mode from the first PR): what was not proven
+
+The owner chose fast mode for every S46 PR: red-run quotes, emulator screenshots and the local full gate are skipped. Each peer ran only its touched modules' tests and detekt. CI (`gate`, `android`, `vercel`) and one `pr-reviewer` per PR still bound every merge. Tick each item when it is checked.
+
+- [ ] **No red runs quoted** for #2134 (PR #2135), #2111 (PR #2136), #2120 (PR #2138), #2123 (PR #2139) and #2112 (PR #2152). Only PR #2138's fix round quoted one, for the `TownScreen.kt` scroll test. A test that passes against the old code proves nothing, and nobody checked whether these tests fail without the fix.
+- [x] **No emulator shots** for #2111, #2112, #2120 and #2123. Proven: QA run 8 shot all four on trunk `547d72c9d` and ticked their boxes ([#1194 comment](https://github.com/emm3000/myGame/issues/1194#issuecomment-7214537981)).
+- [x] **Town stocks with a five-digit capacity** (`storage.json:141` goes up to 57 650). Checked by QA run 8, and it fails: at 360 dp and font scale 1.0 each capacity wraps onto two lines. Filed as #2156.
+- [ ] **New design-system pieces with no screenshot in either theme:** `MyGameSunkenCard`, `MyGameFrameGround`, and `ReadingBlock`'s `ground` (PR #2139). Contrast is computed (12.8:1 dark), not seen.
+- [ ] **The read word in *Read more*** is still plain. It is split out to #2140 (server) and #2141 (Android).
+- [ ] **The design wave, 14 PRs merged with no emulator shots:** #2146 (PR #2154), #2149 (PR #2155), #2147 (PR #2158), #2113 (PR #2159), #2145 (PR #2160), #2151 (PR #2161), #2156 (PR #2162), #2142 (PR #2163), #2148 (PR #2165), #2144 (PR #2166), #2150 (PR #2167, Robolectric captures only, on `assets/2150`), #2143 (PR #2168), #2157 (PR #2169, the dots' wave needs a recording), #2122 (PR #2170). None quotes a red run; each ran only its touched modules. QA run 9 shoots them on trunk and ticks each issue's screenshot box.
+- [ ] **Design-system changes that redraw many screens, seen on no screen:** a busy `MyGameTextLink` now draws the working dots and its busy line in place of its label (PR #2167; Sign out, Resend, Learn's busy links); the working dots rise and grow in turn (PR #2169); `MyGameOutlinedDoor` replaced 9 player-moving rows (PR #2170). The walk also checks that the word reading's door does not read as the first action above *Siguiente palabra*.
+- [ ] **A test that hung:** a throwaway 360×640 font 2.0 capture in PR #2167 never went idle with the dots animating and the test JVM ran out of heap. No committed test can hang that way (the reviewer checked `autoAdvance`), but a new capture of an animated state must use reduced motion or `mainClock.autoAdvance = false`.
+- [ ] **Placement and word-check screens** (#2145, #2146) cannot be reached on the emulator with the current content, because `GET /placement` answers closed. Only Robolectric backs them.
+
 ### Session 2026-11-26 and 2026-11-27 (S45, 23 PRs, fast mode from #2106): what was not proven
 
 The owner deferred screenshots from PR #2105 on and chose fast mode from PR #2106 on, for this session only. Each fast-mode PR skipped its red-run quotes, its screenshots and the local full gate. CI (`gate`, `android`, `vercel`) and one `pr-reviewer` per PR still bound every merge. Tick each item when it is checked.
 
-- [ ] **No emulator shots for #2093, #2094, #2095, #1990 (PRs #2105–#2108).** The canvas v12 walk (QA run 7, [#1194 comment](https://github.com/emm3000/myGame/issues/1194#issuecomment-7212576301), tag `qa-run-7`) covered these screens on trunk `61643ec7e`.
-- [ ] **No emulator shots for the fixes merged after the walk:**
+- [x] **No emulator shots for #2093, #2094, #2095, #1990 (PRs #2105–#2108).** Proven by QA run 8 on 2026-11-27, which shot each one and ticked its box. The canvas v12 walk (QA run 7, [#1194 comment](https://github.com/emm3000/myGame/issues/1194#issuecomment-7212576301), tag `qa-run-7`) covered these screens on trunk `61643ec7e`.
+- [x] **No emulator shots for the fixes merged after the walk** (proven by QA run 8 on 2026-11-27, all nine shot and ticked):
   - the review end lands on Today: #2117, PR #2126;
   - the review end names the reviewed lesson: #2118, PR #2125;
   - the last lesson word ends in *Continue*: #2119, PR #2128;
@@ -27,13 +41,13 @@ The owner deferred screenshots from PR #2105 on and chose fast mode from PR #210
   - the segmented Theme, which should say "1 of 3" (PR #2133).
   Only Robolectric semantics back either one (#1112).
 - [ ] **The QA walk could not reach these states:** the placement offer (`GET /placement` answered closed), the #2091 confirming dots (the answer lands within one frame), and the day-2, holdout and lesson-31 frames.
-- [ ] **Six canvas deltas are still open:** #2111, #2112, #2113, #2120, #2122 and #2123.
+- [ ] **Six canvas deltas are still open:** #2111, #2112, #2113, #2120, #2122 and #2123. In S46, #2111, #2112, #2120 and #2123 merged (see S46 above), and #2113 and #2122 are in the design wave.
 - [ ] **The owner's walk notes, not yet ticketed:**
   - Learn's lesson list needs a long scroll, and its information reads flat.
   - After a correct review answer the player has to tap twice. The owner suggests advancing automatically when nothing was earned.
   - On a small phone the review's button sits below the fold.
   Both review notes touch ADR 057 and go to a fable:high decision.
-- [ ] **Server authority on hiring:** `HiringUiStateMapping.kt:71` locks a hire by comparing office levels, while the server checks the office level's `hires` list (#2078).
+- [ ] **Server authority on hiring:** `HiringUiStateMapping.kt:71` locks a hire by comparing office levels, while the server checks the office level's `hires` list (#2078). In S46, #2134 (PR #2135) made the catalog refuse office content where a higher level drops a hire, so the two rules agree by construction. A gap in the level numbers would still split them (#2137).
 
 ### Triage 2026-11-22: every open item checked against trunk dd3e8dfc
 
@@ -168,6 +182,18 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 - The PRD S7 wording (ADR 015) and the *energy* exception in `CONTEXT.md`.
 
 
+
+## 2026-11-27 (S46): canvas v12's design deltas all merged
+
+### Advanced
+- **First wave (fast mode):** the hire lock follows the server (#2134, PR #2135) and four canvas deltas: #2111, #2120, #2123 and #2112 (PRs #2136, #2138, #2139, #2152). QA run 8 shot them on trunk: 17 pass and 1 fail, the five-digit stocks capacity (#2156, fixed by PR #2162).
+- **Design wave (at most 3 peers, fast mode, one fresh peer per ticket):** 14 PRs, #2154 to #2170, close every open canvas v12 delta except the read word in *Read more* (#2140 server, #2141 Android, needs triage). About 70 of the canvas's 74 frames are now in code.
+- **Design system:** `MyGameSunkenCard`; the four tab roots' title and ring in one header; a busy text link draws the working dots in place of its label; the dots rise and grow in turn (ADR 057 *Working* amended); `MyGameOutlinedDoor` for links that move the player (ADR 050 Door row amended).
+- **Rules:** readability written down (`principles.md` Readability, `kotlin-style.md` Structure limits, `android-architecture.md` Layout; PR #2153). `scripts/mygame-merge` refuses `--no-close` unless the peer ran sonnet:low, so a row 2 peer is never recycled (PR #2164).
+- **Review minors:** gathered on #2137.
+
+### Not proven
+- The items in this session's block under `## Still to validate`: no emulator shot of any design-wave PR, and no red run quoted. QA run 9 is next.
 
 ## 2026-11-26 and 2026-11-27 (S45): canvas v12 shipped, the junit4.v2 chain closed, the first walk's bugs fixed
 
