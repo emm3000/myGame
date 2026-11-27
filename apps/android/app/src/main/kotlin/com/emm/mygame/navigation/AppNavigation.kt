@@ -51,15 +51,12 @@ internal fun AppNavigation(
 ) {
     val links: NavigationLinks = retain { NavigationLinks() }
     val navigator: Navigator = remember(backStack, links) { Navigator(backStack, links) }
-    LaunchedEffect(navigator) {
-        navigator.followSessionEnds(dependencies.sessionEnds.ended)
-    }
-    LaunchedEffect(navigator) {
-        reminderTaps.collect { navigator.openReminder() }
-    }
-    LaunchedEffect(navigator) {
-        mailedLinks.collect(navigator::openMailedLink)
-    }
+    NavigatorEventsEffect(
+        navigator = navigator,
+        sessionEnds = dependencies.sessionEnds.ended,
+        reminderTaps = reminderTaps,
+        mailedLinks = mailedLinks,
+    )
     val shown: NavKey? = backStack.lastOrNull()
     LifecycleStartEffect(follow, shown) {
         follow.onIntent(
@@ -96,6 +93,24 @@ internal fun AppNavigation(
             }
             VerificationBannerRoute(sessions = dependencies.sessions, isSessionOpen = isSessionOpen)
         }
+    }
+}
+
+@Composable
+private fun NavigatorEventsEffect(
+    navigator: Navigator,
+    sessionEnds: Flow<Unit>,
+    reminderTaps: Flow<Unit>,
+    mailedLinks: Flow<Destination.MailedLink>,
+) {
+    LaunchedEffect(navigator) {
+        navigator.followSessionEnds(sessionEnds)
+    }
+    LaunchedEffect(navigator) {
+        reminderTaps.collect { navigator.openReminder() }
+    }
+    LaunchedEffect(navigator) {
+        mailedLinks.collect(navigator::openMailedLink)
     }
 }
 

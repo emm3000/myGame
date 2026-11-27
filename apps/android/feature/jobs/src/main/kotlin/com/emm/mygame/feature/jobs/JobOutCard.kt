@@ -40,25 +40,8 @@ internal fun JobOutCard(
                 color = MyGameTheme.colors.ink,
                 modifier = Modifier.semantics { heading() },
             )
-            MyGameText(
-                label = chromeResource(
-                    R.string.map_job_out_site,
-                    "region" to jobOut.site.region.toString(),
-                    "area" to jobOut.site.area.toString(),
-                    "site" to jobOut.site.site.toString(),
-                ),
-                style = MyGameTypography.body,
-                color = MyGameTheme.colors.ink,
-            )
-            MyGameText(
-                label = chromeResource(
-                    R.string.map_job_out_team,
-                    "workers" to jobOut.workers,
-                    "trucks" to jobOut.trucks,
-                ),
-                style = MyGameTypography.caption,
-                color = MyGameTheme.colors.inkMuted,
-            )
+            JobOutSiteLine(jobOut = jobOut)
+            JobOutTeamLine(jobOut = jobOut)
             JobCountdown(jobOut = jobOut)
             (jobOut.kind as? MapUiState.JobKind.CleanUp)?.let { cleanUp: MapUiState.JobKind.CleanUp ->
                 CleanUpLines(cleanUp = cleanUp)
@@ -83,6 +66,33 @@ internal fun JobOutCard(
             CallBackAnswer(callBack = callBack)
         }
     }
+}
+
+@Composable
+private fun JobOutSiteLine(jobOut: MapUiState.JobOut) {
+    MyGameText(
+        label = chromeResource(
+            R.string.map_job_out_site,
+            "region" to jobOut.site.region.toString(),
+            "area" to jobOut.site.area.toString(),
+            "site" to jobOut.site.site.toString(),
+        ),
+        style = MyGameTypography.body,
+        color = MyGameTheme.colors.ink,
+    )
+}
+
+@Composable
+private fun JobOutTeamLine(jobOut: MapUiState.JobOut) {
+    MyGameText(
+        label = chromeResource(
+            R.string.map_job_out_team,
+            "workers" to jobOut.workers,
+            "trucks" to jobOut.trucks,
+        ),
+        style = MyGameTypography.caption,
+        color = MyGameTheme.colors.inkMuted,
+    )
 }
 
 @Composable
