@@ -6,6 +6,35 @@ Rule: every session adds its section below before the orchestrator's `/clear`, a
 
 ## Still to validate
 
+### Session 2026-11-26 and 2026-11-27 (S45, 23 PRs, fast mode from #2106): what was not proven
+
+The owner deferred screenshots from PR #2105 on and chose fast mode from PR #2106 on, for this session only. Each fast-mode PR skipped its red-run quotes, its screenshots and the local full gate. CI (`gate`, `android`, `vercel`) and one `pr-reviewer` per PR still bound every merge. Tick each item when it is checked.
+
+- [ ] **No emulator shots for #2093, #2094, #2095, #1990 (PRs #2105–#2108).** The canvas v12 walk (QA run 7, [#1194 comment](https://github.com/emm3000/myGame/issues/1194#issuecomment-7212576301), tag `qa-run-7`) covered these screens on trunk `61643ec7e`.
+- [ ] **No emulator shots for the fixes merged after the walk:**
+  - the review end lands on Today: #2117, PR #2126;
+  - the review end names the reviewed lesson: #2118, PR #2125;
+  - the last lesson word ends in *Continue*: #2119, PR #2128;
+  - the office's met requirement and its locked hire: #2121, PR #2127;
+  - the running lesson's dots and one-line countdown: #2110, PR #2129;
+  - no ring on News or the map: #2114, PR #2130;
+  - equal-height Town tiles: #2115, PR #2131;
+  - the Me spacing and the segmented Theme: #2116, PR #2133;
+  - the navigation bar at font scale 2.0: #2124, PR #2132.
+  Each of these issues keeps its screenshot box unticked. A second canvas walk on trunk would settle them all at once.
+- [ ] **TalkBack on a phone:**
+  - Today's running-lesson heading, which should be read once as one heading (PR #2129);
+  - the segmented Theme, which should say "1 of 3" (PR #2133).
+  Only Robolectric semantics back either one (#1112).
+- [ ] **The QA walk could not reach these states:** the placement offer (`GET /placement` answered closed), the #2091 confirming dots (the answer lands within one frame), and the day-2, holdout and lesson-31 frames.
+- [ ] **Six canvas deltas are still open:** #2111, #2112, #2113, #2120, #2122 and #2123.
+- [ ] **The owner's walk notes, not yet ticketed:**
+  - Learn's lesson list needs a long scroll, and its information reads flat.
+  - After a correct review answer the player has to tap twice. The owner suggests advancing automatically when nothing was earned.
+  - On a small phone the review's button sits below the fold.
+  Both review notes touch ADR 057 and go to a fable:high decision.
+- [ ] **Server authority on hiring:** `HiringUiStateMapping.kt:71` locks a hire by comparing office levels, while the server checks the office level's `hires` list (#2078).
+
 ### Triage 2026-11-22: every open item checked against trunk dd3e8dfc
 
 Each open item below was checked against the code, git history and GitHub. The ticked ones are proven by later work:
@@ -139,6 +168,27 @@ This one list replaces the scattered per-PR lines above. Tick each item when it 
 - The PRD S7 wording (ADR 015) and the *energy* exception in `CONTEXT.md`.
 
 
+
+## 2026-11-26 and 2026-11-27 (S45): canvas v12 shipped, the junit4.v2 chain closed, the first walk's bugs fixed
+
+### Advanced
+- **ADR 057:** two amendments:
+  - the running lesson is Today's first card (#2089, PR #2096);
+  - *Read more* supports the read word's own token, while a unit's words stay unsupported (#2085, PR #2109). A fable:high agent decided the second, with the owner's authority, after triage showed that the premise of #2085 was wrong.
+- **Canvas v12's deltas are all merged:** #2090, #2091, #2092, #2093, #2094, #2095 and #1990 (PRs #2097, #2103–#2108).
+- **The junit4.v2 chain is closed:** #2054–#2058, PRs #2098–#2102. No v1 Compose rule is left in `apps/android`. #2058 was widened to cover `feature:today`, which no earlier ticket in the chain had included.
+- **A canvas v12 walk on a windowed emulator** (QA run 7): 15 screens match, 19 have deltas, 3 states were unreachable. It filed #2110–#2124.
+- **Fixed from the walk:** the four functional bugs (#2117, #2118, #2119, #2121) and five visual deltas (#2110, #2114, #2115, #2116, #2124).
+- **Peers:** the owner raised the cap to five for this session only. Screenshots were deferred to one final walk from PR #2105, and fast mode started at PR #2106.
+
+### Not proven
+- The items in this session's block under `## Still to validate`.
+
+### Next
+- Run a second canvas walk on trunk, then triage #2111, #2112, #2113, #2120, #2122 and #2123.
+- Settle the owner's three walk notes: Learn's hierarchy, review auto-advance, and the review button on small phones.
+- Dispatch or close the follow-up batches #2078, #2066, #2049 and #1891.
+- Close stale issues such as #716 and #571 if they are done.
 
 ## 2026-11-25: ADR 056, U1–U3, XA and Track X ticketed
 
