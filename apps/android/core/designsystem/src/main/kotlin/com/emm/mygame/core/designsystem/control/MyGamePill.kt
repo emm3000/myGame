@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,30 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.IntrinsicMeasurable
-import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.MultiContentMeasurePolicy
-import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.node.LayoutModifierNode
-import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.emm.mygame.core.designsystem.art.MyGameIcon
@@ -55,7 +38,6 @@ import com.emm.mygame.core.designsystem.art.MyGameIcons
 import com.emm.mygame.core.designsystem.frame.dashedFrame
 import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.designsystem.text.MyGameText
-import com.emm.mygame.core.designsystem.text.withTabularFigures
 import com.emm.mygame.core.designsystem.theme.MyGameColors
 import com.emm.mygame.core.designsystem.theme.MyGameRadii
 import com.emm.mygame.core.designsystem.theme.MyGameSizes
@@ -67,12 +49,6 @@ import com.emm.mygame.core.designsystem.theme.MyGameTypography
 const val BLOCKED_LOCK: String = "BLOCKED_LOCK"
 
 const val PILL_CHEVRON: String = "pill_chevron"
-
-val PILL_BADGE: SemanticsPropertyKey<String> = SemanticsPropertyKey("PILL_BADGE")
-
-private var SemanticsPropertyReceiver.pillBadge: String by PILL_BADGE
-
-private const val HALF: Int = 2
 
 private val pillRingReach: Dp = MyGameSpacing.step1 + MyGameStrokeWidths.focus / 2
 
@@ -193,183 +169,6 @@ private fun PillStateLine(state: PillState) {
     )
 }
 
-@Composable
-private fun PillLabel(
-    look: MyGamePillLook,
-    text: MyGamePillText,
-    ink: Color,
-    accessibleName: String?,
-    badge: String?,
-) {
-    val lines: @Composable () -> Unit = {
-        PillLines(
-            look = look,
-            text = text,
-            ink = ink,
-            modifier = if (accessibleName == null) Modifier else Modifier.clearAndSetSemantics { },
-        )
-    }
-    if (badge == null) {
-        lines()
-        return
-    }
-    Layout(contents = listOf(lines, { PillBadge(figure = badge, look = look) }), measurePolicy = LabelAndCount)
-}
-
-@Composable
-private fun PillLines(look: MyGamePillLook, text: MyGamePillText, ink: Color, modifier: Modifier = Modifier) {
-    val caption: MyGameLabel? = text.caption
-    if (caption == null) {
-        PillLabelLine(look = look, text = text, ink = ink, modifier = modifier)
-        return
-    }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        PillLabelLine(look = look, text = text, ink = ink)
-        MyGameText(
-            label = caption,
-            style = MyGameTypography.caption.copy(textAlign = TextAlign.Center),
-            color = MyGameTheme.colors.inkMuted,
-        )
-    }
-}
-
-@Composable
-private fun PillLabelLine(look: MyGamePillLook, text: MyGamePillText, ink: Color, modifier: Modifier = Modifier) {
-    MyGameText(
-        label = text.label,
-        style = look.style.copy(textAlign = TextAlign.Center),
-        color = ink,
-        styledLineOf = text.labelLineOf,
-        modifier = modifier,
-    )
-}
-
-private object LabelAndCount : MultiContentMeasurePolicy {
-
-    override fun MeasureScope.measure(
-        measurables: List<List<Measurable>>,
-        constraints: Constraints,
-    ): MeasureResult {
-        val label: Measurable = measurables[0].single()
-        val disc: Placeable = measurables[1].single().measure(Constraints())
-        val gap: Int = MyGameSpacing.step2.roundToPx()
-        val room: Int = roomBeside(width = constraints.maxWidth, side = disc.width, gap = gap)
-        if (room < label.minIntrinsicWidth(Constraints.Infinity)) return under(label, disc, gap, constraints)
-        return beside(label.measure(Constraints(maxWidth = room)), disc, gap)
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurables: List<List<IntrinsicMeasurable>>,
-        height: Int,
-    ): Int = maxOf(measurables[0].single().minIntrinsicWidth(height), measurables[1].single().minIntrinsicWidth(height))
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurables: List<List<IntrinsicMeasurable>>,
-        height: Int,
-    ): Int = measurables[0].single().maxIntrinsicWidth(height) + MyGameSpacing.step2.roundToPx() +
-        measurables[1].single().maxIntrinsicWidth(height)
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurables: List<List<IntrinsicMeasurable>>,
-        width: Int,
-    ): Int = heightAt(measurables, width) { label: IntrinsicMeasurable, at: Int -> label.minIntrinsicHeight(at) }
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurables: List<List<IntrinsicMeasurable>>,
-        width: Int,
-    ): Int = heightAt(measurables, width) { label: IntrinsicMeasurable, at: Int -> label.maxIntrinsicHeight(at) }
-
-    private fun IntrinsicMeasureScope.heightAt(
-        measurables: List<List<IntrinsicMeasurable>>,
-        width: Int,
-        labelHeightAt: (IntrinsicMeasurable, Int) -> Int,
-    ): Int {
-        val label: IntrinsicMeasurable = measurables[0].single()
-        val side: Int = measurables[1].single().maxIntrinsicWidth(Constraints.Infinity)
-        val gap: Int = MyGameSpacing.step2.roundToPx()
-        val room: Int = roomBeside(width = width, side = side, gap = gap)
-        if (room < label.minIntrinsicWidth(Constraints.Infinity)) return labelHeightAt(label, width) + gap + side
-        return maxOf(labelHeightAt(label, room), side)
-    }
-
-    private fun roomBeside(width: Int, side: Int, gap: Int): Int =
-        if (width == Constraints.Infinity) Constraints.Infinity else width - side - gap
-
-    private fun MeasureScope.beside(text: Placeable, disc: Placeable, gap: Int): MeasureResult {
-        val height: Int = maxOf(text.height, disc.height)
-        return layout(text.width + gap + disc.width, height) {
-            text.place(x = 0, y = (height - text.height) / HALF)
-            disc.place(x = text.width + gap, y = (height - disc.height) / HALF)
-        }
-    }
-
-    private fun MeasureScope.under(
-        label: Measurable,
-        disc: Placeable,
-        gap: Int,
-        constraints: Constraints,
-    ): MeasureResult {
-        val text: Placeable = label.measure(Constraints(maxWidth = constraints.maxWidth))
-        val width: Int = maxOf(text.width, disc.width)
-        return layout(width, text.height + gap + disc.height) {
-            text.place(x = (width - text.width) / HALF, y = 0)
-            disc.place(x = (width - disc.width) / HALF, y = text.height + gap)
-        }
-    }
-}
-
-@Composable
-private fun PillBadge(figure: String, look: MyGamePillLook, modifier: Modifier = Modifier) {
-    MyGameText(
-        text = figure,
-        style = MyGameTypography.label.withTabularFigures(),
-        color = look.badgeInk,
-        modifier = modifier
-            .clearAndSetSemantics { pillBadge = figure }
-            .clip(CircleShape)
-            .background(look.badgeGround)
-            .square()
-            .padding(horizontal = MyGameSpacing.step2),
-    )
-}
-
-private fun Modifier.square(): Modifier = this then SquareElement
-
-private data object SquareElement : ModifierNodeElement<SquareNode>() {
-    override fun create(): SquareNode = SquareNode()
-
-    override fun update(node: SquareNode): Unit = Unit
-}
-
-private class SquareNode : Modifier.Node(), LayoutModifierNode {
-
-    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
-        val content: Placeable = measurable.measure(constraints)
-        val side: Int = maxOf(content.width, content.height)
-        return layout(side, side) {
-            content.place(x = (side - content.width) / HALF, y = (side - content.height) / HALF)
-        }
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
-        squareSideAtWidth(measurable, measurable.minIntrinsicWidth(height))
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
-        squareSideAtWidth(measurable, measurable.maxIntrinsicWidth(height))
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
-        squareSideAtHeight(measurable, measurable.minIntrinsicHeight(width), width)
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
-        squareSideAtHeight(measurable, measurable.maxIntrinsicHeight(width), width)
-
-    private fun squareSideAtWidth(measurable: IntrinsicMeasurable, contentWidth: Int): Int =
-        maxOf(contentWidth, measurable.minIntrinsicHeight(contentWidth))
-
-    private fun squareSideAtHeight(measurable: IntrinsicMeasurable, contentHeight: Int, width: Int): Int =
-        maxOf(contentHeight, measurable.maxIntrinsicWidth(Constraints.Infinity).coerceAtMost(width))
-}
-
 private fun Modifier.pillFocusRing(look: MyGamePillLook, isFocused: Boolean, color: Color): Modifier =
     focusRingAround(
         isFocused = isFocused && look.hasOuterFocusRing,
@@ -395,33 +194,6 @@ private fun Modifier.edge(
     is PillState.Blocked -> dashedFrame(colors.lineStrong)
     is PillState.Working -> border(MyGameStrokeWidths.hairline, colors.lineStrong, shape)
     PillState.Can -> border(look.edgeWidth, look.edge, shape)
-}
-
-internal data class MyGamePillState(
-    val label: String,
-    val isBusy: Boolean,
-    val busyDescription: String,
-    val blockedReason: String?,
-)
-
-internal class MyGamePillStates : PreviewParameterProvider<MyGamePillState> {
-
-    override val values: Sequence<MyGamePillState> = sequenceOf(
-        MyGamePillState(label = "Build the farm", isBusy = false, busyDescription = "Building", blockedReason = null),
-        MyGamePillState(
-            label = "Build the farm",
-            isBusy = false,
-            busyDescription = "Building",
-            blockedReason = "Not enough material",
-        ),
-        MyGamePillState(label = "Build the farm", isBusy = true, busyDescription = "Building", blockedReason = null),
-        MyGamePillState(
-            label = "Study lesson 1 of the school · 2:30",
-            isBusy = false,
-            busyDescription = "Studying",
-            blockedReason = null,
-        ),
-    )
 }
 
 private sealed interface PillState {
