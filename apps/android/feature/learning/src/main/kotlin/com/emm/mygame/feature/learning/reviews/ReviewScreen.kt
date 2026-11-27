@@ -4,12 +4,15 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.heading
@@ -50,12 +53,7 @@ internal fun ReviewScreen(
             .padding(start = MyGameSpacing.step4, end = MyGameSpacing.step4, top = MyGameSpacing.step8)
             .padding(bottom = MyGameSpacing.step8),
     ) {
-        MyGameText(
-            label = chromeResource(R.string.review_title),
-            style = MyGameTypography.display,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        ReviewHeader(dueCount = (state as? ReviewUiState.Reviewing)?.dueCount)
         MyGameSkeleton(
             isLoading = state == ReviewUiState.Loading,
             loadingLabel = chromeResource(R.string.review_loading).spoken,
@@ -113,19 +111,36 @@ private fun Reviewing(
 }
 
 @Composable
+private fun ReviewHeader(dueCount: Int?, modifier: Modifier = Modifier) {
+    FlowRow(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
+        itemVerticalAlignment = Alignment.Bottom,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        MyGameText(
+            label = chromeResource(R.string.review_title),
+            style = MyGameTypography.heading,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { heading() },
+        )
+        dueCount?.let { count: Int ->
+            MyGameText(
+                label = chromeResource(R.string.review_due_count, "count" to count.toString()),
+                style = MyGameTypography.meta,
+                color = MyGameTheme.colors.inkMuted,
+            )
+        }
+    }
+}
+
+@Composable
 private fun ReviewProgress(reviewing: ReviewUiState.Reviewing, modifier: Modifier = Modifier) {
     val done: Int = reviewing.walked + if (reviewing.isRated) 1 else 0
     val filled: Float = done.toFloat() / (reviewing.walked + reviewing.dueCount)
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(R.string.review_due_count, "count" to reviewing.dueCount.toString()),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        MyGameTrack(
-            filled = filled,
-            color = MyGameTheme.colors.action,
-            modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
-        )
-    }
+    MyGameTrack(
+        filled = filled,
+        color = MyGameTheme.colors.ink,
+        modifier = modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
+    )
 }

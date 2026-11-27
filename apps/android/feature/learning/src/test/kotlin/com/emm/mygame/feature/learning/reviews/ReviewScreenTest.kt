@@ -2,13 +2,10 @@ package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -25,7 +22,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -281,21 +277,6 @@ class ReviewScreenTest {
         composeRule.onNodeWithText("escuela").performScrollTo().performClick()
 
         assertEquals(listOf<ReviewIntent>(ReviewIntent.ChoiceChosen(ChoiceId("4e5f6a7b"))), intents)
-    }
-
-    @Test
-    fun `draws the reviews due in the body, right above its track`() {
-        draw(recognizing(chosen = null))
-
-        val inBody: SemanticsMatcher = isPlaced and hasAnyAncestor(hasScrollAction())
-        val count: DpRect = composeRule
-            .onNode(hasText("Por repasar: 5") and inBody, useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
-        val track: DpRect = composeRule
-            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo) and isPlaced)
-            .getUnclippedBoundsInRoot()
-        assertTrue(count.bottom <= track.top)
-        assertTrue(track.top - count.bottom <= MyGameSpacing.step2)
     }
 
     @Test
