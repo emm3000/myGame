@@ -25,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class TownGridScreenTest : TownScreenFixture() {
@@ -72,6 +73,7 @@ class TownGridScreenTest : TownScreenFixture() {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `draws Town's title and the ring on one row`() {
         show(riverton, ring = { MyGameRing(count = 0, total = 5, countBefore = 0, label = tabRingLabel) })
 
@@ -80,6 +82,7 @@ class TownGridScreenTest : TownScreenFixture() {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `sets Town News under Town's title`() {
         show(riverton, ring = { MyGameRing(count = 0, total = 5, countBefore = 0, label = tabRingLabel) })
 
