@@ -19,5 +19,7 @@ fun assertRingOnTitleRow(nodes: SemanticsNodeInteractionsProvider, title: String
     val heading: DpRect = nodes.onNode(isHeading() and hasText(title)).getUnclippedBoundsInRoot()
     val ring: DpRect = nodes.onNode(hasText(TAB_RING_LABEL)).getUnclippedBoundsInRoot()
     assertTrue("the ring sits after the title", ring.left >= heading.right)
-    assertEquals((heading.top + heading.bottom).value, (ring.top + ring.bottom).value, HALF_PIXEL)
+    assertEquals(centerOf(heading), centerOf(ring), HALF_PIXEL)
 }
+
+private fun centerOf(bounds: DpRect): Float = (bounds.top.value + bounds.bottom.value) / 2
