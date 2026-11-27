@@ -22,6 +22,8 @@ internal class TownFollowViewModel(private val towns: TownRepository, private va
 
     private var reading: Job? = null
 
+    private var opening: Job? = null
+
     init {
         viewModelScope.launch {
             towns.town.collect { next: HeldTown? ->
@@ -35,6 +37,7 @@ internal class TownFollowViewModel(private val towns: TownRepository, private va
         when (intent) {
             is TownFollowIntent.ScreenShown -> {
                 isFollowing = intent.isLessonFinishFollowed
+                if (intent.isTownReadOnOpen && held == null) readOnOpen()
                 restart()
             }
             TownFollowIntent.ScreenHidden -> {
@@ -48,6 +51,11 @@ internal class TownFollowViewModel(private val towns: TownRepository, private va
     private fun readAnew() {
         reading?.cancel()
         reading = viewModelScope.launch { towns.readSentAfterNow() }
+    }
+
+    private fun readOnOpen() {
+        if (opening?.isActive == true) return
+        opening = viewModelScope.launch { towns.read() }
     }
 
     private fun readAtFinish() {

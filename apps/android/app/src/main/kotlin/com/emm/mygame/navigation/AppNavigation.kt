@@ -64,7 +64,12 @@ internal fun AppNavigation(
     }
     val shown: NavKey? = backStack.lastOrNull()
     LifecycleStartEffect(follow, shown) {
-        follow.onIntent(TownFollowIntent.ScreenShown(isLessonFinishFollowed = shown.isLessonFinishFollowed()))
+        follow.onIntent(
+            TownFollowIntent.ScreenShown(
+                isLessonFinishFollowed = shown.isLessonFinishFollowed(),
+                isTownReadOnOpen = shown.isTownReadOnOpen(),
+            ),
+        )
         onStopOrDispose { follow.onIntent(TownFollowIntent.ScreenHidden) }
     }
     Column(
@@ -184,5 +189,28 @@ private fun NavKey?.isLessonFinishFollowed(): Boolean = when (this as? Destinati
     Destination.School,
     Destination.Map,
     is Destination.LessonWords,
+    -> false
+}
+
+private fun NavKey?.isTownReadOnOpen(): Boolean = when (this as? Destination) {
+    is Destination.SchoolText,
+    Destination.News,
+    Destination.Placement,
+    is Destination.HoldoutCheck,
+    -> true
+    null,
+    is Destination.SignIn,
+    Destination.SignUp,
+    Destination.ForgotPassword,
+    is Destination.MailedLink,
+    Destination.Naming,
+    Destination.Today,
+    Destination.Town,
+    is Destination.Place,
+    Destination.School,
+    Destination.Map,
+    is Destination.LessonWords,
+    Destination.Review,
+    Destination.Settings,
     -> false
 }
