@@ -54,7 +54,11 @@ internal fun ResetPasswordScreen(
                 ResetPasswordUiState.Changed -> PasswordChanged()
                 ResetPasswordUiState.LinkRefused -> LinkRefused(onForgotPasswordOpen = onForgotPasswordOpen)
             }
-            MyGameTextLink(label = stringResource(R.string.reset_password_to_sign_in), onClick = onSignInOpen)
+            MyGameTextLink(
+                label = stringResource(R.string.reset_password_to_sign_in),
+                onClick = onSignInOpen,
+                isEnabled = state.canSwitchToSignIn,
+            )
         }
     }
 }

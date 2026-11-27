@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
@@ -104,6 +105,33 @@ class ResetPasswordScreenTest {
     }
 
     @Test
+    fun `holds the sign-in link while the new password is sending`() {
+        draw(form(ResetPasswordUiState.FormStatus.Sending))
+
+        signInLink().performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `keeps sign-in closed when its link is tapped while the new password is sending`() {
+        var signInsOpened: Int = 0
+        draw(form(ResetPasswordUiState.FormStatus.Sending), onSignInOpen = { signInsOpened += 1 })
+
+        signInLink().performScrollTo().performClick()
+
+        assertEquals(0, signInsOpened)
+    }
+
+    @Test
+    fun `opens sign-in from the refused link`() {
+        var signInsOpened: Int = 0
+        draw(ResetPasswordUiState.LinkRefused, onSignInOpen = { signInsOpened += 1 })
+
+        signInLink().performScrollTo().assertIsDisplayed().performClick()
+
+        assertEquals(1, signInsOpened)
+    }
+
+    @Test
     fun `replaces the form with the refused link line`() {
         draw(ResetPasswordUiState.LinkRefused)
 
@@ -146,4 +174,7 @@ class ResetPasswordScreenTest {
 
     private fun field(label: String): SemanticsNodeInteraction =
         composeRule.onNode(hasSetTextAction() and hasContentDescription(label))
+
+    private fun signInLink(): SemanticsNodeInteraction =
+        composeRule.onNode(hasClickAction() and hasText("Entra en tu pueblo"))
 }

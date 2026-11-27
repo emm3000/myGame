@@ -2,6 +2,9 @@ package com.emm.mygame.feature.account.password
 
 sealed interface ForgotPasswordUiState {
 
+    val canSwitchToSignIn: Boolean
+        get() = this !is Form || status != FormStatus.Sending
+
     data class Form(val email: String, val status: FormStatus) : ForgotPasswordUiState
 
     data object Sent : ForgotPasswordUiState
