@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class MapCleanUpScreenTest {
@@ -122,19 +123,23 @@ class MapCleanUpScreenTest {
     }
 
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     @Config(qualifiers = "es-w360dp-h640dp", fontScale = 2.0f)
-    fun `keeps a waste site's send button beside its status line at the largest font on a small phone`() {
+    fun `gives a waste site's status at least the send button's width at the largest font on a small phone`() {
         show(contentOf())
 
-        val status: DpRect = composeRule
-            .onNodeWithText("Sitio con residuos · Tamaño 2 · Residuos: 12", useUnmergedTree = true)
+        val lines: DpRect = composeRule
+            .onNode(hasText("Sitio 5") and hasText("Sitio con residuos · Tamaño 2 · Residuos: 12"))
             .performScrollTo()
             .getUnclippedBoundsInRoot()
         val button: DpRect =
             composeRule.onNodeWithContentDescription("Enviar un equipo al sitio 5").getUnclippedBoundsInRoot()
 
-        assertTrue("button right of the status", button.left >= status.right)
-        assertTrue("status keeps a readable width", status.right - status.left >= (button.right - button.left) / 2)
+        assertTrue("button right of the status", button.left >= lines.right)
+        assertTrue(
+            "status ${lines.right - lines.left} as wide as the button ${button.right - button.left}",
+            lines.right - lines.left >= button.right - button.left,
+        )
     }
 
     @Test
