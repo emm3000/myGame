@@ -7,7 +7,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
@@ -42,7 +42,7 @@ fun PlacementOfferRow(state: PlacementOfferUiState, onPlacementOpen: () -> Unit,
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        MyGameNavRow(title = fixedLabel(link), onClick = onPlacementOpen)
+        MyGameOutlinedDoor(label = fixedLabel(link), onClick = onPlacementOpen)
     }
 }
 

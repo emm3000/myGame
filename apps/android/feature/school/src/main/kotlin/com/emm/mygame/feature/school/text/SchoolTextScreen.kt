@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
@@ -110,8 +110,8 @@ private fun TextReading(
 
 @Composable
 private fun LessonsLink(onSchoolOpen: () -> Unit, modifier: Modifier = Modifier) {
-    MyGameNavRow(
-        title = chromeResource(R.string.school_go_to_lessons),
+    MyGameOutlinedDoor(
+        label = chromeResource(R.string.school_go_to_lessons),
         onClick = onSchoolOpen,
         modifier = modifier,
     )

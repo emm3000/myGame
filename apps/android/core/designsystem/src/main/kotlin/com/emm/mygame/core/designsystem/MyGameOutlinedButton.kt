@@ -67,6 +67,7 @@ internal fun outlinedPillLook(colors: MyGameColors, height: Dp): MyGamePillLook 
     badgeGround = colors.action,
     badgeInk = colors.onAction,
     hasOuterFocusRing = true,
+    hasForwardChevron = false,
 )
 
 @PreviewMyGame

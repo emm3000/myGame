@@ -16,7 +16,7 @@ import androidx.compose.ui.text.AnnotatedString
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.placement.PlacementBand
-import com.emm.mygame.core.uitesting.navRowOf
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -51,10 +51,10 @@ class HoldoutCheckRowsTest {
     }
 
     @Test
-    fun `opens the check from its nav row`() {
+    fun `opens the check from its outlined door`() {
         showing(HoldoutCheckRowsUiState(listOf(secondBandEighthWeek)))
 
-        composeRule.onNode(navRowOf("Abrir la prueba"), useUnmergedTree = true).performClick()
+        composeRule.onNode(outlinedDoorOf("Abrir la prueba"), useUnmergedTree = true).performClick()
 
         assertEquals(listOf(secondBandEighthWeek), opened)
     }
@@ -67,7 +67,7 @@ class HoldoutCheckRowsTest {
             ),
         )
 
-        composeRule.onAllNodes(navRowOf("Abrir la prueba"), useUnmergedTree = true).assertCountEquals(2)
+        composeRule.onAllNodes(outlinedDoorOf("Abrir la prueba"), useUnmergedTree = true).assertCountEquals(2)
     }
 
     @Test

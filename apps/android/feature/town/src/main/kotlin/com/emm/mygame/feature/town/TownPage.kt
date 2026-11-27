@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import com.emm.mygame.core.designsystem.MyGameBlock
 import com.emm.mygame.core.designsystem.MyGameBlockHue
 import com.emm.mygame.core.designsystem.MyGameHairline
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGamePlacePage
 import com.emm.mygame.core.designsystem.MyGamePlaceWords
 import com.emm.mygame.core.designsystem.MyGameSpacing
@@ -114,12 +114,12 @@ private fun PlaceOwnParts(
 ) {
     when (place) {
         TownBuildingKind.School -> {
-            MyGameNavRow(title = chromeResource(R.string.town_go_to_lessons), onClick = onSchoolOpen)
+            MyGameOutlinedDoor(label = chromeResource(R.string.town_go_to_lessons), onClick = onSchoolOpen)
         }
         TownBuildingKind.Office -> {
             HiringSection(hiring = content.hiring, onIntent = onIntent)
             MyGameHairline()
-            MyGameNavRow(title = chromeResource(R.string.town_map_link), onClick = onMapOpen)
+            MyGameOutlinedDoor(label = chromeResource(R.string.town_map_link), onClick = onMapOpen)
         }
         TownBuildingKind.Homes, TownBuildingKind.Farm, TownBuildingKind.Factory, TownBuildingKind.PowerStation,
         TownBuildingKind.Storage,

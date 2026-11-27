@@ -5,7 +5,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.model.town.building.TownBuildingKind
-import com.emm.mygame.core.uitesting.navRowOf
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,10 +15,12 @@ import org.robolectric.RobolectricTestRunner
 class TownSchoolPageScreenTest : TownScreenFixture() {
 
     @Test
-    fun `opens your lessons from the school page's nav row`() {
+    fun `opens your lessons from the school page's outlined door`() {
         show(riverton, place = TownBuildingKind.School)
 
-        composeRule.onNode(navRowOf("Ir a tus lecciones"), useUnmergedTree = true).performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("Ir a tus lecciones"), useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
 
         assertEquals(1, schoolOpens)
     }

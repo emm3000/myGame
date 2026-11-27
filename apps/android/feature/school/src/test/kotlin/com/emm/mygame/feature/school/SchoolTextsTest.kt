@@ -7,7 +7,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
@@ -15,6 +14,7 @@ import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownSnapshot
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -52,7 +52,7 @@ class SchoolTextsTest {
     fun `opens the text the player taps`() {
         showSchoolOf(townOf(texts = listOf(newerText, olderText)))
 
-        composeRule.onNodeWithText("A New Course").performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("A New Course"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(listOf(TextId("text-1")), textOpens)
     }

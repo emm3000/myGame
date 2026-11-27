@@ -26,6 +26,7 @@ import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport
 import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.core.ui.ReadingSpan
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -97,12 +98,12 @@ class TodayKeepGoingScreenTest {
     }
 
     @Test
-    fun `the newest open text is offered under Read more as a row that opens it`() {
+    fun `the newest open text is offered under Read more as an outlined door that opens it`() {
         val opened: MutableList<TextId> = mutableListOf()
         show(contentWith(TodayUiState.KeepGoing.Text(TextId("text-1"), "A New Course")), onTextOpen = opened::add)
 
         composeRule.onNodeWithText(READ_MORE).performScrollTo()
-        composeRule.onNodeWithText("A New Course").performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf("A New Course"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(listOf(TextId("text-1")), opened)
     }

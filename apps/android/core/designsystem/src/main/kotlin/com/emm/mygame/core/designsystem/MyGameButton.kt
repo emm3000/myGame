@@ -65,6 +65,7 @@ internal fun goPillLook(colors: MyGameColors): MyGamePillLook = MyGamePillLook(
     badgeGround = colors.onGo,
     badgeInk = colors.go,
     hasOuterFocusRing = true,
+    hasForwardChevron = false,
 )
 
 @PreviewMyGame

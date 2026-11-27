@@ -1,5 +1,5 @@
 ---
-status: accepted, the dock's door, its countdown, its line and its folded door together amended by ADR 051, the go's place, one go per screen and the busy button's look by ADR 057
+status: accepted, the dock's door, its countdown, its line and its folded door together amended by ADR 051, the go's place, one go per screen and the busy button's look by ADR 057, the door's cue by #2122
 date: 2026-11-18
 ---
 # Tappable roles and the type hierarchy on Android
@@ -73,7 +73,7 @@ role has one cue that is a shape. A grayscale screenshot keeps every cue.
 |---|---|---|
 | **Go** | It is the screen's one way on. | The **solid fill**: `go` ground, `on-go` label in `button`, height `action` (60), in the dock. A screen without a dock (the signed-out forms, the town's naming) draws it in flow. |
 | **Local action** | The tap changes something and the control stays under the finger. It sends (*Build*, *Send*), it picks (a choice, a tab, a switch), or it takes text (a field). | The **closed outline**, radius `md`, no fill. |
-| **Door** | The tap takes the view somewhere else and changes nothing: another screen, or another lesson at the top of the school. | The **chevron**: a forward chevron at the end of a way in, a back chevron at the start of the way home. No outline. |
+| **Door** | The tap takes the view somewhere else and changes nothing: another screen, or another lesson at the top of the school. | The **chevron**: a way in draws the local action's closed `ink` outline with its centered `label` and a trailing forward chevron, `MyGameOutlinedDoor`, with an optional `caption` line inside the outline; a back chevron at the start of the way home. A list's rows (the school's lessons, Today's running work) stay `MyGameNavRow`. |
 | **Link** | It is the quiet control set in or after a line of text, and the screen works without it: try again, send again, close a tip, sign out, the other form, the phone's settings. | The **underline**. No frame, no chevron. |
 | **Static container** | It is not tappable. | **No closed frame**: a fill, a hairline above or below, or neither. Never a chevron, never an underline. |
 
@@ -167,7 +167,7 @@ The 18 call sites of `MyGameOutlinedButton`:
 | `town/TownStatus.kt:104` (the finish notice's *Close*) | local action | stays |
 | `school/LessonRows.kt:136` (a released lesson's study) | local action | stays |
 | `school/ShownLesson.kt:92` (`StudyAction`) | local action | stays for a selected lesson that is not the step's; not drawn for the step's lesson (*One action, one control*) |
-| `school/ShownLesson.kt:120` (`ReadWordsPill`) | door | `MyGameNavRow` |
+| `school/ShownLesson.kt:120` (`ReadWordsPill`) | door | `MyGameOutlinedDoor` (#2122) |
 | `town/TownStatus.kt:95` (the finish notice's *Read the words* or *Start the reviews*) | door | `MyGameNavRow`; not drawn when the dock's go opens the same screen |
 | `town/TownDock.kt:66` (the folded dock's door) | door | `MyGameNavRow` with the door's chevron |
 

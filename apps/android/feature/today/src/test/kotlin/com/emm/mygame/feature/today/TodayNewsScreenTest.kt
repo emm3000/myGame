@@ -20,6 +20,7 @@ import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.news.TownNews
 import com.emm.mygame.core.projection.town.building.StartStatus
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import com.emm.mygame.core.uitesting.textStyleOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -68,7 +69,7 @@ class TodayNewsScreenTest {
     fun `What happened links to all the news`() {
         show(contentWith(events = listOf(TodayUiState.NewsEvent.Plain(jobBack))))
 
-        composeRule.onNodeWithText(ALL_THE_NEWS).performScrollTo().performClick()
+        composeRule.onNode(outlinedDoorOf(ALL_THE_NEWS), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, newsOpened)
     }

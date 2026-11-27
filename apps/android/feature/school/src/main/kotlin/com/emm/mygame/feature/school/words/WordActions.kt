@@ -2,7 +2,7 @@ package com.emm.mygame.feature.school.words
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameNavRow
+import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -18,7 +18,7 @@ internal fun WordActions(
     val wayOn: LessonWordsUiState.WayOn? = reading.wayOn
     when {
         !reading.isLastWord -> wayOn?.let { shown: LessonWordsUiState.WayOn ->
-            MyGameNavRow(title = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
+            MyGameOutlinedDoor(label = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
         }
         reading.isWaitingForLessonEnd -> MyGameText(
             label = chromeResource(R.string.school_lesson_word_then),

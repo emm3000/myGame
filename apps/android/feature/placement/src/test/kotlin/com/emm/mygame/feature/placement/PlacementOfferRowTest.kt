@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameColors
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.uitesting.navRowOf
+import com.emm.mygame.core.uitesting.outlinedDoorOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -53,28 +53,28 @@ class PlacementOfferRowTest {
     }
 
     @Test
-    fun `opens the offered placement from its nav row`() {
+    fun `opens the offered placement from its outlined door`() {
         showing(PlacementOfferUiState.Offered)
 
-        composeRule.onNode(navRowOf("Hacer la prueba de nivel"), useUnmergedTree = true).performClick()
+        composeRule.onNode(outlinedDoorOf("Hacer la prueba de nivel"), useUnmergedTree = true).performClick()
 
         assertEquals(1, placementOpens)
     }
 
     @Test
-    fun `offers to go on with a band being asked from its nav row`() {
+    fun `offers to go on with a band being asked from its outlined door`() {
         showing(PlacementOfferUiState.Asking)
 
-        composeRule.onNode(navRowOf("Seguir con la prueba de nivel"), useUnmergedTree = true).performClick()
+        composeRule.onNode(outlinedDoorOf("Seguir con la prueba de nivel"), useUnmergedTree = true).performClick()
 
         assertEquals(1, placementOpens)
     }
 
     @Test
-    fun `draws no hairline above its nav row, only the row's own`() {
+    fun `draws no hairline inside its sunken fill`() {
         showing(PlacementOfferUiState.Offered)
 
-        composeRule.onAllNodesWithTag(HAIRLINE, useUnmergedTree = true).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(HAIRLINE, useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
