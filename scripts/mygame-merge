@@ -26,6 +26,10 @@ case $pr in '' | 0* | *[!0-9]*) usage ;; esac
 [[ $session =~ ^[[:lower:][:digit:]][[:lower:][:digit:]-]*$ ]] || usage
 [ "$session" != orch ] || { echo "orch is the orchestrator, never a peer" >&2; exit 64; }
 [[ $model =~ ^(haiku|sonnet|opus|fable):(low|medium|high|xhigh|max)$ ]] || usage
+if [ "$no_close" -eq 1 ] && [ "$model" != sonnet:low ]; then
+  echo "--no-close is only for row 1 (sonnet:low) tickets; the $model peer closes on merge" >&2
+  exit 2
+fi
 case $rounds in '' | 0* | *[!0-9]*) usage ;; esac
 case $review in
   merge) verdict=MERGE cause='' ;;

@@ -227,9 +227,25 @@ keep_emulator_reaches_the_close() {
 no_close_merges_and_logs_but_leaves_the_peer_running() {
   build_a_log_with_recent_rows noclose 3
   local output
-  output=$(with_stubs scripts/mygame-merge --no-close 600 probe opus:high merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
+  output=$(with_stubs scripts/mygame-merge --no-close 600 probe sonnet:low merge 1) || fail "${FUNCNAME[0]}" "$output" || return 1
   [ "$(<"$case_dir/state/merged")" = 600 ] || fail "${FUNCNAME[0]}" "merged $(<"$case_dir/state/merged")" || return 1
-  [ "$(tail -n 1 "$log")" = "| #600 | opus:high | MERGE |  | 1 | +12/-3 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")" || return 1
+  [ "$(tail -n 1 "$log")" = "| #600 | sonnet:low | MERGE |  | 1 | +12/-3 |" ] || fail "${FUNCNAME[0]}" "last row $(tail -n 1 "$log")" || return 1
+  [ ! -s "$case_dir/state/closed" ] || fail "${FUNCNAME[0]}" "closed $(<"$case_dir/state/closed")"
+}
+
+no_close_refuses_a_ticket_outside_row_1_before_merging_or_logging() {
+  build_a_log_with_recent_rows noclosebig 3
+  local before flags status output
+  before=$(<"$log")
+  for flags in --no-close "--dry-run --no-close"; do
+    status=0
+    read -r -a words <<<"$flags"
+    output=$(with_stubs scripts/mygame-merge "${words[@]}" 600 probe opus:high merge 1) || status=$?
+    [ "$status" -eq 2 ] || fail "${FUNCNAME[0]}" "'$flags' exit $status: $output" || return 1
+    [ "$output" = "--no-close is only for row 1 (sonnet:low) tickets; the opus:high peer closes on merge" ] || fail "${FUNCNAME[0]}" "$output" || return 1
+    [ "$(<"$log")" = "$before" ] || fail "${FUNCNAME[0]}" "'$flags' changed the log" || return 1
+  done
+  [ ! -s "$case_dir/state/merged" ] || fail "${FUNCNAME[0]}" "merged $(<"$case_dir/state/merged")" || return 1
   [ ! -s "$case_dir/state/closed" ] || fail "${FUNCNAME[0]}" "closed $(<"$case_dir/state/closed")"
 }
 
@@ -292,6 +308,7 @@ run a_log_with_an_empty_recent_table_takes_its_first_row
 run merging_merges_then_logs_then_closes_the_peer
 run keep_emulator_reaches_the_close
 run no_close_merges_and_logs_but_leaves_the_peer_running
+run no_close_refuses_a_ticket_outside_row_1_before_merging_or_logging
 run refuses_a_checkout_without_a_dispatch_log
 run a_failed_merge_logs_nothing_and_closes_nothing
 run the_twenty_first_row_folds_the_oldest_into_its_model_summary
