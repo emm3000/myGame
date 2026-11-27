@@ -46,7 +46,7 @@ class SettingsViewModel(
     }
 
     fun onIntent(intent: SettingsIntent) {
-        if (_state.value == SettingsUiState.SigningOut) return
+        if (_state.value is SettingsUiState.SigningOut) return
         when (intent) {
             is SettingsIntent.ScaffoldPicked -> change(intent.scaffold)
             SettingsIntent.RetryTapped -> retry()
@@ -69,7 +69,7 @@ class SettingsViewModel(
 
     private fun signOut() {
         viewModelScope.coroutineContext.cancelChildren()
-        _state.value = SettingsUiState.SigningOut
+        _state.value = SettingsUiState.SigningOut(kept = _state.value as? SettingsUiState.Loaded)
         viewModelScope.launch {
             _effects.send(SettingsEffect.SigningOut)
             sessions.signOut()
