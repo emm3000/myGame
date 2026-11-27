@@ -5,29 +5,28 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.shell.FrameKind
 import com.emm.mygame.feature.shell.bar.Tab
 import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute
 
-internal fun EntryProviderScope<NavKey>.townEntry(chrome: SignedInChrome) {
-    entry<Destination.Town> { TownHome(chrome = chrome) }
+internal fun EntryProviderScope<NavKey>.townEntry(dependencies: AppDependencies, navigator: Navigator) {
+    entry<Destination.Town> { TownHome(dependencies = dependencies, navigator = navigator) }
 }
 
-internal fun EntryProviderScope<NavKey>.namingEntry(chrome: SignedInChrome) {
-    entry<Destination.Naming> { TownHome(chrome = chrome) }
+internal fun EntryProviderScope<NavKey>.namingEntry(dependencies: AppDependencies, navigator: Navigator) {
+    entry<Destination.Naming> { TownHome(dependencies = dependencies, navigator = navigator) }
 }
 
-internal fun EntryProviderScope<NavKey>.placeEntry(chrome: SignedInChrome) {
+internal fun EntryProviderScope<NavKey>.placeEntry(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.Place> { shown: Destination.Place ->
-        SignedInFrame(kind = FrameKind.Place, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Place, dependencies = dependencies, navigator = navigator) {
             TownRoute(
-                towns = chrome.dependencies.towns,
-                clock = chrome.dependencies.clock,
-                navigation = townNavigationOf(chrome.navigator),
+                towns = dependencies.towns,
+                clock = dependencies.clock,
+                navigation = townNavigationOf(navigator),
                 place = shown.building,
             )
         }
@@ -35,13 +34,12 @@ internal fun EntryProviderScope<NavKey>.placeEntry(chrome: SignedInChrome) {
 }
 
 @Composable
-private fun TownHome(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
-    SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
+private fun TownHome(dependencies: AppDependencies, navigator: Navigator) {
+    SignedInFrame(kind = FrameKind.Home, dependencies = dependencies, navigator = navigator) {
         TownRoute(
             towns = dependencies.towns,
             clock = dependencies.clock,
-            navigation = townNavigationOf(chrome.navigator),
+            navigation = townNavigationOf(navigator),
             place = null,
             ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
         )

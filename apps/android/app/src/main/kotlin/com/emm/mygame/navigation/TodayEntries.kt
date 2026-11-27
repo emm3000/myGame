@@ -4,22 +4,19 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.feature.placement.PlacementOfferRoute
+import com.emm.mygame.feature.shell.FrameKind
 import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 import com.emm.mygame.feature.today.TodayNavigation
 import com.emm.mygame.feature.today.TodayRoute
 
-internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
+internal fun EntryProviderScope<NavKey>.todayEntry(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.Today> {
-        SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Home, dependencies = dependencies, navigator = navigator) {
             TodayRoute(
                 towns = dependencies.towns,
                 reports = dependencies.reports,

@@ -7,8 +7,6 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.account.password.ForgotPasswordRoute
 import com.emm.mygame.feature.account.password.ResetPasswordRoute
 import com.emm.mygame.feature.account.settings.SettingsNavigation
@@ -17,6 +15,7 @@ import com.emm.mygame.feature.account.settings.SettingsSources
 import com.emm.mygame.feature.account.signin.SignInRoute
 import com.emm.mygame.feature.account.signup.SignUpRoute
 import com.emm.mygame.feature.account.verification.VerifyEmailRoute
+import com.emm.mygame.feature.shell.FrameKind
 import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 import com.emm.mygame.openNotificationSettings
 import com.emm.mygame.rememberNotificationAsk
@@ -61,11 +60,9 @@ internal fun EntryProviderScope<NavKey>.signedOutEntries(dependencies: AppDepend
     }
 }
 
-internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
-    val navigator: Navigator = chrome.navigator
+internal fun EntryProviderScope<NavKey>.settingsEntry(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.Settings> {
-        SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Home, dependencies = dependencies, navigator = navigator) {
             val context: Context = LocalContext.current
             SettingsRoute(
                 sources = SettingsSources(

@@ -4,21 +4,24 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.FrameKind
-import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.placement.PlacementRoute
+import com.emm.mygame.feature.shell.FrameKind
 
-internal fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
-    val dependencies: AppDependencies = chrome.dependencies
+internal fun EntryProviderScope<NavKey>.placementEntry(
+    dependencies: AppDependencies,
+    navigator: Navigator,
+    onTaskAnswer: () -> Unit,
+) {
     entry<Destination.Placement> {
         SignedInFrame(
             kind = FrameKind.Task,
-            chrome = chrome,
+            dependencies = dependencies,
+            navigator = navigator,
         ) {
             PlacementRoute(
                 placements = dependencies.placements,
-                onEnd = chrome.onTaskAnswered,
-                onDone = chrome.navigator::back,
+                onEnd = onTaskAnswer,
+                onDone = navigator::back,
             )
         }
     }
