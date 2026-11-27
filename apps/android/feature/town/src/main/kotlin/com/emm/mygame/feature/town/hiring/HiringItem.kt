@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,8 +15,10 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.emm.mygame.core.designsystem.BLOCKED_LOCK
 import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
@@ -26,6 +29,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextField
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.dashedFrame
 import com.emm.mygame.core.designsystem.formatQuantity
 import com.emm.mygame.core.designsystem.withTabularFigures
 import com.emm.mygame.core.model.town.hiring.TownHireKind
@@ -69,12 +73,9 @@ internal fun HiringItem(
                 color = MyGameTheme.colors.inkMuted,
             )
         }
-        MyGameText(
-            label = chromeResource(R.string.town_office_needs_level, "level" to card.requiredOfficeLevel.toString()),
-            style = MyGameTypography.caption,
-            color = if (form == null) MyGameTheme.colors.warningInk else MyGameTheme.colors.inkMuted,
-        )
-        if (form != null) {
+        if (form == null) {
+            LockedHire(requiredOfficeLevel = card.requiredOfficeLevel)
+        } else {
             HiringOrderForm(
                 kind = card.kind,
                 form = form,
@@ -84,6 +85,30 @@ internal fun HiringItem(
             )
         }
         HiringAnswer(kind = card.kind, place = place)
+    }
+}
+
+@Composable
+private fun LockedHire(requiredOfficeLevel: Int, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        modifier = modifier
+            .fillMaxWidth()
+            .dashedFrame(MyGameTheme.colors.lineStrong)
+            .padding(MyGameSpacing.step3),
+    ) {
+        MyGameIcon(
+            icon = MyGameIcons.lock,
+            tint = MyGameTheme.colors.ink,
+            modifier = Modifier.semantics { testTag = BLOCKED_LOCK },
+        )
+        MyGameText(
+            label = chromeResource(R.string.town_office_needs_level, "level" to requiredOfficeLevel.toString()),
+            style = MyGameTypography.caption,
+            color = MyGameTheme.colors.ink,
+            modifier = Modifier.weight(1f),
+        )
     }
 }
 

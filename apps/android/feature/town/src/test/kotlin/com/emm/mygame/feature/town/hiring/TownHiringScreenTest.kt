@@ -13,6 +13,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.BLOCKED_LOCK
 import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownLabel
@@ -153,6 +155,25 @@ class TownHiringScreenTest {
         show(hiring)
 
         composeRule.onNodeWithText("Necesita la oficina en nivel 3").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws no office level the office already meets`() {
+        show(hiring)
+
+        composeRule.onNodeWithText("Necesita la oficina en nivel 1", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `draws the office level a locked kind needs beside the lock`() {
+        show(hiring)
+
+        composeRule
+            .onNode(
+                hasTestTag(BLOCKED_LOCK) and hasAnySibling(hasText("Necesita la oficina en nivel 3")),
+                useUnmergedTree = true,
+            )
+            .assertExists()
     }
 
     @Test

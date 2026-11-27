@@ -32,6 +32,13 @@ class HiringSectionScreenTest : TownScreenFixture() {
     }
 
     @Test
+    fun `names the office once on the office's page`() {
+        show(riverton, place = TownBuildingKind.Office)
+
+        composeRule.onAllNodesWithText(OFFICE, useUnmergedTree = true).assertCountEquals(1)
+    }
+
+    @Test
     fun `opens the map from the office page's nav row`() {
         show(riverton, place = TownBuildingKind.Office)
 
@@ -41,6 +48,7 @@ class HiringSectionScreenTest : TownScreenFixture() {
     }
 
     private companion object {
+        const val OFFICE: String = "Oficina"
         const val OFFICE_IDLE: String = "Ahora no hay ninguna contratación."
     }
 }
