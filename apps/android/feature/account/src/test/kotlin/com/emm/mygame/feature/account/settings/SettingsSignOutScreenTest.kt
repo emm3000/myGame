@@ -2,13 +2,17 @@ package com.emm.mygame.feature.account.settings
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -32,6 +36,9 @@ private const val SIGN_OUT: String = "Salir"
 private const val REMINDER_TITLE: String = "Recordatorio de estudio"
 private const val HELP_LANGUAGE: String = "Idioma de ayuda"
 private const val WAITING: String = "Esperando"
+private const val SPANISH: String = "Español"
+private const val NONE: String = "Ninguno"
+private const val REMINDER_OFFER: String = "Activa un recordatorio de estudio"
 
 @RunWith(RobolectricTestRunner::class)
 class SettingsSignOutScreenTest {
@@ -44,6 +51,8 @@ class SettingsSignOutScreenTest {
     private val loaded: SettingsUiState.Loaded =
         SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder)
 
+    private val offered: SettingsUiState.Loaded = loaded.copy(reminder = firstReminder.copy(isOffered = true))
+
     private fun draw(state: SettingsUiState) {
         composeRule.setContent {
             MyGameTheme {
@@ -51,6 +60,15 @@ class SettingsSignOutScreenTest {
             }
         }
     }
+
+    private fun radioOf(label: String): SemanticsNodeInteraction =
+        composeRule.onNode(hasText(label, substring = true) and isSelectable()).performScrollTo()
+
+    private fun reminderSwitch(): SemanticsNodeInteraction =
+        composeRule.onNode(hasText(REMINDER_TITLE, substring = true) and isToggleable()).performScrollTo()
+
+    private fun reminderOffer(): SemanticsNodeInteraction =
+        composeRule.onNode(hasText(REMINDER_OFFER) and hasClickAction()).performScrollTo()
 
     private fun unclippedTopOf(text: String): Dp =
         composeRule.onNodeWithText(text, substring = true).getUnclippedBoundsInRoot().top
@@ -123,6 +141,50 @@ class SettingsSignOutScreenTest {
 
         composeRule.onNodeWithText(HELP_LANGUAGE, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText(REMINDER_TITLE, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws both Help language radios disabled while signing out`() {
+        draw(SettingsUiState.SigningOut(kept = loaded))
+
+        radioOf(SPANISH).assertIsNotEnabled()
+        radioOf(NONE).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `draws the reminder switch disabled while signing out`() {
+        draw(SettingsUiState.SigningOut(kept = loaded))
+
+        reminderSwitch().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `draws the reminder offer disabled while signing out`() {
+        draw(SettingsUiState.SigningOut(kept = offered))
+
+        reminderOffer().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `draws both Help language radios enabled on loaded settings`() {
+        draw(loaded)
+
+        radioOf(SPANISH).assertIsEnabled()
+        radioOf(NONE).assertIsEnabled()
+    }
+
+    @Test
+    fun `draws the reminder switch enabled on loaded settings`() {
+        draw(loaded)
+
+        reminderSwitch().assertIsEnabled()
+    }
+
+    @Test
+    fun `draws the reminder offer enabled on loaded settings`() {
+        draw(offered)
+
+        reminderOffer().assertIsEnabled()
     }
 
     @Test
