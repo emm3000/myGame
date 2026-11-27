@@ -35,7 +35,7 @@ class MyGameTabHeaderTest {
         val title: DpRect = boundsOf(TITLE)
         val ring: DpRect = boundsOf(RING_NAME)
         assertEquals(360f, ring.right.value, HALF_PIXEL)
-        assertEquals((title.top + title.bottom).value, (ring.top + ring.bottom).value, HALF_PIXEL)
+        assertEquals(centerOf(title), centerOf(ring), HALF_PIXEL)
     }
 
     @Test
@@ -102,6 +102,8 @@ class MyGameTabHeaderTest {
             }
         }
     }
+
+    private fun centerOf(bounds: DpRect): Float = (bounds.top.value + bounds.bottom.value) / 2
 
     private fun boundsOf(text: String): DpRect = composeRule.onNodeWithText(text).getUnclippedBoundsInRoot()
 
