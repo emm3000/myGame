@@ -67,7 +67,7 @@ private fun FirstCardHeading(line: MyGameLabel, countdown: MyGameLabel?, modifie
         horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
         verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step1),
         itemVerticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.semantics { heading() },
+        modifier = modifier.semantics(mergeDescendants = true) { heading() },
     ) {
         MyGameWorkingDots(tint = MyGameTheme.colors.ink)
         MyGameText(label = line, style = MyGameTypography.title, color = MyGameTheme.colors.ink)

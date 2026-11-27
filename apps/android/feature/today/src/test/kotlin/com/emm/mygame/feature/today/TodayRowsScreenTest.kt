@@ -88,11 +88,21 @@ class TodayRowsScreenTest {
     }
 
     @Test
+    fun `the running lesson's heading is one node holding its line and countdown`() {
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
+
+        composeRule.onNode(isHeading() and hasText(LESSON_ONE_READY_IN) and hasText(EIGHT_MINUTES))
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun `the running lesson's line and countdown share one line where they fit`() {
         show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
 
-        val line: DpRect = composeRule.onNodeWithText(LESSON_ONE_READY_IN).getUnclippedBoundsInRoot()
-        val countdown: DpRect = composeRule.onNodeWithText(EIGHT_MINUTES).getUnclippedBoundsInRoot()
+        val line: DpRect = composeRule.onNodeWithText(LESSON_ONE_READY_IN, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val countdown: DpRect = composeRule.onNodeWithText(EIGHT_MINUTES, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
 
         assertEquals(line.top, countdown.top)
     }
