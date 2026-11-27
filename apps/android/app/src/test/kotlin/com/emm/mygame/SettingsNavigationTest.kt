@@ -5,9 +5,9 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -159,8 +159,8 @@ class SettingsNavigationTest {
         composeRule.onNodeWithText(NONE_OPTION_IN_SPANISH).performScrollTo().performClick()
         waitForLine("Guardando…")
 
-        composeRule.onAllNodesWithText("Ajustes").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
+        composeRule.onAllNodes(hasText("Yo") and isHeading()).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("Me") and isHeading()).assertCountEquals(0)
     }
 
     @Test
@@ -172,8 +172,8 @@ class SettingsNavigationTest {
         sessions.answerScaffoldChange(ScaffoldChangeResult.Changed(playerWith(PlayerScaffold.None)))
 
         waitForLine("Saved.")
-        composeRule.onAllNodesWithText("Settings").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Ajustes").assertCountEquals(0)
+        composeRule.onAllNodes(hasText("Me") and isHeading()).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("Yo") and isHeading()).assertCountEquals(0)
         composeRule.onAllNodes(hasContentDescription("Town") and hasClickAction()).assertCountEquals(1)
     }
 
