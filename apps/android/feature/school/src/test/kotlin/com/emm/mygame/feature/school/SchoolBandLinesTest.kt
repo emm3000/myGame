@@ -27,7 +27,7 @@ class SchoolBandLinesTest {
             town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = null)
         composeRule.setContent {
             MyGameTheme {
-                SchoolScreen(state = content, onIntent = {}, onLessonOpen = {}, onTextOpen = {})
+                SchoolScreen(state = content, onIntent = {}, onLessonOpen = {}, onTextOpen = {}, onReviewsOpen = {})
             }
         }
     }

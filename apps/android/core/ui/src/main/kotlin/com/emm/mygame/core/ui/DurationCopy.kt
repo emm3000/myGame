@@ -51,5 +51,12 @@ fun CopyReader.finishLabelOf(remaining: Duration, finishesAt: Instant, copy: Dur
     return text(copy.finishWithClock, "timeLeft" to timeLeft, "clock" to finishClockLabelOf(finish, copy))
 }
 
+fun CopyReader.titledFinishLabelOf(
+    @StringRes title: Int,
+    remaining: Duration,
+    finishesAt: Instant,
+    copy: DurationCopy,
+): String = "${text(title)} ${finishLabelOf(remaining, finishesAt, copy)}"
+
 fun CopyReader.finishClockLabelOf(finish: FinishClock, copy: DurationCopy): String =
     clockLabelOf(finish, tomorrow = copy.finishTomorrow, later = copy.finishDay)

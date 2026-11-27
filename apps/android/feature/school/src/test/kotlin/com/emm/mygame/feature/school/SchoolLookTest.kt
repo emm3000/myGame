@@ -125,6 +125,7 @@ class SchoolLookTest {
         stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
+        reviews = null,
     )
 
     private val secondWhileFirstRuns: SchoolUiState.Content = idleSchool.copy(
@@ -401,6 +402,7 @@ class SchoolLookTest {
                     onIntent = { },
                     onLessonOpen = { },
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }
@@ -522,6 +524,7 @@ class SchoolLookTest {
                     onIntent = { },
                     onLessonOpen = { },
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }
@@ -546,6 +549,7 @@ class SchoolLookTest {
                     onIntent = { },
                     onLessonOpen = { },
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }
@@ -567,6 +571,7 @@ class SchoolLookTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }

@@ -59,6 +59,7 @@ class LearnRowsTest {
         stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
+        reviews = null,
     )
 
     private fun show(state: SchoolUiState, placement: @Composable () -> Unit = {}) {
@@ -69,6 +70,7 @@ class LearnRowsTest {
                     onIntent = {},
                     onLessonOpen = {},
                     onTextOpen = {},
+                    onReviewsOpen = {},
                     placement = placement,
                 )
             }

@@ -71,6 +71,7 @@ class SchoolStepLessonTest {
         stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
+        reviews = null,
     )
 
     private fun show(state: SchoolUiState) {
@@ -81,6 +82,7 @@ class SchoolStepLessonTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = {},
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }

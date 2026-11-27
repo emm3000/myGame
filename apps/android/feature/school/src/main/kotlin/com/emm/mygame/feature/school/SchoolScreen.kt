@@ -34,6 +34,7 @@ internal fun SchoolScreen(
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onTextOpen: (TextId) -> Unit,
+    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
@@ -67,6 +68,7 @@ internal fun SchoolScreen(
                 onIntent = onIntent,
                 onLessonOpen = onLessonOpen,
                 onTextOpen = onTextOpen,
+                onReviewsOpen = onReviewsOpen,
                 holdoutChecks = holdoutChecks,
                 placement = placement,
             )
@@ -80,6 +82,7 @@ private fun SchoolState(
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onTextOpen: (TextId) -> Unit,
+    onReviewsOpen: () -> Unit,
     holdoutChecks: @Composable () -> Unit,
     placement: @Composable () -> Unit,
 ) {
@@ -98,6 +101,7 @@ private fun SchoolState(
             onIntent = onIntent,
             onLessonOpen = onLessonOpen,
             onTextOpen = onTextOpen,
+            onReviewsOpen = onReviewsOpen,
             holdoutChecks = holdoutChecks,
             placement = placement,
         )
@@ -120,6 +124,7 @@ private fun SchoolContent(
     onIntent: (SchoolIntent) -> Unit,
     onLessonOpen: (LessonId) -> Unit,
     onTextOpen: (TextId) -> Unit,
+    onReviewsOpen: () -> Unit,
     holdoutChecks: @Composable () -> Unit,
     placement: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -136,6 +141,9 @@ private fun SchoolContent(
         )
         shown?.let { card: SchoolUiState.LessonCard ->
             ShownLesson(card = card, content = content, onIntent = onIntent, onLessonOpen = onLessonOpen)
+        }
+        content.reviews?.let { line: SchoolUiState.ReviewsLine ->
+            ReviewsRow(line = line, onLessonOpen = onLessonOpen, onReviewsOpen = onReviewsOpen)
         }
         placement()
         LearningSection(learning = content.learning)

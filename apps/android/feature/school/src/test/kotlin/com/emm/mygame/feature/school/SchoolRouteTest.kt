@@ -43,6 +43,7 @@ class SchoolRouteTest {
                         onLessonOpen = {},
                         onLessonStart = {},
                         onTextOpen = {},
+                        onReviewsOpen = {},
                     )
                 }
             }

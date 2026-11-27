@@ -359,6 +359,7 @@ class SchoolReleasedLessonsTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }

@@ -53,11 +53,6 @@ class SchoolPathTest {
 
     private val secondLessonOpen: TownSnapshot.Lesson = lessonOf(id = secondLesson, theme = "Work and money")
 
-    private val reviewsDue: NextStep.Reviews = NextStep.Reviews(count = 3, readFirst = emptyList())
-
-    private val unreadFirstLesson: NextStep.Reviews =
-        NextStep.Reviews(count = 3, readFirst = listOf(firstLesson, secondLesson))
-
     private fun pathOf(studied: Int, read: Int, reviewed: Int, learned: Int, total: Int): List<String> = listOf(
         "Estudiadas $studied de $total",
         "Puedes leer $read de $total",
@@ -92,6 +87,7 @@ class SchoolPathTest {
                     onIntent = { },
                     onLessonOpen = {},
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }
@@ -216,22 +212,6 @@ class SchoolPathTest {
             .fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
 
         assertEquals(1, results.first().lineCount)
-    }
-
-    @Test
-    fun `draws no way to an unread lesson's words while reviews are due`() {
-        show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen), nextStep = unreadFirstLesson))
-
-        composeRule.onNodeWithText("Work and money").performScrollTo()
-        composeRule.onAllNodesWithText("Leer las palabras", substring = true).assertCountEquals(0)
-    }
-
-    @Test
-    fun `draws no way to the reviews while reviews are due`() {
-        show(townOf(lessons = listOf(lessonOf(isStudied = true), secondLessonOpen), nextStep = reviewsDue))
-
-        composeRule.onNodeWithText("Work and money").performScrollTo()
-        composeRule.onAllNodesWithText("Empezar los repasos").assertCountEquals(0)
     }
 
     @Test

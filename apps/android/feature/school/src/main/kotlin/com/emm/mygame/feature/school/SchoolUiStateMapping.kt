@@ -40,6 +40,7 @@ internal fun TownSnapshot.contentAt(
         stop = requests.stop,
         isHoldoutNoteShown = hasBandStarted,
         bandLines = bandLines,
+        reviews = reviewsLineAt(now, gap),
         selected = selected,
     )
 }

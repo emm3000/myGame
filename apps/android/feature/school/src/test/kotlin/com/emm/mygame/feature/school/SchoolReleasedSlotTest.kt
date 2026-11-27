@@ -136,6 +136,7 @@ class SchoolReleasedSlotTest {
                     onIntent = {},
                     onLessonOpen = {},
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }

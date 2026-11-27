@@ -87,6 +87,7 @@ class SchoolLanguageTest {
                         onIntent = {},
                         onLessonOpen = {},
                         onTextOpen = {},
+                        onReviewsOpen = {},
                     )
                 }
             }

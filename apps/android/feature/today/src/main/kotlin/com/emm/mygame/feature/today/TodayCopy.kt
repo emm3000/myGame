@@ -10,6 +10,7 @@ import com.emm.mygame.core.ui.DurationCopy
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.finishLabelOf
 import com.emm.mygame.core.ui.fixedLabel
+import com.emm.mygame.core.ui.titledFinishLabelOf
 
 internal val todayDurationCopy: DurationCopy = DurationCopy(
     minutesSeconds = R.string.today_duration_minutes_seconds,
@@ -67,7 +68,7 @@ internal fun PlayerCopy.countdownOf(card: TodayUiState.FirstCard): MyGameLabel? 
 }
 
 internal fun PlayerCopy.nextReviewOf(time: TodayUiState.TimeAt): MyGameLabel = chrome {
-    "${text(R.string.today_next_review)} ${finishLabelOf(time.remaining, time.at, todayDurationCopy)}"
+    titledFinishLabelOf(R.string.today_next_review, time.remaining, time.at, todayDurationCopy)
 }
 
 internal fun PlayerCopy.runningTitleOf(name: LessonName): MyGameLabel = when (name) {
