@@ -72,3 +72,30 @@ describe('the frames Keep going offers', () => {
     expect(await learnerRows()).toEqual(before)
   })
 })
+
+describe('the frames Keep going offers over the shipped lessons', () => {
+  const world = learningWorld()
+
+  it("supports each lesson 1 anchor on its own word's token alone", async () => {
+    const player = await world.seedTheFirstRecall()
+    world.clock.setTo(secondLearningStepAt)
+
+    const response = await world.send(player, 'GET', '/town/frames')
+    const { words } = KeepGoingFramesSchema.parse(await response.json())
+
+    expect(
+      words
+        .map(({ wordId, frames }) => ({
+          wordId,
+          supported: frames[0]?.filter(({ support }) => support !== null).map(({ text }) => text),
+        }))
+        .toSorted((left, right) => left.wordId.localeCompare(right.wordId)),
+    ).toEqual([
+      { wordId: 'lesson-1-1', supported: ['home'] },
+      { wordId: 'lesson-1-2', supported: ['school'] },
+      { wordId: 'lesson-1-3', supported: ['work'] },
+      { wordId: 'lesson-1-4', supported: ['money'] },
+      { wordId: 'lesson-1-5', supported: ['food'] },
+    ])
+  })
+})

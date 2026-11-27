@@ -36,7 +36,7 @@ const recallOf = ({ word, shownFrame }: ShownWord, learner: FrameLearner): Revie
       shownFrame,
       learner.lessons.frameTokensOf(word.id, shownFrame),
       learner,
-      (support) => holdsAnyForm(support, forms),
+      (wordId, support) => wordId === word.id || holdsAnyForm(support, forms),
     ),
   }
 }
@@ -58,7 +58,7 @@ const recognitionOf = (
       shownFrame,
       learner.lessons.frameTokensOf(word.id, shownFrame),
       learner,
-      ({ text }) => choices.some(({ gloss }) => gloss === text),
+      (wordId, { text }) => wordId === word.id || choices.some(({ gloss }) => gloss === text),
     ),
     choices,
   }

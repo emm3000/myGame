@@ -17,10 +17,15 @@ type FrameTerms = {
   readonly cardWords: ReadonlyMap<string, ReadonlyArray<WordId>>
 }
 
+type OwnWord = {
+  readonly wordId: WordId
+  readonly words: ReadonlyArray<string>
+}
+
 type Passage = {
   readonly text: string
   readonly homographs: LexiconEntry['homographs']
-  readonly ownWords: ReadonlyArray<string>
+  readonly own: OwnWord | null
   readonly noCardSense: ReadonlySet<string>
 }
 
@@ -37,15 +42,18 @@ const cardWordsOf = ({
 
 const cardWordOf = (
   token: string,
-  { homographs, ownWords, noCardSense }: Passage,
+  { homographs, own, noCardSense }: Passage,
   terms: FrameTerms,
 ): WordId | null => {
   if (noCardSense.has(token)) {
     return null
   }
   const reading = readingOf(token, { homographs }, terms.reading)
-  if (reading.kind !== 'word' || ownWords.includes(reading.word)) {
+  if (reading.kind !== 'word') {
     return null
+  }
+  if (own?.words.includes(reading.word)) {
+    return own.wordId
   }
   const [wordId, ...others] = terms.cardWords.get(reading.word) ?? []
   return wordId !== undefined && others.length === 0 ? wordId : null
@@ -77,7 +85,7 @@ const framesOfEntry = (entry: LexiconEntry, terms: FrameTerms): PassageTokens =>
         const passage = {
           text,
           homographs: entry.homographs,
-          ownWords: lemmaWordsOf(entry.lemma),
+          own: { wordId: entry.id, words: lemmaWordsOf(entry.lemma) },
           noCardSense: new Set(noCardSense),
         }
         return [text, tokensOfPassage(passage, terms)] as const
@@ -91,7 +99,7 @@ const passagesOfText = (
 ): PassageTokens =>
   new Map(
     sentences.map((text) => {
-      const passage = { text, homographs, ownWords: [], noCardSense: new Set(noCardSense) }
+      const passage = { text, homographs, own: null, noCardSense: new Set(noCardSense) }
       return [text, tokensOfPassage(passage, terms)] as const
     }),
   )

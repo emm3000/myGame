@@ -20,13 +20,15 @@ const learnerOf = (frames: FrameLearner['lessons']['frameTokensOf']): FrameLearn
 })
 
 describe('readingFrameOf', () => {
-  it("reads a word's anchor frame with its card words supported", () => {
+  it("reads a word's anchor frame with its card words supported, never the read word", () => {
     const home = lessonOne.words[0]
     assert(home !== undefined)
     const reader = learnerOf((wordId, frame) =>
       wordId === 'home' && frame === 'We have a new home in this town.'
         ? [
-            { text: 'We have a new home in this ', wordId: null },
+            { text: 'We have a new ', wordId: null },
+            { text: 'home', wordId: 'home' },
+            { text: ' in this ', wordId: null },
             { text: 'town', wordId: 'town' },
             { text: '.', wordId: null },
           ]
@@ -34,7 +36,9 @@ describe('readingFrameOf', () => {
     )
 
     expect(readingFrameOf(home, reader)).toEqual([
-      { text: 'We have a new home in this ', support: null },
+      { text: 'We have a new ', support: null },
+      { text: 'home', support: null },
+      { text: ' in this ', support: null },
       { text: 'town', support: { shown: 'beside', text: 'pueblo', language: 'es' } },
       { text: '.', support: null },
     ])

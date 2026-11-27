@@ -4,13 +4,14 @@ import { dueInstantOf } from '#memory/domain/dueInstantOf'
 import type { MemoryTerms } from '#memory/domain/MemoryTerms'
 import { ok, type Result } from '#Result'
 import type { Instant } from '#time/Instant'
+import { isUnitLemma } from '../../curriculum/domain/isUnitLemma'
 import type { Stage } from '../../curriculum/domain/stageOf'
 import { compareWordIds } from '../../domain/compareWordIds'
 import type { HeldCard } from '../../domain/HeldCard'
 import type { LessonWord, WordId } from '../../domain/Lesson'
 import type { FrameLearner } from './FrameLearner'
 import type { FrameSpans } from './FrameSpan'
-import { frameSpansOf, withholdingNothing } from './frameSpansOf'
+import { frameSpansOf } from './frameSpansOf'
 import type { KeepGoingTerms } from './KeepGoingTerms'
 import { recallFrameOf } from './recallFrameOf'
 import type { WordFrame } from './WordFrame'
@@ -49,8 +50,15 @@ const readFramesOf = (
   ]
 }
 
-const spansOf = (word: LessonWord, { frame }: WordFrame, learner: KeepGoingLearner): FrameSpans =>
-  frameSpansOf(frame, learner.lessons.frameTokensOf(word.id, frame), learner, withholdingNothing)
+const spansOf = (word: LessonWord, { frame }: WordFrame, learner: KeepGoingLearner): FrameSpans => {
+  const isUnit = isUnitLemma(word.acceptedForms[0])
+  return frameSpansOf(
+    frame,
+    learner.lessons.frameTokensOf(word.id, frame),
+    learner,
+    (wordId) => isUnit && wordId === word.id,
+  )
+}
 
 const keepGoingWordOf = (
   word: LessonWord,

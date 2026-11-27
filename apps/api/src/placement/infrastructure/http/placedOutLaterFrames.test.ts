@@ -102,7 +102,11 @@ describe('the later frames of a placed-out band', () => {
 
     expect(await dueReviewOf(player, 'lesson-1-2')).toMatchObject({
       mode: 'recognition',
-      frame: [{ text: "We're at school.", support: null }],
+      frame: [
+        { text: "We're at ", support: null },
+        { text: 'school', support: null },
+        { text: '.', support: null },
+      ],
     })
   })
 
@@ -115,7 +119,11 @@ describe('the later frames of a placed-out band', () => {
 
     expect(lessons[0]?.words[1]?.reading).toEqual({
       word: 'school',
-      frame: [{ text: "We're at school.", support: null }],
+      frame: [
+        { text: "We're at ", support: null },
+        { text: 'school', support: null },
+        { text: '.', support: null },
+      ],
     })
   })
 })

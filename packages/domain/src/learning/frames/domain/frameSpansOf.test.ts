@@ -144,7 +144,7 @@ describe('frameSpansOf', () => {
       homeFrame,
       homeTokens,
       learnerOf({ cards: [] }),
-      ({ text }) => text === 'pueblo',
+      (_wordId, { text }) => text === 'pueblo',
     )
 
     expect(spans.every(({ support }) => support === null)).toBe(true)
