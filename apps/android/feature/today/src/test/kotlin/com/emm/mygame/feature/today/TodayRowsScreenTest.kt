@@ -10,6 +10,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -46,18 +47,64 @@ class TodayRowsScreenTest {
 
     private val intents: MutableList<TodayIntent> = mutableListOf()
 
+    private val openedLessons: MutableList<LessonId> = mutableListOf()
+
     @Test
     fun `Today draws one filled go, the first card's, at each next step`() {
-        val shown: MutableState<TodayUiState> = mutableStateOf(contentWith(first = null))
+        val shown: MutableState<TodayUiState> = mutableStateOf(contentWith())
         show(shown)
 
-        val filled: List<Int> = firstCards.map { first: TodayUiState.FirstCard? ->
-            shown.value = contentWith(first = first, lesson = if (first == null) runningLesson else null)
+        val filled: List<Int> = firstCards.map { first: TodayUiState.FirstCard ->
+            shown.value = contentWith(first = first, lesson = runningLesson)
             composeRule.waitForIdle()
             composeRule.onAllNodesWithTag(INK_PILL).fetchSemanticsNodes().size
         }
 
-        assertEquals(listOf(1, 1, 1, 1, 0, 0), filled)
+        assertEquals(listOf(1, 1, 1, 1, 1, 0), filled)
+    }
+
+    @Test
+    fun `a running lesson leading draws its line, its countdown and a filled Read the words`() {
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
+
+        composeRule.onNodeWithText(LESSON_ONE_READY_IN).assertIsDisplayed()
+        composeRule.onNodeWithText(EIGHT_MINUTES, substring = true).assertIsDisplayed()
+        composeRule.onNode(hasText(READ_THE_WORDS) and hasTestTag(INK_PILL)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `while a running released lesson is the next step, the first card names its band and set`() {
+        val released: TodayUiState.RunningLesson =
+            runningLesson.copy(name = LessonName.Released(PlacementBand.Second, set = 1))
+
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(released), lesson = released))
+
+        composeRule.onNodeWithText(RELEASED_READY_IN).assertIsDisplayed()
+    }
+
+    @Test
+    fun `Read the words on the running lesson's card opens the running lesson's words`() {
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
+
+        composeRule.onNode(hasText(READ_THE_WORDS) and hasTestTag(INK_PILL)).performClick()
+
+        assertEquals(listOf(firstLesson), openedLessons)
+    }
+
+    @Test
+    fun `the running lesson is no row of In progress while it is the first card`() {
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
+
+        composeRule.onAllNodesWithText(IN_PROGRESS).assertCountEquals(0)
+        composeRule.onAllNodesWithText(LESSON_ONE_READY_IN).assertCountEquals(1)
+    }
+
+    @Test
+    fun `the running lesson stays a row of In progress while reviews lead`() {
+        show(contentWith(first = TodayUiState.FirstCard.Reviews(count = 4, readFirst = null), lesson = runningLesson))
+
+        composeRule.onNodeWithText(IN_PROGRESS).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(LESSON_ONE_READY_IN).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -86,7 +133,13 @@ class TodayRowsScreenTest {
 
     @Test
     fun `the section is titled While you wait while a lesson runs`() {
-        show(contentWith(first = null, lesson = runningLesson, canDo = listOf(farmRow)))
+        show(
+            contentWith(
+                first = TodayUiState.FirstCard.LessonRunning(runningLesson),
+                lesson = runningLesson,
+                canDo = listOf(farmRow),
+            ),
+        )
 
         composeRule.onNodeWithText(WHILE_YOU_WAIT).performScrollTo().assertIsDisplayed()
     }
@@ -145,7 +198,7 @@ class TodayRowsScreenTest {
                 TodayScreen(
                     state = shown.value,
                     onIntent = { intent: TodayIntent -> intents += intent },
-                    navigation = navigation,
+                    navigation = navigation.copy(onLessonOpen = openedLessons::add),
                     placement = placement,
                 )
             }
@@ -153,7 +206,7 @@ class TodayRowsScreenTest {
     }
 
     private fun contentWith(
-        first: TodayUiState.FirstCard? = TodayUiState.FirstCard.Study(firstLesson, number = 1),
+        first: TodayUiState.FirstCard = TodayUiState.FirstCard.Study(firstLesson, number = 1),
         lesson: TodayUiState.RunningLesson? = null,
         canDo: List<TodayUiState.CanDo> = listOf(farmRow),
         locked: List<TodayUiState.Locked> = emptyList(),
@@ -186,6 +239,11 @@ class TodayRowsScreenTest {
         const val NOT_ENOUGH_RESOURCES: String =
             "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."
         const val PLACEMENT_OFFER: String = "Placement offer"
+        const val LESSON_ONE_READY_IN: String = "Lección 1 lista en"
+        const val RELEASED_READY_IN: String = "Palabras que vuelven: banda 2, grupo 1 listas en"
+        const val EIGHT_MINUTES: String = "8 min"
+        const val READ_THE_WORDS: String = "Leer las palabras"
+        const val IN_PROGRESS: String = "En curso"
 
         val firstLesson: LessonId = LessonId("lesson-1")
 
@@ -204,12 +262,12 @@ class TodayRowsScreenTest {
 
         val homesRow: TodayUiState.CanDo = TodayUiState.CanDo(TownBuildingKind.Homes, levelTwoCosting(80))
 
-        val firstCards: List<TodayUiState.FirstCard?> = listOf(
+        val firstCards: List<TodayUiState.FirstCard> = listOf(
             TodayUiState.FirstCard.Study(firstLesson, number = 1),
             TodayUiState.FirstCard.StudyReleased(firstLesson, PlacementBand.Second, position = 1),
             TodayUiState.FirstCard.Reviews(count = 4, readFirst = null),
             TodayUiState.FirstCard.HoldoutCheck(PlacementBand.Second, HoldoutCheckWeek.Eighth),
-            null,
+            TodayUiState.FirstCard.LessonRunning(runningLesson),
             TodayUiState.FirstCard.CaughtUp(TodayUiState.CaughtUpLine.NoReviewsDue, nextReview = null),
         )
 

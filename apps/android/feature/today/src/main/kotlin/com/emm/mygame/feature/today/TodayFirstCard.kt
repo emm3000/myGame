@@ -38,6 +38,9 @@ internal fun TodayFirstCard(
         ) {
             MyGameMetaText(label = eyebrow, color = MyGameTheme.colors.inkMuted)
             MyGameText(label = copy.lineOf(card), style = MyGameTypography.title, color = MyGameTheme.colors.ink)
+            copy.countdownOf(card)?.let { countdown: MyGameLabel ->
+                MyGameText(label = countdown, style = MyGameTypography.body, color = MyGameTheme.colors.ink)
+            }
             copy.startRefusalOf(start)?.let { refusal: String -> MyGameInlineAlert(message = refusal) }
             copy.actionOf(card)?.let { action: MyGameLabel ->
                 MyGameButton(

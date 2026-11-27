@@ -63,6 +63,8 @@ sealed interface TodayUiState {
 
         data class HoldoutCheck(val band: PlacementBand, val week: HoldoutCheckWeek) : FirstCard
 
+        data class LessonRunning(val running: RunningLesson) : FirstCard
+
         data class CaughtUp(val line: CaughtUpLine, val nextReview: TimeAt?) : FirstCard
     }
 

@@ -126,7 +126,7 @@ private fun TodayContent(
 private fun InProgress(content: TodayUiState.Content, copy: PlayerCopy, navigation: TodayNavigation) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
         MyGameSectionTitle(label = fixedLabel(copy.fixedCopy(R.string.today_in_progress)))
-        content.lesson?.let { running: TodayUiState.RunningLesson ->
+        content.lessonRow()?.let { running: TodayUiState.RunningLesson ->
             MyGameNavRow(
                 title = copy.runningTitleOf(running.name),
                 status = copy.runningTimeOf(running),
@@ -158,7 +158,10 @@ private fun WorkRow(title: MyGameLabel, status: MyGameLabel) {
 
 private fun TodayUiState.Content.hasWhatHappened(): Boolean = gained.isNotEmpty() || whatHappened != null
 
-private fun TodayUiState.Content.hasInProgress(): Boolean = lesson != null || work != null || job != null
+private fun TodayUiState.Content.hasInProgress(): Boolean = lessonRow() != null || work != null || job != null
+
+private fun TodayUiState.Content.lessonRow(): TodayUiState.RunningLesson? =
+    lesson.takeIf { first !is TodayUiState.FirstCard.LessonRunning }
 
 private fun ((TodayIntent) -> Unit).actOn(card: TodayUiState.FirstCard, navigation: TodayNavigation) {
     when (card) {
@@ -166,6 +169,7 @@ private fun ((TodayIntent) -> Unit).actOn(card: TodayUiState.FirstCard, navigati
         is TodayUiState.FirstCard.StudyReleased -> invoke(TodayIntent.StudyTapped(card.lesson))
         is TodayUiState.FirstCard.Reviews -> card.readFirst?.let(navigation.onLessonOpen) ?: navigation.onReviewsOpen()
         is TodayUiState.FirstCard.HoldoutCheck -> navigation.onHoldoutCheckOpen(card.band, card.week)
+        is TodayUiState.FirstCard.LessonRunning -> navigation.onLessonOpen(card.running.lesson)
         is TodayUiState.FirstCard.CaughtUp -> Unit
     }
 }
