@@ -34,6 +34,7 @@
     <string name="school_lessons">Lessons</string>
     <string name="school_loading">Reading your town…</string>
     <string name="school_next_holdout_check">Word check for band {band}</string>
+    <string name="school_next_review">Next review:</string>
     <string name="school_next_title">What is next</string>
     <string name="school_no_reviews_due">No reviews due now.</string>
     <string name="school_path_count">{count} of {total}</string>
@@ -56,6 +57,7 @@
     <string name="school_resource_material">material</string>
     <string name="school_resource_money">money</string>
     <string name="school_resource_power">power</string>
+    <string name="school_reviews_due">Reviews due: {count}</string>
     <string name="school_season_study_mark" formatted="false">{season, select, spring {Spring} summer {Summer} fall {Fall} winter {Winter} other {Winter}}: {percent} % of the hours for lessons</string>
     <string name="school_skill_name">Level {level} {resource} skill</string>
     <string name="school_skill_rate" formatted="false">+{percent} % {resource}</string>

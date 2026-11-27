@@ -31,6 +31,7 @@ sealed interface SchoolUiState {
         val stop: LessonRequestStatus,
         val isHoldoutNoteShown: Boolean,
         val bandLines: List<TownSnapshot.BandLine>,
+        val reviews: ReviewsLine?,
         val selected: LessonId? = null,
     ) : SchoolUiState {
 
@@ -48,6 +49,15 @@ sealed interface SchoolUiState {
     }
 
     data class TextCard(val text: TextId, val title: String)
+
+    sealed interface ReviewsLine {
+
+        data class Due(val count: Int, val readFirst: LessonId?) : ReviewsLine
+
+        data class NoneDue(val nextReview: NextReview?) : ReviewsLine
+    }
+
+    data class NextReview(val remaining: Duration, val at: Instant)
 
     data class LearningLine(val inLearning: Int, val cap: Int, val pastCapWords: Int?, val opening: CapOpening)
 

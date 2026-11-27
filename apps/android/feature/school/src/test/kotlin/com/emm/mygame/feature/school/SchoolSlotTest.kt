@@ -65,6 +65,7 @@ class SchoolSlotTest {
         stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
+        reviews = null,
     )
 
     private val lessonOpens: MutableList<LessonId> = mutableListOf()
@@ -77,6 +78,7 @@ class SchoolSlotTest {
                     onIntent = { intent: SchoolIntent -> intents += intent },
                     onLessonOpen = { lesson: LessonId -> lessonOpens += lesson },
                     onTextOpen = {},
+                    onReviewsOpen = {},
                 )
             }
         }

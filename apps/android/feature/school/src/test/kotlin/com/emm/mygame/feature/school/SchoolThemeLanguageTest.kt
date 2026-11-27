@@ -30,7 +30,7 @@ class SchoolThemeLanguageTest {
             town.contentAt(readInstant, Duration.ZERO, SchoolRequests.none, selected = firstLesson)
         composeRule.setContent {
             MyGameTheme {
-                SchoolScreen(state = state, onIntent = {}, onLessonOpen = {}, onTextOpen = {})
+                SchoolScreen(state = state, onIntent = {}, onLessonOpen = {}, onTextOpen = {}, onReviewsOpen = {})
             }
         }
     }

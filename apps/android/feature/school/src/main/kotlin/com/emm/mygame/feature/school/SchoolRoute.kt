@@ -23,6 +23,7 @@ fun SchoolRoute(
     onLessonOpen: (LessonId) -> Unit,
     onLessonStart: () -> Unit,
     onTextOpen: (TextId) -> Unit,
+    onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
@@ -51,6 +52,7 @@ fun SchoolRoute(
         onLessonOpen = onLessonOpen,
         modifier = modifier,
         onTextOpen = onTextOpen,
+        onReviewsOpen = onReviewsOpen,
         holdoutChecks = holdoutChecks,
         placement = placement,
     )

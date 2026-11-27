@@ -33,6 +33,7 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
                 onLessonOpen = { lesson: LessonId -> navigator.openLesson(lesson, walked = emptyList()) },
                 onLessonStart = chrome.onTaskAnswered,
                 onTextOpen = { text: TextId -> navigator.openAbove(Destination.School, Destination.SchoolText(text)) },
+                onReviewsOpen = navigator::openReviews,
                 holdoutChecks = {
                     HoldoutCheckRowsRoute(
                         holdoutChecks = dependencies.holdoutChecks,

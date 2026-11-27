@@ -34,6 +34,7 @@
     <string name="school_lessons">Lecciones</string>
     <string name="school_loading">Estamos leyendo tu pueblo…</string>
     <string name="school_next_holdout_check">Prueba de palabras de la banda {band}</string>
+    <string name="school_next_review">Siguiente repaso:</string>
     <string name="school_next_title">Tu siguiente paso</string>
     <string name="school_no_reviews_due">No tienes repasos pendientes ahora.</string>
     <string name="school_path_count">{count} de {total}</string>
@@ -56,6 +57,7 @@
     <string name="school_resource_material">material</string>
     <string name="school_resource_money">dinero</string>
     <string name="school_resource_power">energía</string>
+    <string name="school_reviews_due">Repasos pendientes: {count}</string>
     <string name="school_season_study_mark" formatted="false">{season, select, spring {Primavera} summer {Verano} fall {Otoño} winter {Invierno} other {Invierno}}: las lecciones tardan el {percent} % del tiempo</string>
     <string name="school_skill_name">Habilidad de {resource}, nivel {level}</string>
     <string name="school_skill_rate" formatted="false">+{percent} % de {resource}</string>

@@ -101,6 +101,7 @@ private val previewContent: SchoolUiState.Content = SchoolUiState.Content(
     stop = SchoolUiState.LessonRequestStatus.Idle,
     isHoldoutNoteShown = true,
     bandLines = listOf(TownSnapshot.BandLine(PlacementBand.First, count = 12, total = 875)),
+    reviews = SchoolUiState.ReviewsLine.Due(count = 3, readFirst = null),
 )
 
 private val previewStudying: SchoolUiState.Content = previewContent.copy(
@@ -203,12 +204,7 @@ private class SchoolUiStates : PreviewParameterProvider<SchoolUiState> {
 @Composable
 private fun SchoolScreenPreview(@PreviewParameter(SchoolUiStates::class) state: SchoolUiState) {
     MyGamePreviewSurface {
-        SchoolScreen(
-            state = state,
-            onIntent = {},
-            onLessonOpen = {},
-            onTextOpen = {},
-        )
+        SchoolScreen(state = state, onIntent = {}, onLessonOpen = {}, onTextOpen = {}, onReviewsOpen = {})
     }
 }
 
@@ -227,6 +223,7 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
                 onIntent = {},
                 onLessonOpen = {},
                 onTextOpen = {},
+                onReviewsOpen = {},
                 holdoutChecks = { PreviewHoldoutChecksSlot() },
             )
         }
@@ -238,12 +235,7 @@ private fun SchoolScreenLanguagePreview(@PreviewParameter(SchoolLanguages::class
 private fun SchoolScreenStudyingBothPreview() {
     ProvideCopyLanguage(language = CopyLanguage(ScaffoldLanguage.Spanish, ChromePhase.Both)) {
         MyGamePreviewSurface {
-            SchoolScreen(
-                state = previewStudying,
-                onIntent = {},
-                onLessonOpen = {},
-                onTextOpen = {},
-            )
+            SchoolScreen(state = previewStudying, onIntent = {}, onLessonOpen = {}, onTextOpen = {}, onReviewsOpen = {})
         }
     }
 }

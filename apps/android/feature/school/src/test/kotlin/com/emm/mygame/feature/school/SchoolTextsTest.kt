@@ -66,6 +66,7 @@ class SchoolTextsTest {
                     onIntent = {},
                     onLessonOpen = { _: LessonId -> },
                     onTextOpen = { text: TextId -> textOpens += text },
+                    onReviewsOpen = {},
                 )
             }
         }
