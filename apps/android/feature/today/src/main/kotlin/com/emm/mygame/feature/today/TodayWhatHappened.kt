@@ -2,16 +2,14 @@ package com.emm.mygame.feature.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameNavRow
 import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -41,17 +39,9 @@ private fun Gains(content: TodayUiState.Content) {
     val copy: PlayerCopy = rememberPlayerCopy()
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3)) {
         MyGameSectionTitle(label = copy.chrome(R.string.today_gained_title))
-        Column {
+        MyGameSunkenCard {
             content.gained.forEach { gain: TownSnapshot.Cost ->
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    MyGameHairline()
-                    MyGameText(
-                        label = copy.gainOf(gain),
-                        style = MyGameTypography.body,
-                        color = MyGameTheme.colors.ink,
-                        modifier = Modifier.padding(vertical = MyGameSpacing.step3),
-                    )
-                }
+                MyGameText(label = copy.gainOf(gain), style = MyGameTypography.body, color = MyGameTheme.colors.ink)
             }
         }
     }
