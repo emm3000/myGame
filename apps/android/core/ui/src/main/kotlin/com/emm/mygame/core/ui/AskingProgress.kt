@@ -29,7 +29,7 @@ fun AskingProgress(band: String, progress: String, shownIndex: Int, total: Int, 
         )
         MyGameTrack(
             filled = filled,
-            color = MyGameTheme.colors.action,
+            color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo(filled, 0f..1f) },
         )
     }

@@ -57,7 +57,7 @@ class ReviewHeaderTest {
     }
 
     @Test
-    fun `fills the review track in ink, never in go`() {
+    fun `draws the review track in ink`() {
         draw(lastCardRated)
 
         val fill: Int = mostDrawnColorOf(composeRule.onNode(hasProgress(current = 1f)).captureToImage())
