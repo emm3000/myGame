@@ -33,7 +33,7 @@ import org.robolectric.RobolectricTestRunner
 private const val SPANISH_OPTION: String = "Español: una traducción junto a cada palabra nueva"
 private const val NONE_OPTION: String = "Ninguno: todo en inglés, con definiciones en inglés"
 private const val QUESTION: String = "Idioma de ayuda"
-private const val CHANGE_LINE: String = "Puedes cambiarlo cuando quieras en Ajustes."
+private const val CHANGE_LINE: String = "Puedes cambiarlo cuando quieras en la pestaña Yo."
 
 @RunWith(RobolectricTestRunner::class)
 class SignUpScreenTest {
