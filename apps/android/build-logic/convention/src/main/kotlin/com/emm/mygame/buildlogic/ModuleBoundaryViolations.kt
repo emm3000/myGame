@@ -12,7 +12,7 @@ fun moduleBoundaryViolationsOf(
     edgesByModule.forEach { (module, edges) ->
         val allowed: Set<String>? = boundaries.allowedEdgesOf(module)
         if (allowed == null) {
-            add("$module is not in the Modules table of .claude/rules/android-architecture.md")
+            add("$module has no arrow in allowedCoreEdges; add it there and to apps/android/ARCHITECTURE.md")
         }
         edges.map { it.split('=', limit = 2) }.forEach { (configuration, target) ->
             edgeViolation(module, configuration, target, allowed.orEmpty())?.let(::add)
@@ -43,6 +43,6 @@ private fun edgeViolation(module: String, configuration: String, target: String,
         path in testOnlyModules -> null
         module == ":app" && (path.startsWith(":feature:") || path.startsWith(":core:")) -> null
         path in allowed -> null
-        else -> "$module depends on $target through $configuration; the Modules table does not allow that edge"
+        else -> "$module depends on $target through $configuration; the module arrows do not allow that edge"
     }
 }

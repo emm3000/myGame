@@ -14,32 +14,7 @@ paths:
 
 ## Modules
 
-| Module | Holds |
-|---|---|
-| `app` | `MainActivity`, navigation, the one place that binds implementations to interfaces, and, until they move (ADR 056), the study reminder (`StudyReminderAlarm`, `StudyReminderStore`, `StudyReminderSink`, `StudyReminderReceiver`) |
-| `feature:<name>` | One module, one feature, its screens in packages: each screen's ViewModel, `UiState`, `Intent`, `Effect`, route and screen |
-| `feature:shell` | What the signed-in screens are drawn in: the frame with its header and back link, taking a `ShellNavigation` (root package), the retained-words ring (`ring/`) and the navigation bar with its tabs (`bar/`); only `app` depends on it |
-| `core:model` | Pure Kotlin, JVM only, one package per feature (`account`, `holdout`, `learning`, `placement`, `reminder`, `report`, `theme`, `town` with `town.building`, `town.guidance`, `town.hiring`, `town.jobs`, `town.news` and `town.school`): the feature's types, the `*Result` and `*Refusal` an api answer is read into, and its ports (`SessionRepository`, `HoldoutCheckRepository`, `KeepGoingRepository`, `LearningRepository`, `PlacementRepository`, `ReminderNotifications`, `StudyAnswerSink`, `StudyReminderSettings`, `ReportRepository`, `ThemeSettings`, `TownRepository`, `TownTextRepository`, `TownGuidanceRepository`, `RegionReader`, `RegionRepository`) |
-| `core:network` | The generated OpenAPI client, in its build directory; one package per feature, named as `core:model`'s (`account`, `town.jobs`), holding the `Api*` adapters that implement that feature's ports and their `*Mapping` files; and `platform`, holding what names no game word: the endpoint and the HTTP client builder it carries, the bearer, the token store, and `ApiRepositories`, which builds every `Api*` adapter |
-| `core:projection` | Pure Kotlin, JVM only: the lazy projection and the value types it reads, and the next level's block reason derived from a town read |
-| `core:designsystem` | The design-system tokens and components (`ui-components.md`) |
-| `core:ui` | Composables shared by features that read the game's models (a resource row, a countdown, a Town News row, the reading block a text and a frame are drawn in) and the copy they draw, its keys `android.ui.*`; its `testFixtures` hold the matchers the task screens' tests share (`hasCopy`, `assertAskingProgressDrawnOnce`) |
-| `core:testing` | Pure Kotlin, JVM only: fakes of the `core:model` interfaces, the test clock |
-| `core:uitesting` | Android, read only by a test configuration: the Compose test helpers the features' tests share (`navRowOf`, `textStyleOf`) |
-
-```
-app               -> feature:*, core:*
-feature:*         -> core:model, core:projection, core:ui, core:designsystem
-core:ui           -> core:model, core:projection, core:designsystem
-core:testing      -> core:model, core:projection
-core:uitesting    -> core:designsystem
-core:network      -> core:model
-core:model        -> nothing in the project
-core:projection   -> core:model
-core:designsystem -> nothing in the project
-```
-
-`./gradlew checkModuleBoundaries` fails on any other edge, a feature-to-feature edge included, and on `core:testing`, `core:uitesting` or a module's `testFixtures(project(...))` through any configuration but a test one. Before adding an edge, check the table; if a `core` module needs to reach outward, invert it with an interface in that module.
+The modules, what each holds and the arrows between them are `apps/android/ARCHITECTURE.md`, the client's map. `./gradlew checkModuleBoundaries` fails on any edge the map's arrows do not draw, a feature-to-feature edge included, and on `core:testing`, `core:uitesting` or a module's `testFixtures(project(...))` through any configuration but a test one. Before adding an edge, check the arrows; if a `core` module needs to reach outward, invert it with an interface in that module.
 
 ## Layout
 
@@ -48,7 +23,7 @@ Feature first, then role (ADR 056, section 1), with the same feature word as `ap
 - A feature module names a screen or a sub-area by package and the role by the file's suffix (`TownRoute`, `TownViewModel`, `TownUiState`). A piece two screens of one feature draw lives in a package named for what it draws, never in `common`, `shared` or another screen's package.
 - `core:model` and `core:network` hold one package per feature: its types, answers and ports in the first, its `Api*` adapter and `*Mapping` files in the second. What names no game word goes in `core:network`'s `platform`.
 - A new thing goes in its feature's package of the module for its role. A new feature word is a new package in every module that holds the feature.
-- The package and file-name grammars are ADR 056, sections 4 and 5. The packages of `app` follow them as its files move.
+- The package and file-name grammars are the map's, their reasons ADR 056, sections 4 and 5.
 
 ## The contract
 
