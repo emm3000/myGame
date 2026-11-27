@@ -7,6 +7,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
@@ -48,7 +49,14 @@ class SchoolCardGroundTest {
             opening = SchoolUiState.CapOpening.ReviewsDue,
         ),
         slot = SchoolUiState.SlotLine.Idle,
-        skills = emptyList(),
+        skills = listOf(
+            SchoolUiState.SkillLine(
+                lesson = secondLesson,
+                resource = TownResourceKind.Money,
+                level = 1,
+                ratePercent = 5,
+            ),
+        ),
         lessons = listOf(laterLesson),
         releasedLessons = emptyList(),
         texts = emptyList(),
@@ -58,21 +66,63 @@ class SchoolCardGroundTest {
         stop = SchoolUiState.LessonRequestStatus.Idle,
         isHoldoutNoteShown = false,
         bandLines = emptyList(),
-        reviews = null,
+        reviews = SchoolUiState.ReviewsLine.Due(count = 3, readFirst = null),
     )
 
     @Test
     fun `draws the next-step card on surface-sunken in the light theme`() {
         show(darkTheme = false)
 
-        assertEquals(sunken.toArgb(), mostDrawnColorOf(composeRule.onNodeWithTag(SHOWN_LESSON_CARD).captureToImage()))
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(SHOWN_LESSON_CARD))
     }
 
     @Test
     fun `draws the next-step card on surface-sunken in the dark theme`() {
         show(darkTheme = true)
 
-        assertEquals(sunken.toArgb(), mostDrawnColorOf(composeRule.onNodeWithTag(SHOWN_LESSON_CARD).captureToImage()))
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(SHOWN_LESSON_CARD))
+    }
+
+    @Test
+    fun `draws the reviews row on surface-sunken in the light theme`() {
+        show(darkTheme = false)
+
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(REVIEWS_ROW))
+    }
+
+    @Test
+    fun `draws the reviews row on surface-sunken in the dark theme`() {
+        show(darkTheme = true)
+
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(REVIEWS_ROW))
+    }
+
+    @Test
+    fun `draws the learning card on surface-sunken in the light theme`() {
+        show(darkTheme = false)
+
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(LEARNING_CARD))
+    }
+
+    @Test
+    fun `draws the learning card on surface-sunken in the dark theme`() {
+        show(darkTheme = true)
+
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(LEARNING_CARD))
+    }
+
+    @Test
+    fun `draws the skills on surface-sunken in the light theme`() {
+        show(darkTheme = false)
+
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(SKILLS_CARD))
+    }
+
+    @Test
+    fun `draws the skills on surface-sunken in the dark theme`() {
+        show(darkTheme = true)
+
+        assertEquals(sunken.toArgb(), mostDrawnColorOf(SKILLS_CARD))
     }
 
     private fun show(darkTheme: Boolean) {
@@ -90,7 +140,8 @@ class SchoolCardGroundTest {
         }
     }
 
-    private fun mostDrawnColorOf(image: ImageBitmap): Int {
+    private fun mostDrawnColorOf(tag: String): Int {
+        val image: ImageBitmap = composeRule.onNodeWithTag(tag).performScrollTo().captureToImage()
         val pixels: IntArray = IntArray(image.width * image.height)
         image.readPixels(pixels)
         return pixels.toList()
