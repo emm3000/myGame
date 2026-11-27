@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -159,8 +160,8 @@ class PlayerLanguageNavigationTest {
         latestRead.value = null
         composeRule.waitForIdle()
 
-        composeRule.onAllNodesWithText("Ajustes").assertCountEquals(1)
-        composeRule.onAllNodesWithText("Settings").assertCountEquals(0)
+        composeRule.onAllNodes(hasText("Yo") and isHeading()).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("Me") and isHeading()).assertCountEquals(0)
     }
 
     @Test

@@ -61,7 +61,7 @@ class TownExitNavigationTest : AppNavigationFixture() {
         tab("Pueblo").performClick()
         composeRule.waitForIdle()
 
-        composeRule.onNode(hasText("Ajustes").and(isHeading())).assertExists()
+        composeRule.onNode(hasText("Yo").and(isHeading())).assertExists()
     }
 
     private fun onMe() {

@@ -3,13 +3,16 @@ package com.emm.mygame.feature.account.verification
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -21,6 +24,7 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTextLink
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.MyGameWorkingDots
 import com.emm.mygame.feature.account.R
 import com.emm.mygame.feature.account.auth.AuthHeader
 
@@ -60,12 +64,20 @@ internal fun VerifyEmailScreen(
 
 @Composable
 private fun Verifying(modifier: Modifier = Modifier) {
-    MyGameText(
-        text = stringResource(R.string.verify_email_verifying),
-        style = MyGameTypography.body,
-        color = MyGameTheme.colors.inkMuted,
-        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite },
-    )
+    val inkMuted: Color = MyGameTheme.colors.inkMuted
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
+        verticalAlignment = Alignment.Top,
+        modifier = modifier,
+    ) {
+        MyGameWorkingDots(tint = inkMuted)
+        MyGameText(
+            text = stringResource(R.string.verify_email_verifying),
+            style = MyGameTypography.body,
+            color = inkMuted,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        )
+    }
 }
 
 @Composable

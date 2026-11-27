@@ -1,25 +1,38 @@
 package com.emm.mygame.feature.account.verification
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.WORKING_DOTS
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+
+private const val VERIFYING_LINE: String = "Estamos confirmando tu correo…"
 
 @RunWith(RobolectricTestRunner::class)
 class VerifyEmailScreenTest {
 
     @get:Rule
     val composeRule: ComposeContentTestRule = createComposeRule()
+
+    private val shown: MutableState<VerifyEmailUiState> = mutableStateOf(VerifyEmailUiState.Verifying)
 
     @Test
     fun `reads the confirm your email title as a heading`() {
@@ -32,7 +45,31 @@ class VerifyEmailScreenTest {
     fun `draws the verifying line while the token is sent`() {
         draw(VerifyEmailUiState.Verifying)
 
-        composeRule.onNodeWithText("Estamos confirmando tu correo…").assertIsDisplayed()
+        composeRule.onNodeWithText(VERIFYING_LINE).assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the working dots beside the verifying line`() {
+        draw(VerifyEmailUiState.Verifying)
+
+        val dots: DpRect = composeRule.onNodeWithTag(WORKING_DOTS, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val line: DpRect =
+            composeRule.onNodeWithText(VERIFYING_LINE, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertTrue(dots.right <= line.left)
+        assertTrue(dots.top < line.bottom && line.top < dots.bottom)
+    }
+
+    @Test
+    fun `draws no working dots once the verification has an answer`() {
+        draw(VerifyEmailUiState.Verifying)
+
+        listOf(VerifyEmailUiState.Verified, VerifyEmailUiState.LinkRefused, VerifyEmailUiState.Unexpected)
+            .forEach { answered: VerifyEmailUiState ->
+                shown.value = answered
+                composeRule.waitForIdle()
+
+                composeRule.onAllNodesWithTag(WORKING_DOTS, useUnmergedTree = true).assertCountEquals(0)
+            }
     }
 
     @Test
@@ -96,10 +133,11 @@ class VerifyEmailScreenTest {
         onTownOpen: () -> Unit = {},
         onSignInOpen: () -> Unit = {},
     ) {
+        shown.value = state
         composeRule.setContent {
             MyGameTheme {
                 VerifyEmailScreen(
-                    state = state,
+                    state = shown.value,
                     onIntent = onIntent,
                     onTownOpen = onTownOpen,
                     onSignInOpen = onSignInOpen,

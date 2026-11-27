@@ -52,6 +52,7 @@ private const val REMINDER_TITLE: String = "Recordatorio de estudio"
 private const val OUTAGE_LINE: String = "No hemos podido hablar con el servidor. Vuelve a intentarlo en un momento."
 private const val RETRY: String = "Volver a intentarlo"
 private const val SIGN_OUT: String = "Salir"
+private const val ME_TAB_WORD: String = "Yo"
 private const val OPEN_NOTIFICATION_SETTINGS: String = "Abrir los ajustes de notificaciones"
 private val timeSteps: List<String> =
     listOf("Una hora antes", "Una hora después", "Cinco minutos antes", "Cinco minutos después")
@@ -193,11 +194,11 @@ class SettingsScreenTest {
         restoration.setContent { ShortWindowScreen(shown.value) }
         shown.value = untouched.copy(change = SettingsUiState.Change.Saved)
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Ajustes").performScrollTo()
+        composeRule.onNode(hasText(ME_TAB_WORD) and isHeading()).performScrollTo()
 
         restoration.emulateSavedInstanceStateRestore()
 
-        assertFullyInView("Ajustes")
+        assertFullyInView(ME_TAB_WORD)
     }
 
     @Test
@@ -275,10 +276,17 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun `titles the screen while it loads`() {
+    fun `reads the Me tab's word as the heading`() {
+        draw(untouched)
+
+        composeRule.onNode(hasText(ME_TAB_WORD) and isHeading()).assertIsDisplayed()
+    }
+
+    @Test
+    fun `labels the loading with the Me tab's word`() {
         draw(SettingsUiState.Loading)
 
-        composeRule.onNodeWithText("Ajustes").assertIsDisplayed()
+        composeRule.onNode(hasContentDescription(ME_TAB_WORD)).assertExists()
     }
 
     @Test
