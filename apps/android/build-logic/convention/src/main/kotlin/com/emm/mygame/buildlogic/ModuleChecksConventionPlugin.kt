@@ -31,7 +31,7 @@ class ModuleChecksConventionPlugin : Plugin<Project> {
             val checkModuleBoundaries: TaskProvider<CheckModuleBoundariesTask> =
                 tasks.register<CheckModuleBoundariesTask>("checkModuleBoundaries") {
                     group = "verification"
-                    description = "Fails on any module edge android-architecture.md's Modules table does not allow."
+                    description = "Fails on any module edge ARCHITECTURE.md's arrows do not allow."
                 }
 
             val checkComposeFreeViewModels: TaskProvider<CheckComposeFreeViewModelsTask> =
@@ -42,14 +42,15 @@ class ModuleChecksConventionPlugin : Plugin<Project> {
 
             tasks.register<CheckStructureTask>("checkStructure") {
                 group = "verification"
-                description = "Fails on an ADR 056 limit the baseline does not hold, and on a stale baseline line."
+                description = "Fails on an ADR 056 limit, and on a module the map and the settings do not both name."
                 sourceFiles.setFrom(
                     fileTree(rootDir) {
                         include("**/*.kt")
                         exclude("**/build/**", "**/.gradle/**", "**/.kotlin/**")
                     },
                 )
-                baseline.set(layout.projectDirectory.file("config/structure/baseline.txt"))
+                settingsFile.set(layout.projectDirectory.file("settings.gradle.kts"))
+                mapFile.set(layout.projectDirectory.file("ARCHITECTURE.md"))
                 androidRoot.set(layout.projectDirectory)
                 dependsOn(gradle.includedBuild("build-logic").task(":convention:test"))
             }

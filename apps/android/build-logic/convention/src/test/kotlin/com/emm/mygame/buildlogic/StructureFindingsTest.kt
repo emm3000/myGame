@@ -16,8 +16,8 @@ class StructureFindingsTest {
 
     private fun linesOf(count: Int): String = (1..count).joinToString(separator = "") { "val line$it: Int = $it\n" }
 
-    private fun findingsOf(vararg sources: SourceFile, baseline: List<String> = emptyList()): List<String> =
-        structureFindingsOf(sources.toList(), baseline, smallLimits)
+    private fun findingsOf(vararg sources: SourceFile): List<String> =
+        structureFindingsOf(sources.toList(), smallLimits)
 
     @Test
     fun `flags a production file over the line limit`() {
@@ -36,55 +36,6 @@ class StructureFindingsTest {
         assertEquals(
             listOf("test-lines feature/town/src/test/kotlin/Line1Test.kt: 9 lines, over 8"),
             findingsOf(longTest),
-        )
-    }
-
-    @Test
-    fun `passes a violation the baseline holds`() {
-        val longFile = SourceFile("$townMain/Line1.kt", linesOf(7))
-
-        assertEquals(emptyList<String>(), findingsOf(longFile, baseline = listOf("file-lines $townMain/Line1.kt")))
-    }
-
-    @Test
-    fun `flags a baseline line that no longer violates`() {
-        val shortFile = SourceFile("$townMain/Line1.kt", linesOf(6))
-
-        assertEquals(
-            listOf("file-lines $townMain/Line1.kt: in the baseline but no longer a violation; delete the line"),
-            findingsOf(shortFile, baseline = listOf("file-lines $townMain/Line1.kt")),
-        )
-    }
-
-    @Test
-    fun `flags a second copy of a violation the baseline holds once`() {
-        val navigation = SourceFile(
-            "app/src/main/kotlin/AppNavigation.kt",
-            "import com.emm.mygame.feature.town.TownUiState\nimport com.emm.mygame.feature.town.TownViewModel\n" +
-                "fun appNavigation() {}\n",
-        )
-
-        assertEquals(
-            listOf("app-feature-state app/src/main/kotlin/AppNavigation.kt: import com.emm.mygame.feature.town.TownViewModel"),
-            findingsOf(navigation, baseline = listOf("app-feature-state app/src/main/kotlin/AppNavigation.kt")),
-        )
-    }
-
-    @Test
-    fun `flags a third baseline copy of a violation that occurs twice`() {
-        val navigation = SourceFile(
-            "app/src/main/kotlin/AppNavigation.kt",
-            "import com.emm.mygame.feature.town.TownUiState\nimport com.emm.mygame.feature.town.TownViewModel\n" +
-                "fun appNavigation() {}\n",
-        )
-        val threeCopies: List<String> = List(3) { "app-feature-state app/src/main/kotlin/AppNavigation.kt" }
-
-        assertEquals(
-            listOf(
-                "app-feature-state app/src/main/kotlin/AppNavigation.kt: " +
-                    "in the baseline but no longer a violation; delete the line",
-            ),
-            findingsOf(navigation, baseline = threeCopies),
         )
     }
 

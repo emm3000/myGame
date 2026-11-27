@@ -50,7 +50,7 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 
 ## Structure limits
 
-The limits on a file's lines, a package's files, a test file's lines and a class's private `var`s live only in `apps/android/build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/StructureLimits.kt`; this file never copies a number. `checkStructure` enforces them (ADR 056, sections 6 and 7). A finding is fixed by shape: split the file, the package or the ViewModel's state. Never by adding a line to `config/structure/baseline.txt`.
+The limits on a file's lines, a package's files, a test file's lines and a class's private `var`s live only in `apps/android/build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/StructureLimits.kt`; this file never copies a number. `checkStructure` enforces them (ADR 056, sections 6 and 7). A finding is fixed by shape: split the file, the package or the ViewModel's state.
 
 ## detekt
 
