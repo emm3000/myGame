@@ -54,14 +54,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 private const val PRESS_SETTLE_MILLIS: Long = 500L
 
 private val school: MyGameLabel = MyGameLabel(text = "Go to the school", translation = null)
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameNavRowTest {
 
     @get:Rule

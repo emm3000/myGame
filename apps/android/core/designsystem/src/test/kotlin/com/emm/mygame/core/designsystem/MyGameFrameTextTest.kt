@@ -56,7 +56,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class MyGameFrameTextTest {
@@ -189,7 +188,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `gives a short word on tap a control-wide target`() {
         showFrame(dayFrame)
         val edge: Float = with(composeRule.density) { MyGameSizes.control.toPx() / 2 - 1 }
@@ -201,7 +199,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `gives a two-letter word on tap a control-wide target`() {
         showFrame(goFrame)
         val edge: Float = with(composeRule.density) { MyGameSizes.control.toPx() / 2 - 1 }
@@ -213,7 +210,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `measures a word on tap as wide as its text`() {
         showBeside(dayFrame, plain = "day")
 
@@ -222,7 +218,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `sets a short word on tap one plain space after its neighbor`() {
         showBeside(dayFrame, plain = "The ")
 
@@ -234,7 +229,6 @@ class MyGameFrameTextTest {
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `draws a focused word's ring outside its letters`() {
         var inputModes: InputModeManager? = null
         var ink: Color = Color.Unspecified
@@ -285,7 +279,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `drops a support beside its word to the next line when it does not fit beside it`() {
         show {
             val ink: TextStyle = MyGameTypography.reading.copy(color = MyGameTheme.colors.onBlock)
@@ -307,7 +300,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `draws the comma after a word on tap on that word's line`() {
         show {
             val ink: TextStyle = MyGameTypography.reading.copy(color = MyGameTheme.colors.onBlock)
@@ -336,7 +328,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `draws the closing period right after the last line of a wrapped support beside its word`() {
         var lastLineEnd: Dp = 0.dp
         show {
@@ -415,7 +406,6 @@ class MyGameFrameTextTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `sends a tap between two words on tap to the nearer word`() {
         showFrame(twoWordsFrame)
         val go: Rect = composeRule.onNodeWithText("go").fetchSemanticsNode().boundsInRoot

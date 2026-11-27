@@ -33,7 +33,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolPathTest {
@@ -198,7 +197,6 @@ class SchoolPathTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `fits the reward on one line on a narrow phone`() {
         val widest: TownSnapshot.Lesson = lessonOf(
             wordCount = 10,

@@ -40,7 +40,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "+w411dp-h891dp")
@@ -212,7 +211,6 @@ class ReviewScreenTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h480dp")
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a new card opens at the top of the review`() {
         val shown: MutableState<ReviewUiState> =
             mutableStateOf(recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house"))
@@ -231,7 +229,6 @@ class ReviewScreenTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h480dp")
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a returning word opens at the top of the review`() {
         val missed: ReviewUiState.Reviewing =
             recalling(step = ReviewUiState.ReviewStep.Wrong(correct = "home"), typed = "house")

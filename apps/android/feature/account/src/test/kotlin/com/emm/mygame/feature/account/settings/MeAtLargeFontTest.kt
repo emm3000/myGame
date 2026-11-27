@@ -24,13 +24,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 private val touchFloor: Dp = 48.dp
 
 @RunWith(RobolectricTestRunner::class)
 @Config(fontScale = 2.0f, qualifiers = "es-w360dp-h640dp")
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MeAtLargeFontTest {
 
     @get:Rule

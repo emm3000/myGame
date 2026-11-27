@@ -39,7 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolReleasedLessonsTest {
@@ -240,7 +239,6 @@ class SchoolReleasedLessonsTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp")
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `keeps a studied released lesson's status on one line`() {
         show(contentOf(releasedStudied))
 
@@ -253,7 +251,6 @@ class SchoolReleasedLessonsTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a released lesson's row at font scale 2 wraps its status before it squeezes its title`() {
         show(contentOf(releasedUnderStudy))
 
@@ -267,7 +264,6 @@ class SchoolReleasedLessonsTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 1.1f)
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `keeps a released lesson's set number beside its set word`() {
         show(contentOf(shelvedAndReleased))
 
