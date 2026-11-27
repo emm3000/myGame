@@ -7,8 +7,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -16,7 +17,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.NeededWordKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
@@ -48,10 +49,20 @@ class NextLevelScreenTest : TownScreenFixture() {
     }
 
     @Test
-    fun `draws the build action outlined`() {
+    fun `outlines the open build button in go`() {
         show(riverton, place = TownBuildingKind.School)
 
-        composeRule.onAllNodesWithTag(OUTLINED_PILL).assertCountEquals(1)
+        composeRule.onAllNodes(hasTestTag(GO_OUTLINED_PILL) and hasText(BUILD_SCHOOL)).assertCountEquals(1)
+    }
+
+    @Test
+    fun `outlines the blocked build button in go`() {
+        show(
+            onSchool(placeOf(TownBuildingKind.School).copy(block = BlockReason.PeopleShort(5, 2))),
+            place = TownBuildingKind.School,
+        )
+
+        composeRule.onAllNodes(hasTestTag(GO_OUTLINED_PILL) and hasText(BUILD_SCHOOL)).assertCountEquals(1)
     }
 
     @Test
@@ -156,6 +167,7 @@ class NextLevelScreenTest : TownScreenFixture() {
     )
 
     private companion object {
+        const val BUILD_SCHOOL: String = "Construir nivel 2 · 1:30"
         const val NOT_ENOUGH: String =
             "No tienes recursos suficientes para esta obra. Espera a que crezcan tus reservas."
     }

@@ -424,7 +424,7 @@
   "android.town.town_finish_with_clock": "{timeLeft} · {clock}",
   "android.town.town_full": "Full: {capacity}",
   "android.town.town_full_at": "Full {clock}",
-  "android.town.town_go_to_school": "Go to the school",
+  "android.town.town_go_to_lessons": "Go to your lessons",
   "android.town.town_goal_close": "Close the goal",
   "android.town.town_goal_people": "Free people needed: {count}.",
   "android.town.town_goal_ready": "You have what it needs.",

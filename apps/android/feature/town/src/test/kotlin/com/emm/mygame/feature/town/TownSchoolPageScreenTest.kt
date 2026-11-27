@@ -15,10 +15,10 @@ import org.robolectric.RobolectricTestRunner
 class TownSchoolPageScreenTest : TownScreenFixture() {
 
     @Test
-    fun `opens the school from the school page's nav row`() {
+    fun `opens your lessons from the school page's nav row`() {
         show(riverton, place = TownBuildingKind.School)
 
-        composeRule.onNode(navRowOf("Ir a la escuela"), useUnmergedTree = true).performScrollTo().performClick()
+        composeRule.onNode(navRowOf("Ir a tus lecciones"), useUnmergedTree = true).performScrollTo().performClick()
 
         assertEquals(1, schoolOpens)
     }

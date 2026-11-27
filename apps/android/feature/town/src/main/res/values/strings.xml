@@ -14,7 +14,7 @@
     <string name="town_finish_with_clock">{timeLeft} · {clock}</string>
     <string name="town_full">Full: {capacity}</string>
     <string name="town_full_at">Full {clock}</string>
-    <string name="town_go_to_school">Go to the school</string>
+    <string name="town_go_to_lessons">Go to your lessons</string>
     <string name="town_goal_close">Close the goal</string>
     <string name="town_goal_people">Free people needed: {count}.</string>
     <string name="town_goal_ready">You have what it needs.</string>

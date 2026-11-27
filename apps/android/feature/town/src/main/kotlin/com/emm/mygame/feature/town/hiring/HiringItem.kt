@@ -16,10 +16,10 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameIcon
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -112,7 +112,7 @@ private fun HiringOrderForm(
             isEnabled = !form.isEntryDisabled,
         )
         if (offer != null) HiringCosts(offer = offer)
-        MyGameOutlinedButton(
+        MyGameGoOutlinedButton(
             label = if (offer == null) copy.chrome(hireAnyOf(kind)) else copy.chrome { hireLabelOf(kind, offer) },
             isBusy = isWaiting,
             busyDescription = copy.chrome(R.string.town_sending),

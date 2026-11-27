@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -52,7 +52,7 @@ internal fun NextLevel(
             color = MyGameTheme.colors.inkMuted,
         )
         Costs(next = next)
-        MyGameOutlinedButton(
+        MyGameGoOutlinedButton(
             label = copy.chrome {
                 text(
                     R.string.town_build_with_duration,
