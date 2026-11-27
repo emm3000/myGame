@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGamePlaceArt
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
@@ -96,7 +96,7 @@ private fun WasteSite(
 @Composable
 private fun SendTeamButton(site: Int, onIntent: (MapIntent) -> Unit, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameOutlinedButton(
+    MyGameGoOutlinedButton(
         label = copy.chrome(R.string.map_send_team),
         isBusy = false,
         busyDescription = copy.chrome(R.string.map_waiting),

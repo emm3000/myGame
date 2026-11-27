@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameCard
+import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
@@ -69,7 +69,7 @@ internal fun TeamFormCard(
             extraFields()
             quote(isSendAnswered)
             form.roadMark?.let { mark: DurationMark -> RoadMarkRow(mark = mark) }
-            MyGameOutlinedButton(
+            MyGameGoOutlinedButton(
                 label = copy.chrome(R.string.map_job_send),
                 isBusy = send == MapUiState.SendRequest.Waiting,
                 busyDescription = copy.chrome(R.string.map_waiting),

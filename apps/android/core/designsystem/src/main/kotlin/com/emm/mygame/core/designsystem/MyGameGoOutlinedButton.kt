@@ -14,6 +14,7 @@ fun MyGameGoOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     blockedReason: String? = null,
+    accessibleName: String? = null,
 ) {
     MyGameGoOutlinedButton(
         label = MyGameLabel(text = label, translation = null),
@@ -22,6 +23,7 @@ fun MyGameGoOutlinedButton(
         onClick = onClick,
         modifier = modifier,
         blockedReason = blockedReason?.let { reason: String -> MyGameLabel(text = reason, translation = null) },
+        accessibleName = accessibleName,
     )
 }
 
@@ -33,6 +35,7 @@ fun MyGameGoOutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     blockedReason: MyGameLabel? = null,
+    accessibleName: String? = null,
 ) {
     MyGamePill(
         look = goOutlinedPillLook(MyGameTheme.colors),
@@ -42,7 +45,7 @@ fun MyGameGoOutlinedButton(
         onClick = onClick,
         modifier = modifier,
         blockedReason = blockedReason,
-        accessibleName = null,
+        accessibleName = accessibleName,
         badge = null,
     )
 }
