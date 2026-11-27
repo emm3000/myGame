@@ -37,18 +37,8 @@ class FrameLinkNavigationTest : SignedInScreenFixture() {
     }
 
     @Test
-    fun `the school's header draws the link that opens the town`() {
-        assertHeaderLinkOpensTown(Destination.School)
-    }
-
-    @Test
     fun `the news' header draws the link that opens the town`() {
         assertHeaderLinkOpensTown(Destination.News)
-    }
-
-    @Test
-    fun `the settings' header draws the link that opens the town`() {
-        assertHeaderLinkOpensTown(Destination.Settings)
     }
 
     @Test

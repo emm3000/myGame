@@ -12,13 +12,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
 import com.emm.mygame.core.designsystem.MyGameSkeletonBlocks
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameTabHeader
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -38,6 +37,7 @@ internal fun SchoolScreen(
     modifier: Modifier = Modifier,
     holdoutChecks: @Composable () -> Unit = {},
     placement: @Composable () -> Unit = {},
+    ring: @Composable () -> Unit = {},
 ) {
     val scroll: ScrollState = rememberScrollState()
     val selected: LessonId? = (state as? SchoolUiState.Content)?.selected
@@ -54,10 +54,11 @@ internal fun SchoolScreen(
             .padding(
                 start = MyGameSpacing.step4,
                 end = MyGameSpacing.step4,
-                top = MyGameSpacing.step8,
+                top = MyGameSpacing.step4,
                 bottom = MyGameSpacing.step8,
             ),
     ) {
+        MyGameTabHeader(title = chromeResource(R.string.school_title), ring = ring)
         MyGameSkeleton(
             isLoading = state == SchoolUiState.Loading,
             loadingLabel = chromeResource(R.string.school_loading).spoken,
@@ -88,14 +89,11 @@ private fun SchoolState(
 ) {
     when (state) {
         SchoolUiState.Loading -> Unit
-        SchoolUiState.Failed -> {
-            LearnTitle()
-            MyGameErrorBanner(
-                message = fixedCopyResource(R.string.school_refusal_unexpected),
-                actionLabel = chromeResource(R.string.school_try_again),
-                onAction = { onIntent(SchoolIntent.RetryTapped) },
-            )
-        }
+        SchoolUiState.Failed -> MyGameErrorBanner(
+            message = fixedCopyResource(R.string.school_refusal_unexpected),
+            actionLabel = chromeResource(R.string.school_try_again),
+            onAction = { onIntent(SchoolIntent.RetryTapped) },
+        )
         is SchoolUiState.Content -> SchoolContent(
             content = state,
             onIntent = onIntent,
@@ -131,7 +129,6 @@ private fun SchoolContent(
 ) {
     val shown: SchoolUiState.LessonCard? = content.blockLesson
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6), modifier = modifier) {
-        LearnTitle()
         holdoutChecks()
         LessonSlotSection(
             slot = content.slot,
@@ -181,15 +178,5 @@ private fun HoldoutNote(modifier: Modifier = Modifier) {
         style = MyGameTypography.body,
         color = MyGameTheme.colors.inkMuted,
         modifier = modifier,
-    )
-}
-
-@Composable
-private fun LearnTitle(modifier: Modifier = Modifier) {
-    MyGameText(
-        label = chromeResource(R.string.school_title),
-        style = MyGameTypography.display,
-        color = MyGameTheme.colors.ink,
-        modifier = modifier.semantics { heading() },
     )
 }

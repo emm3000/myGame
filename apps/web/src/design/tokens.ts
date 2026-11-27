@@ -185,6 +185,7 @@ export const transitions: Readonly<Record<Transition, string>> = {
 export type TypeStyle =
   | 'word'
   | 'display'
+  | 'headline'
   | 'numeral'
   | 'reading'
   | 'heading'
@@ -215,6 +216,7 @@ export const typeScale: Readonly<Record<TypeStyle, TypeStyleValues>> = {
     letterSpacing: '-0.02em',
   },
   display: { fontSize: '40px', lineHeight: 1.05, fontWeight: 800, letterSpacing: '-0.02em' },
+  headline: { fontSize: '26px', lineHeight: 1.1, fontWeight: 600 },
   numeral: {
     fontSize: '26px',
     lineHeight: 1.15,

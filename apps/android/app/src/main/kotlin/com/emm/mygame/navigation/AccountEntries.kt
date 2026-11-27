@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
+import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.feature.account.password.ForgotPasswordRoute
 import com.emm.mygame.feature.account.password.ResetPasswordRoute
@@ -64,10 +65,7 @@ internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.Settings> {
-        SignedInFrame(
-            kind = FrameKind.Place(doesScreenReadTown = false),
-            chrome = chrome,
-        ) {
+        SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
             val context: Context = LocalContext.current
             SettingsRoute(
                 sources = SettingsSources(
@@ -84,6 +82,7 @@ internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
                     onSigningOut = navigator::signingOut,
                     onSignedOut = { navigator.signedOut(isSessionEnded = false) },
                 ),
+                ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = false) },
             )
         }
     }

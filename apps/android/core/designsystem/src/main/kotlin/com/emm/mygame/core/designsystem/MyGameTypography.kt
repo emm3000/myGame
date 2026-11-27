@@ -14,6 +14,7 @@ object MyGameTypography {
         .copy(letterSpacing = (-0.02).em)
     val display: TextStyle = style(size = 40.sp, lineHeight = 1.05.em, weight = FontWeight.ExtraBold)
         .copy(letterSpacing = (-0.02).em)
+    val headline: TextStyle = style(size = 26.sp, lineHeight = 1.1.em, weight = FontWeight.SemiBold)
     val numeral: TextStyle = style(size = 26.sp, lineHeight = 1.15.em, weight = FontWeight.Bold)
         .copy(letterSpacing = (-0.02).em, fontFeatureSettings = "tnum")
     val reading: TextStyle = style(size = 20.sp, lineHeight = 1.5.em, weight = FontWeight.Normal)

@@ -33,6 +33,7 @@ import com.emm.mygame.core.designsystem.HAIRLINE
 import com.emm.mygame.core.designsystem.MyGameIcons
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.MyGameTypography
 import com.emm.mygame.core.designsystem.NAV_ROW_CHEVRON
 import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.learning.LessonId
@@ -514,10 +515,10 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `sets Learn's title in display`() {
+    fun `sets Learn's title in the headline style`() {
         show(idleSchool)
 
-        assertEquals(40.sp, textStyleOf(composeRule, "Aprender").fontSize)
+        assertEquals(MyGameTypography.headline.fontSize, textStyleOf(composeRule, "Aprender").fontSize)
     }
 
     private fun showCardInks(state: SchoolUiState): Pair<Color, Color> {
