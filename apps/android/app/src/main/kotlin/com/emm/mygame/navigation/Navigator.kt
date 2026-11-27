@@ -118,8 +118,8 @@ internal class Navigator(private val backStack: MutableList<NavKey>, private val
     fun openReviews() {
         if (!areLinksEnabled) return
         when (backStack.lastOrNull()) {
-            Destination.Today, Destination.Town, Destination.School, is Destination.LessonWords ->
-                backStack.add(Destination.Review)
+            Destination.Today, Destination.Town, Destination.School -> backStack.add(Destination.Review)
+            is Destination.LessonWords -> backStack[backStack.lastIndex] = Destination.Review
             else -> Unit
         }
     }
