@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Townword</string>
-    <string name="navigation_learn">Aprender</string>
-    <string name="navigation_me">Yo</string>
-    <string name="navigation_today">Hoy</string>
-    <string name="navigation_town">Pueblo</string>
     <string name="reminder_cards_text">Abre Hoy para repasarlas.</string>
     <string name="reminder_cards_title">Tus palabras están listas.</string>
     <string name="reminder_channel">Recordatorios de estudio</string>
@@ -12,5 +8,4 @@
     <string name="reminder_check_title">Tu prueba de palabras está lista.</string>
     <string name="reminder_lesson_text">Empiézala desde el pueblo.</string>
     <string name="reminder_lesson_title">Hay una lección lista.</string>
-    <string name="shell_retained_words">{count} de {total, plural, =1 {1 palabra aprendida} other {{total, number,0} palabras aprendidas}}</string>
 </resources>

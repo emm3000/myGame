@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell.ring
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -9,9 +9,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.core.designsystem.MyGameRing
 import com.emm.mygame.core.model.town.TownReader
 import com.emm.mygame.core.ui.chromeResource
+import com.emm.mygame.feature.shell.R
 
 @Composable
-internal fun RetainedWordsRing(
+fun RetainedWordsRing(
     towns: TownReader,
     doesScreenReadTown: Boolean,
     modifier: Modifier = Modifier,

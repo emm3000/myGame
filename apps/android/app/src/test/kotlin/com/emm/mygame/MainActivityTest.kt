@@ -1,5 +1,6 @@
 package com.emm.mygame
 
+import com.emm.mygame.feature.shell.R as ShellR
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,7 +16,7 @@ class MainActivityTest {
     fun `reads English on an English phone before any player is read`() {
         val activity: MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
 
-        assertEquals("Town", activity.getString(R.string.navigation_town))
+        assertEquals("Town", activity.getString(ShellR.string.shell_navigation_town))
     }
 
     @Test
@@ -23,6 +24,6 @@ class MainActivityTest {
     fun `reads Spanish on a Spanish phone before any player is read`() {
         val activity: MainActivity = Robolectric.buildActivity(MainActivity::class.java).setup().get()
 
-        assertEquals("Pueblo", activity.getString(R.string.navigation_town))
+        assertEquals("Pueblo", activity.getString(ShellR.string.shell_navigation_town))
     }
 }

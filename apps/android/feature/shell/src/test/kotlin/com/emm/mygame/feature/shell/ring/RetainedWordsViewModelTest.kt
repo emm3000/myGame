@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell.ring
 
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot

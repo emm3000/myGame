@@ -5,7 +5,6 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
-import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
@@ -17,6 +16,8 @@ import com.emm.mygame.feature.school.words.LessonWordsNavigation
 import com.emm.mygame.feature.school.words.LessonWordsRoute
 import com.emm.mygame.feature.school.SchoolRoute
 import com.emm.mygame.feature.school.text.SchoolTextRoute
+import com.emm.mygame.feature.shell.bar.Tab
+import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 
 internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies

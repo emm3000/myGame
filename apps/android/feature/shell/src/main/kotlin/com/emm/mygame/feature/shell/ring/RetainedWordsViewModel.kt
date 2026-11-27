@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell.ring
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-internal class RetainedWordsViewModel(
+class RetainedWordsViewModel(
     private val towns: TownReader,
     private val doesScreenReadTown: Boolean,
 ) : ViewModel() {

@@ -5,13 +5,13 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
-import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.placement.PlacementBand
 import com.emm.mygame.feature.placement.PlacementOfferRoute
+import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 import com.emm.mygame.feature.today.TodayNavigation
 import com.emm.mygame.feature.today.TodayRoute
 

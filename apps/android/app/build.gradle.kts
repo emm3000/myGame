@@ -96,6 +96,7 @@ dependencies {
     implementation(project(":feature:placement"))
     implementation(project(":feature:report"))
     implementation(project(":feature:school"))
+    implementation(project(":feature:shell"))
     implementation(project(":feature:today"))
     implementation(project(":feature:town"))
 

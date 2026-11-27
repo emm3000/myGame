@@ -1,6 +1,6 @@
-package com.emm.mygame
+package com.emm.mygame.feature.shell.ring
 
-internal sealed interface RetainedWordsUiState {
+sealed interface RetainedWordsUiState {
 
     data object Hidden : RetainedWordsUiState
 

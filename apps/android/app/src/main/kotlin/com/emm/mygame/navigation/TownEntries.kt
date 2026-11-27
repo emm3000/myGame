@@ -6,9 +6,10 @@ import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
 import com.emm.mygame.FrameKind
-import com.emm.mygame.RetainedWordsRing
 import com.emm.mygame.SignedInChrome
 import com.emm.mygame.core.model.town.building.TownBuildingKind
+import com.emm.mygame.feature.shell.bar.Tab
+import com.emm.mygame.feature.shell.ring.RetainedWordsRing
 import com.emm.mygame.feature.town.TownNavigation
 import com.emm.mygame.feature.town.TownRoute
 
