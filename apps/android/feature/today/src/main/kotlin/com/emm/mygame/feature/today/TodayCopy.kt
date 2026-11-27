@@ -39,6 +39,7 @@ internal fun PlayerCopy.lineOf(card: TodayUiState.FirstCard): MyGameLabel = when
         chrome(R.string.today_reviews_due, "count" to formatQuantity(card.count.toLong()))
     is TodayUiState.FirstCard.HoldoutCheck ->
         fixedLabel(fixedCopy(R.string.today_holdout_check, "band" to card.band.number.toString()))
+    is TodayUiState.FirstCard.LessonRunning -> runningTitleOf(card.running.name)
     is TodayUiState.FirstCard.CaughtUp -> when (val line: TodayUiState.CaughtUpLine = card.line) {
         TodayUiState.CaughtUpLine.NoReviewsDue -> chrome(R.string.today_no_reviews_due)
         is TodayUiState.CaughtUpLine.LearningCap -> chrome(
@@ -55,7 +56,14 @@ internal fun PlayerCopy.actionOf(card: TodayUiState.FirstCard): MyGameLabel? = w
     is TodayUiState.FirstCard.Reviews ->
         if (card.readFirst == null) chrome(R.string.today_start_reviews) else chrome(R.string.today_read_words)
     is TodayUiState.FirstCard.HoldoutCheck -> fixedLabel(fixedCopy(R.string.today_holdout_open))
+    is TodayUiState.FirstCard.LessonRunning -> chrome(R.string.today_read_words)
     is TodayUiState.FirstCard.CaughtUp -> null
+}
+
+internal fun PlayerCopy.countdownOf(card: TodayUiState.FirstCard): MyGameLabel? = when (card) {
+    is TodayUiState.FirstCard.LessonRunning -> runningTimeOf(card.running)
+    is TodayUiState.FirstCard.Study, is TodayUiState.FirstCard.StudyReleased, is TodayUiState.FirstCard.Reviews,
+    is TodayUiState.FirstCard.HoldoutCheck, is TodayUiState.FirstCard.CaughtUp -> null
 }
 
 internal fun PlayerCopy.nextReviewOf(time: TodayUiState.TimeAt): MyGameLabel = chrome {

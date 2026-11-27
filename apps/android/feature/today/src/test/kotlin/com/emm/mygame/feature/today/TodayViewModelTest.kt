@@ -87,10 +87,23 @@ class TodayViewModelTest {
     }
 
     @Test
-    fun `a running lesson draws no first card`() = runTest {
+    fun `while a running lesson is the next step, the first card is the lesson counting down`() = runTest {
         val viewModel: TodayViewModel = shownOn(runningTown())
 
-        assertNull(contentOf(viewModel).first)
+        advanceTimeBy(2.minutes)
+        runCurrent()
+
+        assertEquals(
+            TodayUiState.FirstCard.LessonRunning(
+                TodayUiState.RunningLesson(
+                    lesson = firstLesson,
+                    name = LessonName.Shelved(number = 1),
+                    remaining = 8.minutes,
+                    finishesAt = readAt + 10.minutes,
+                ),
+            ),
+            contentOf(viewModel).first,
+        )
     }
 
     @Test

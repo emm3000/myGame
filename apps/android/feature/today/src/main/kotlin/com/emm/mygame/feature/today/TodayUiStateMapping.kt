@@ -74,7 +74,7 @@ private fun TownSnapshot.firstCardAt(now: Instant, gap: Duration): TodayUiState.
         is NextStep.ReleasedLesson -> TodayUiState.FirstCard.StudyReleased(step.lesson, step.band, step.position)
         is NextStep.Reviews -> TodayUiState.FirstCard.Reviews(step.count, step.readFirst.firstOrNull())
         is NextStep.HoldoutCheck -> TodayUiState.FirstCard.HoldoutCheck(step.band, step.week)
-        is NextStep.LessonRunning -> null
+        is NextStep.LessonRunning -> runningLessonAt(now, gap)?.let(TodayUiState.FirstCard::LessonRunning)
         is NextStep.CaughtUp -> TodayUiState.FirstCard.CaughtUp(
             line = caughtUpLineOf(step.reason),
             nextReview = nextDueAt?.let { dueAt: Instant -> timeAt(dueAt, now, gap) },
