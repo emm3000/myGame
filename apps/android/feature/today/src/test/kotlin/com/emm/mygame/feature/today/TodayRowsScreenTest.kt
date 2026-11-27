@@ -5,8 +5,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -14,11 +17,13 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
 import com.emm.mygame.core.designsystem.INK_PILL
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.WORKING_DOTS
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.placement.PlacementBand
@@ -70,6 +75,26 @@ class TodayRowsScreenTest {
         composeRule.onNodeWithText(LESSON_ONE_READY_IN).assertIsDisplayed()
         composeRule.onNodeWithText(EIGHT_MINUTES, substring = true).assertIsDisplayed()
         composeRule.onNode(hasText(READ_THE_WORDS) and hasTestTag(INK_PILL)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `the running lesson's heading leads with the working dots and holds its countdown`() {
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
+
+        composeRule.onNode(hasTestTag(WORKING_DOTS) and hasAnyAncestor(isHeading()), useUnmergedTree = true)
+            .assertIsDisplayed()
+        composeRule.onNode(hasText(EIGHT_MINUTES) and hasAnyAncestor(isHeading()), useUnmergedTree = true)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `the running lesson's line and countdown share one line where they fit`() {
+        show(contentWith(first = TodayUiState.FirstCard.LessonRunning(runningLesson), lesson = runningLesson))
+
+        val line: DpRect = composeRule.onNodeWithText(LESSON_ONE_READY_IN).getUnclippedBoundsInRoot()
+        val countdown: DpRect = composeRule.onNodeWithText(EIGHT_MINUTES).getUnclippedBoundsInRoot()
+
+        assertEquals(line.top, countdown.top)
     }
 
     @Test
