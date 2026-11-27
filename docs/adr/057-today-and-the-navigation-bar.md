@@ -1,5 +1,5 @@
 ---
-status: accepted, the titles drawn in What happened amended to Town News and What your town earned by the amendment of 2026-11-26
+status: accepted, the titles drawn in What happened amended to Town News and What your town earned by the first amendment of 2026-11-26, and the running lesson made Today's first card by the second amendment of 2026-11-26
 date: 2026-11-25
 ---
 # Today and the navigation bar, the Android shell
@@ -490,3 +490,28 @@ chrome lessons do not teach, so none can ship as written.
 - **Every criterion that names the old title reads the new one.** A
   shot that "shows *While you were away*" shows the gains under *What
   your town earned*.
+
+## Amendment (2026-11-26): the running lesson is Today's first card
+
+On 2026-11-26 the owner approved canvas v12
+(https://claude.ai/artifact/QsoXLU92BPEX7cFGXa4VVp), whose Today draws a
+first card while a lesson runs: *Lesson N ready in* with its countdown,
+and a filled *Read the words*. This ADR gives `lessonRunning` no first
+card and puts the lesson in *In progress*. The rule is recorded here
+before the code ships it.
+
+| `nextStep` | The first card | Elsewhere on Today |
+|---|---|---|
+| `lessonRunning` | the running lesson, with *Read the words* | the goal's building first in *While you wait* |
+
+- **While `nextStep` is `lessonRunning`, the first card is the running
+  lesson.** It draws the lesson's line, *Lesson N ready in*, or
+  *Returning words: band B, set N ready in* for a released lesson, with
+  the countdown, and one filled *Read the words* that opens the lesson's
+  words. The eyebrow rule stands.
+- **While the running lesson is the first card it is no row of *In
+  progress*.** When another step leads, reviews or a holdout check while
+  a lesson runs, the lesson stays a row of *In progress*.
+- **This replaces the `lessonRunning` row of the table under *Today*.**
+  Under *The navigation bar*, a running lesson is a row of *In progress*
+  on Today only while another step leads.
