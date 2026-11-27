@@ -14,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import com.emm.mygame.core.designsystem.MyGameHairline
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSizes
@@ -43,6 +45,8 @@ private const val STOCK_COLUMNS: Int = 4
 private const val NARROW_STOCK_COLUMNS: Int = 2
 
 private val twoCardsWidth: Dp = MyGameSizes.placeCard * GRID_COLUMNS
+
+private val stockLineStyle: TextStyle = MyGameTypography.meta.copy(letterSpacing = TextUnit.Unspecified)
 
 @Composable
 internal fun TownGrid(
@@ -133,12 +137,12 @@ private fun StockCell(stock: StockLine, modifier: Modifier = Modifier) {
         )
         MyGameText(
             label = copy.chrome { text(resourceNameOf(stock.kind)) },
-            style = MyGameTypography.meta,
+            style = stockLineStyle,
             color = MyGameTheme.colors.ink,
         )
         MyGameText(
             label = copy.chrome(R.string.town_stock_of, "capacity" to formatQuantity(stock.capacity)),
-            style = MyGameTypography.meta,
+            style = stockLineStyle,
             color = MyGameTheme.colors.inkMuted,
         )
     }
