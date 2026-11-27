@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGamePreviewSurface
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -34,6 +36,8 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
+internal const val NEXT_LEVEL_CARD: String = "next_level_card"
+
 @Composable
 internal fun NextLevel(
     building: TownBuildingKind,
@@ -46,25 +50,29 @@ internal fun NextLevel(
     val copy: PlayerCopy = rememberPlayerCopy()
     val reason: MyGameLabel? = block?.let { blocked: BlockReason -> copy.blockLineOf(blocked) }
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameText(
-            label = copy.chrome(R.string.town_people_at_work, "people" to next.people.toString()),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        Costs(next = next)
-        MyGameGoOutlinedButton(
-            label = copy.chrome {
-                text(
-                    R.string.town_build_with_duration,
-                    "action" to text(R.string.town_build, "level" to next.level.toString()),
-                    "duration" to durationLabelOf(next.duration, townDurationCopy),
+        MyGameSunkenCard(modifier = Modifier.testTag(NEXT_LEVEL_CARD)) {
+            Costs(next = next)
+            if (next.people > 0) {
+                MyGameText(
+                    label = copy.chrome(R.string.town_people_at_work, "people" to next.people.toString()),
+                    style = MyGameTypography.caption,
+                    color = MyGameTheme.colors.inkMuted,
                 )
-            },
-            isBusy = start is StartStatus.Waiting,
-            busyDescription = copy.chrome(R.string.town_sending),
-            onClick = { onIntent(TownIntent.BuildTapped(building)) },
-            blockedReason = reason,
-        )
+            }
+            MyGameGoOutlinedButton(
+                label = copy.chrome {
+                    text(
+                        R.string.town_build_with_duration,
+                        "action" to text(R.string.town_build, "level" to next.level.toString()),
+                        "duration" to durationLabelOf(next.duration, townDurationCopy),
+                    )
+                },
+                isBusy = start is StartStatus.Waiting,
+                busyDescription = copy.chrome(R.string.town_sending),
+                onClick = { onIntent(TownIntent.BuildTapped(building)) },
+                blockedReason = reason,
+            )
+        }
         StartAnswer(building = building, start = start)
     }
 }
