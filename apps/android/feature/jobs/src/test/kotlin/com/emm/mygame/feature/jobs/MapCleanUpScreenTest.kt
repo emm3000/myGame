@@ -29,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class MapCleanUpScreenTest {
@@ -123,7 +122,6 @@ class MapCleanUpScreenTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     @Config(qualifiers = "es-w360dp-h640dp", fontScale = 2.0f)
     fun `gives a waste site's status at least the send button's width at the largest font on a small phone`() {
         show(contentOf())

@@ -40,7 +40,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolScreenTest {
@@ -437,7 +436,6 @@ class SchoolScreenTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `a studied lesson's row at font scale 2 keeps its title on one line beside its status`() {
         show(idleSchool.copy(lessons = listOf(readyLesson.copy(state = SchoolUiState.LessonState.Studied))))
 

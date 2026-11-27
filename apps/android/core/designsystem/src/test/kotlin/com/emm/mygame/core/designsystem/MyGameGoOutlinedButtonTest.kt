@@ -20,12 +20,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.GraphicsMode
 
 private val ringRoom: Dp = 12.dp
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameGoOutlinedButtonTest {
 
     @get:Rule

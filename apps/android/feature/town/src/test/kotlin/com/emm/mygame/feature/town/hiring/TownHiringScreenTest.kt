@@ -57,7 +57,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class TownHiringScreenTest {
@@ -240,7 +239,6 @@ class TownHiringScreenTest {
 
     @Test
     @Config(qualifiers = "+w360dp-h640dp", fontScale = 2.0f)
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `breaks the hiring's name only between words on a phone at the largest font`() {
         show(hiring.copy(order = busyHiring))
 

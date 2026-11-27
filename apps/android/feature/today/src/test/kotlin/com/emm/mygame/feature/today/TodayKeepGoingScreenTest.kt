@@ -32,7 +32,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 class TodayKeepGoingScreenTest {
@@ -52,7 +51,6 @@ class TodayKeepGoingScreenTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     fun `draws Read more's frames on surface-sunken`() {
         show(contentWith(TodayUiState.KeepGoing.Frames(sentences = listOf(riverFrame), tapped = null)))
 

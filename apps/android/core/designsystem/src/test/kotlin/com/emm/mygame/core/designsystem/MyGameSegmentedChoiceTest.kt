@@ -29,14 +29,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.GraphicsMode
 
 private val phoneContent: Dp = 320.dp
 
 private val themes: List<String> = listOf("System", "Light", "Dark")
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameSegmentedChoiceTest {
 
     @get:Rule

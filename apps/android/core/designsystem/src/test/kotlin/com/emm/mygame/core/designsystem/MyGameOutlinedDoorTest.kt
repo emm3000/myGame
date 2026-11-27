@@ -31,7 +31,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.GraphicsMode
 
 private const val LARGEST: Float = 2.0f
 
@@ -40,7 +39,6 @@ private val narrowWidth: Dp = 200.dp
 private const val LABEL: String = "Read all the news"
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGameOutlinedDoorTest {
 
     @get:Rule

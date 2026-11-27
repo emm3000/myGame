@@ -28,7 +28,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.GraphicsMode
 
 private const val LARGE: Float = 1.5f
 
@@ -45,7 +44,6 @@ private const val SHORT_LABEL: String = "Study"
 private const val LONG_LABEL: String = "Study the words of the bakery"
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class MyGamePillAtLargeFontTest {
 
     @get:Rule

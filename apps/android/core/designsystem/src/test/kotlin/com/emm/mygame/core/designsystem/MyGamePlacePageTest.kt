@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.robolectric.annotation.GraphicsMode
 
 private fun plain(text: String): MyGameLabel = MyGameLabel(text = text, translation = null)
 
@@ -52,7 +51,6 @@ private val hasArt: SemanticsMatcher = SemanticsMatcher.keyIsDefined(PLACE_ART)
 private val scrolls: SemanticsMatcher = SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange)
 
 @RunWith(RobolectricTestRunner::class)
-@GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "+w360dp-h640dp")
 class MyGamePlacePageTest {
 
