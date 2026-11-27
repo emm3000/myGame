@@ -37,7 +37,7 @@
     <string name="map_job_workers">Workers to send</string>
     <string name="map_loading">Reading the map…</string>
     <string name="map_next">Next area</string>
-    <string name="map_own_town">Your town</string>
+    <string name="map_own_status">{name} · Your town</string>
     <string name="map_previous">Previous area</string>
     <string name="map_refusal_area_not_found">That area is past the end of the map.</string>
     <string name="map_refusal_invalid_team">Choose at least one worker or truck for the team.</string>
@@ -68,6 +68,5 @@
     <string name="map_try_again">Try again</string>
     <string name="map_waiting">Sending…</string>
     <string name="map_waste">Waste: {waste}</string>
-    <string name="map_waste_site">Waste site</string>
-    <string name="map_waste_size">Size {size}</string>
+    <string name="map_waste_status">Waste site · Size {size} · Waste: {waste}</string>
 </resources>

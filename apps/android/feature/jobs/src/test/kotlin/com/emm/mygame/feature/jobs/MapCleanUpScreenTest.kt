@@ -3,6 +3,8 @@ package com.emm.mygame.feature.jobs
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -10,11 +12,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.MyGameArt
-import com.emm.mygame.core.designsystem.MyGameArtTint
+import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.PLACE_ART
-import com.emm.mygame.core.designsystem.R as DesignSystemR
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.TownSnapshot
@@ -23,10 +23,12 @@ import com.emm.mygame.core.model.town.jobs.TownJobRefusal
 import com.emm.mygame.core.model.town.jobs.WasteSize
 import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class MapCleanUpScreenTest {
@@ -91,23 +93,65 @@ class MapCleanUpScreenTest {
         }
     }
 
-    private fun silhouetteOf(drawable: Int): SemanticsMatcher =
-        SemanticsMatcher.expectValue(PLACE_ART, MyGameArt(drawable, MyGameArtTint.InkMuted))
-
     @Test
-    fun `draws each waste site with its silhouette and its waste`() {
+    fun `draws each waste site's size and waste on one status line`() {
         show(contentOf())
 
         listOf(
-            Triple(DesignSystemR.drawable.designsystem_waste_1, "Tamaño 1", "Residuos: 3"),
-            Triple(DesignSystemR.drawable.designsystem_waste_2, "Tamaño 2", "Residuos: 12"),
-            Triple(DesignSystemR.drawable.designsystem_waste_3, "Tamaño 3", "Residuos: 40"),
-        ).forEach { (drawable: Int, size: String, waste: String) ->
-            composeRule.onNode(silhouetteOf(drawable), useUnmergedTree = true).performScrollTo().assertIsDisplayed()
-            composeRule.onNodeWithText(size).performScrollTo().assertIsDisplayed()
-            composeRule.onNodeWithText(waste).performScrollTo().assertIsDisplayed()
+            "Sitio con residuos · Tamaño 1 · Residuos: 3",
+            "Sitio con residuos · Tamaño 2 · Residuos: 12",
+            "Sitio con residuos · Tamaño 3 · Residuos: 40",
+        ).forEach { status: String ->
+            composeRule.onNodeWithText(status, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
         }
-        composeRule.onAllNodesWithText("Sitio con residuos").assertCountEquals(3)
+        composeRule.onAllNodesWithText("Tamaño", substring = true, useUnmergedTree = true).assertCountEquals(3)
+    }
+
+    @Test
+    fun `draws a waste site's send button beside its status line`() {
+        show(contentOf())
+
+        val status: DpRect = composeRule
+            .onNodeWithText("Sitio con residuos · Tamaño 2 · Residuos: 12", useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val button: DpRect =
+            composeRule.onNodeWithContentDescription("Enviar un equipo al sitio 5").getUnclippedBoundsInRoot()
+
+        assertTrue("button right of the status", button.left >= status.right)
+        assertTrue("button beside the status", button.top < status.bottom && status.top < button.bottom)
+    }
+
+    @Test
+    @Config(qualifiers = "es-w360dp-h640dp", fontScale = 2.0f)
+    fun `keeps a waste site's send button beside its status line at the largest font on a small phone`() {
+        show(contentOf())
+
+        val status: DpRect = composeRule
+            .onNodeWithText("Sitio con residuos · Tamaño 2 · Residuos: 12", useUnmergedTree = true)
+            .performScrollTo()
+            .getUnclippedBoundsInRoot()
+        val button: DpRect =
+            composeRule.onNodeWithContentDescription("Enviar un equipo al sitio 5").getUnclippedBoundsInRoot()
+
+        assertTrue("button right of the status", button.left >= status.right)
+        assertTrue("status keeps a readable width", status.right - status.left >= (button.right - button.left) / 2)
+    }
+
+    @Test
+    fun `reads a waste site's title and status as one node`() {
+        show(contentOf())
+
+        composeRule
+            .onNode(hasText("Sitio 5") and hasText("Sitio con residuos · Tamaño 2 · Residuos: 12"))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws no waste art on a site row`() {
+        show(contentOf())
+
+        composeRule.onAllNodes(SemanticsMatcher.keyIsDefined(PLACE_ART), useUnmergedTree = true).assertCountEquals(0)
     }
 
     @Test
@@ -179,7 +223,7 @@ class MapCleanUpScreenTest {
         show(contentOf(jobOut = cleanUpOut))
 
         composeRule.onNodeWithText("Limpieza").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Residuos: 12").assertCountEquals(2)
+        composeRule.onNodeWithText("Residuos: 12").assertIsDisplayed()
         composeRule.onNodeWithText("Pago: 24 de dinero y 36 de material").assertIsDisplayed()
     }
 
