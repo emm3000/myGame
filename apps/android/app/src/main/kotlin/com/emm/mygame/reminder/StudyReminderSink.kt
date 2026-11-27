@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.reminder
 
 import com.emm.mygame.core.model.holdout.HoldoutCheck
 import com.emm.mygame.core.model.learning.DueReviews

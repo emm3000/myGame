@@ -6,9 +6,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emm.mygame.AppDependencies
-import com.emm.mygame.InPlayerLanguage
-import com.emm.mygame.PlayerLanguageUiState
-import com.emm.mygame.PlayerLanguageViewModel
+import com.emm.mygame.account.InPlayerLanguage
+import com.emm.mygame.account.PlayerLanguageUiState
+import com.emm.mygame.account.PlayerLanguageViewModel
 import com.emm.mygame.feature.shell.FrameKind
 import com.emm.mygame.feature.shell.FramedScreen
 import com.emm.mygame.feature.shell.ShellNavigation

@@ -1,7 +1,8 @@
-package com.emm.mygame
+package com.emm.mygame.navigation
 
 import android.content.Intent
 import android.net.Uri
+import com.emm.mygame.Destination
 import com.emm.mygame.core.model.account.EmailVerificationToken
 import com.emm.mygame.core.model.account.PasswordResetToken
 

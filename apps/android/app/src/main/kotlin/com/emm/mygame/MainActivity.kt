@@ -12,6 +12,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.navigation.AppNavigation
+import com.emm.mygame.navigation.mailedLinkOf
+import com.emm.mygame.theme.PickedTheme
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow

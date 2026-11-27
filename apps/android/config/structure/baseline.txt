@@ -1,5 +1,2 @@
-file-name app/src/main/kotlin/com/emm/mygame/MailedLink.kt
-file-name app/src/main/kotlin/com/emm/mygame/PlayerLanguageFrame.kt
-file-name app/src/main/kotlin/com/emm/mygame/ReminderNotificationAsk.kt
 file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/NavRowMatcher.kt
 file-name core/uitesting/src/main/kotlin/com/emm/mygame/core/uitesting/TextStyleLookup.kt

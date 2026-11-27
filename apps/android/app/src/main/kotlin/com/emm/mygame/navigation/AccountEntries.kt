@@ -17,8 +17,8 @@ import com.emm.mygame.feature.account.signup.SignUpRoute
 import com.emm.mygame.feature.account.verification.VerifyEmailRoute
 import com.emm.mygame.feature.shell.FrameKind
 import com.emm.mygame.feature.shell.ring.RetainedWordsRing
-import com.emm.mygame.openNotificationSettings
-import com.emm.mygame.rememberNotificationAsk
+import com.emm.mygame.reminder.openNotificationSettings
+import com.emm.mygame.reminder.rememberNotificationAsk
 
 internal fun EntryProviderScope<NavKey>.signedOutEntries(dependencies: AppDependencies, navigator: Navigator) {
     entry<Destination.SignIn> { signIn: Destination.SignIn ->

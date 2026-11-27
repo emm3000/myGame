@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.account
 
 import android.content.Context
 import android.content.res.Configuration

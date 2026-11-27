@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.account
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

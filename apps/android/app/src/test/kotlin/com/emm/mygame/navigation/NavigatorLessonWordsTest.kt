@@ -2,7 +2,6 @@ package com.emm.mygame.navigation
 
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.Destination
-import com.emm.mygame.NavigationLinks
 import com.emm.mygame.feature.shell.bar.Tab
 import org.junit.Assert.assertEquals
 import org.junit.Test

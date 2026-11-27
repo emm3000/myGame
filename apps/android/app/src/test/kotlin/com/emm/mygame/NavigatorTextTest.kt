@@ -3,6 +3,7 @@ package com.emm.mygame
 import androidx.navigation3.runtime.NavKey
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.feature.shell.bar.Tab
+import com.emm.mygame.navigation.NavigationLinks
 import com.emm.mygame.navigation.Navigator
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -28,13 +28,10 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
-import com.emm.mygame.InPlayerLanguage
-import com.emm.mygame.NavigationLinks
-import com.emm.mygame.PlayerLanguageIntent
-import com.emm.mygame.PlayerLanguageUiState
-import com.emm.mygame.PlayerLanguageViewModel
-import com.emm.mygame.TownFollowIntent
-import com.emm.mygame.TownFollowViewModel
+import com.emm.mygame.account.InPlayerLanguage
+import com.emm.mygame.account.PlayerLanguageIntent
+import com.emm.mygame.account.PlayerLanguageUiState
+import com.emm.mygame.account.PlayerLanguageViewModel
 import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute

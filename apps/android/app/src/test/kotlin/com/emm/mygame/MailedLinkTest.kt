@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import com.emm.mygame.core.model.account.EmailVerificationToken
 import com.emm.mygame.core.model.account.PasswordResetToken
+import com.emm.mygame.navigation.mailedLinkOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

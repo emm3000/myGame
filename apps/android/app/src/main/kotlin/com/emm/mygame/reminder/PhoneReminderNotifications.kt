@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.reminder
 
 import android.app.NotificationManager
 import android.content.Context

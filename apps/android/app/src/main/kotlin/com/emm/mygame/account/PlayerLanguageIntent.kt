@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.account
 
 internal sealed interface PlayerLanguageIntent {
 

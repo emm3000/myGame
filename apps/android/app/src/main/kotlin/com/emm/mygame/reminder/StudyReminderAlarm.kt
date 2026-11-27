@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.reminder
 
 import android.app.AlarmManager
 import android.app.Notification
@@ -10,6 +10,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.annotation.StringRes
+import com.emm.mygame.MainActivity
+import com.emm.mygame.R
+import com.emm.mygame.StudyReminderReceiver
+import com.emm.mygame.account.toCopyLanguage
 import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts

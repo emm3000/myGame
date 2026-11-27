@@ -1,4 +1,4 @@
-package com.emm.mygame
+package com.emm.mygame.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

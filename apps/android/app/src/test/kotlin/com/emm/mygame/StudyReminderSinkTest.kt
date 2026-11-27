@@ -18,8 +18,8 @@ import com.emm.mygame.core.projection.StudyReminderFacts
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
-import java.time.LocalTime
-import kotlin.time.Instant
+import com.emm.mygame.reminder.StudyReminderSink
+import com.emm.mygame.reminder.StudyReminderStore
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -28,6 +28,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import java.time.LocalTime
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class StudyReminderSinkTest {

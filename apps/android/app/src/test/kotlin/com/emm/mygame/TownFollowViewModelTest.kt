@@ -1,15 +1,17 @@
 package com.emm.mygame
 
 import androidx.lifecycle.viewModelScope
+import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
-import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.MainDispatcherRule
 import com.emm.mygame.core.testing.TestClock
 import com.emm.mygame.core.testing.townOf
+import com.emm.mygame.navigation.TownFollowIntent
+import com.emm.mygame.navigation.TownFollowViewModel
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
