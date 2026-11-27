@@ -79,12 +79,13 @@ class SettingsSignOutViewModelTest {
     }
 
     @Test
-    fun `draws signing out while the session ends`() = runTest {
+    fun `keeps the read settings while the session ends`() = runTest {
         val viewModel: SettingsViewModel = loadedSettings()
+        val read: SettingsUiState = viewModel.state.value
 
         viewModel.onIntent(SettingsIntent.SignOutTapped)
 
-        assertEquals(SettingsUiState.SigningOut, viewModel.state.value)
+        assertEquals(SettingsUiState.SigningOut(kept = read as SettingsUiState.Loaded), viewModel.state.value)
     }
 
     @Test
@@ -106,17 +107,18 @@ class SettingsSignOutViewModelTest {
         sessions.answerRestore(RestoreResult.SignedIn(SignedInPlayer("ines@example.com", true, PlayerScaffold.Spanish)))
         runCurrent()
 
-        assertEquals(SettingsUiState.SigningOut, viewModel.state.value)
+        assertEquals(SettingsUiState.SigningOut(kept = null), viewModel.state.value)
     }
 
     @Test
     fun `keeps signing out when the reminder changes`() = runTest {
         val viewModel: SettingsViewModel = loadedSettings()
         viewModel.onIntent(SettingsIntent.SignOutTapped)
+        val signingOut: SettingsUiState = viewModel.state.value
 
         offReminder.choose(StudyReminderChoice.firstChoice.copy(isOn = true))
         runCurrent()
 
-        assertEquals(SettingsUiState.SigningOut, viewModel.state.value)
+        assertEquals(signingOut, viewModel.state.value)
     }
 }

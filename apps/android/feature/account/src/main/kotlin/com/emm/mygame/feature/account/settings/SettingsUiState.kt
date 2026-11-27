@@ -9,7 +9,7 @@ sealed interface SettingsUiState {
 
     data object Failed : SettingsUiState
 
-    data object SigningOut : SettingsUiState
+    data class SigningOut(val kept: Loaded?) : SettingsUiState
 
     data class Loaded(val stored: PlayerScaffold, val change: Change, val reminder: Reminder) : SettingsUiState {
 

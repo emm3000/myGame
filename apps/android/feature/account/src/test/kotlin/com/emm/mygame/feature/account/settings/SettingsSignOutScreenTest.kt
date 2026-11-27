@@ -10,6 +10,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.WORKING_DOTS
 import com.emm.mygame.core.model.account.PlayerScaffold
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -27,6 +29,8 @@ import org.robolectric.RobolectricTestRunner
 
 private const val SIGN_OUT: String = "Salir"
 private const val REMINDER_TITLE: String = "Recordatorio de estudio"
+private const val HELP_LANGUAGE: String = "Idioma de ayuda"
+private const val WAITING: String = "Esperando"
 
 @RunWith(RobolectricTestRunner::class)
 class SettingsSignOutScreenTest {
@@ -36,7 +40,7 @@ class SettingsSignOutScreenTest {
 
     private val sentIntents: MutableList<SettingsIntent> = mutableListOf()
 
-    private val loaded: SettingsUiState =
+    private val loaded: SettingsUiState.Loaded =
         SettingsUiState.Loaded(PlayerScaffold.Spanish, SettingsUiState.Change.Untouched, firstReminder)
 
     private fun draw(state: SettingsUiState) {
@@ -86,7 +90,7 @@ class SettingsSignOutScreenTest {
 
     @Test
     fun `holds the sign-out while it is under way`() {
-        draw(SettingsUiState.SigningOut)
+        draw(SettingsUiState.SigningOut(kept = loaded))
 
         composeRule.onNodeWithText(SIGN_OUT, useUnmergedTree = true).assertIsDisplayed()
         composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).assertIsNotEnabled()
@@ -94,7 +98,7 @@ class SettingsSignOutScreenTest {
 
     @Test
     fun `announces the sign-out as waiting while the session ends`() {
-        draw(SettingsUiState.SigningOut)
+        draw(SettingsUiState.SigningOut(kept = loaded))
 
         composeRule
             .onNode(hasText(SIGN_OUT) and hasClickAction())
@@ -103,11 +107,34 @@ class SettingsSignOutScreenTest {
 
     @Test
     fun `sends nothing from the sign-out while the session ends`() {
-        draw(SettingsUiState.SigningOut)
+        draw(SettingsUiState.SigningOut(kept = loaded))
 
         composeRule.onNode(hasText(SIGN_OUT) and hasClickAction()).performClick()
 
         assertEquals(emptyList<SettingsIntent>(), sentIntents)
+    }
+
+    @Test
+    fun `keeps Help language and the reminder shown while signing out`() {
+        draw(SettingsUiState.SigningOut(kept = loaded))
+
+        composeRule.onNodeWithText(HELP_LANGUAGE, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(REMINDER_TITLE, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws the working dots and the waiting line in view beside the sign-out`() {
+        draw(SettingsUiState.SigningOut(kept = loaded))
+
+        composeRule.onNodeWithTag(WORKING_DOTS, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(WAITING, useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun `draws no working dots while nothing is under way`() {
+        draw(loaded)
+
+        composeRule.onNodeWithTag(WORKING_DOTS, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
