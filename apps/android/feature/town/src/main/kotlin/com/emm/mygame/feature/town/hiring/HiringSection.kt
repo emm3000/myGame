@@ -20,7 +20,6 @@ import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTrack
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.model.town.hiring.TownHireKind
 import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.PlayerCopy
@@ -36,7 +35,6 @@ import com.emm.mygame.feature.town.RevealedAlert
 import com.emm.mygame.feature.town.TownIntent
 import com.emm.mygame.feature.town.building.work.RunningCountdown
 import com.emm.mygame.feature.town.hireMark
-import com.emm.mygame.feature.town.placeNameOf
 import com.emm.mygame.feature.town.townDurationCopy
 
 @Composable
@@ -46,12 +44,6 @@ internal fun HiringSection(
     modifier: Modifier = Modifier,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier) {
-        MyGameText(
-            label = chromeResource(placeNameOf(TownBuildingKind.Office)),
-            style = MyGameTypography.heading,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
         MyGameCard {
             Column(
                 verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
