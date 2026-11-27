@@ -1,7 +1,7 @@
 package com.emm.mygame.feature.town
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.model.town.TownRegistered
