@@ -1,3 +1,10 @@
 package com.emm.mygame
 
-internal enum class FrameKind { Home, Place, Task }
+internal sealed interface FrameKind {
+
+    data object Home : FrameKind
+
+    data class Place(val doesScreenReadTown: Boolean) : FrameKind
+
+    data object Task : FrameKind
+}

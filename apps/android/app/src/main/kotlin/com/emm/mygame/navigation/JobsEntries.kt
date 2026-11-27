@@ -13,8 +13,7 @@ internal fun EntryProviderScope<NavKey>.jobsEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Map> {
         SignedInFrame(
-            kind = FrameKind.Place,
-            doesScreenReadTown = true,
+            kind = FrameKind.Place(doesScreenReadTown = true),
             chrome = chrome,
         ) {
             MapRoute(

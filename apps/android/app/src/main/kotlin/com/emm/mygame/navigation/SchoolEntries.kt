@@ -22,8 +22,7 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.School> {
         SignedInFrame(
-            kind = FrameKind.Place,
-            doesScreenReadTown = true,
+            kind = FrameKind.Place(doesScreenReadTown = true),
             chrome = chrome,
         ) {
             SchoolRoute(
@@ -57,7 +56,6 @@ internal fun EntryProviderScope<NavKey>.lessonWordsEntry(chrome: SignedInChrome)
     entry<Destination.LessonWords> { shown: Destination.LessonWords ->
         SignedInFrame(
             kind = FrameKind.Task,
-            doesScreenReadTown = true,
             chrome = chrome,
         ) {
             LessonWordsRoute(
@@ -81,8 +79,7 @@ internal fun EntryProviderScope<NavKey>.schoolTextEntry(chrome: SignedInChrome) 
     val navigator: Navigator = chrome.navigator
     entry<Destination.SchoolText> { shown: Destination.SchoolText ->
         SignedInFrame(
-            kind = FrameKind.Place,
-            doesScreenReadTown = false,
+            kind = FrameKind.Place(doesScreenReadTown = false),
             chrome = chrome,
         ) {
             SchoolTextRoute(

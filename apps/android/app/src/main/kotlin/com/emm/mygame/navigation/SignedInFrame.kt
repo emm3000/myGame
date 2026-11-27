@@ -15,7 +15,6 @@ import com.emm.mygame.SignedInChrome
 @Composable
 internal fun SignedInFrame(
     kind: FrameKind,
-    doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
     frameLanguage: PlayerLanguageViewModel = viewModel { PlayerLanguageViewModel(chrome.dependencies.playerLanguage) },
@@ -25,7 +24,6 @@ internal fun SignedInFrame(
     InPlayerLanguage(language = framed.language) {
         FramedScreen(
             kind = kind,
-            doesScreenReadTown = doesScreenReadTown,
             chrome = chrome,
             modifier = modifier,
             content = content,

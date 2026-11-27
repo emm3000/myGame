@@ -65,8 +65,7 @@ internal fun EntryProviderScope<NavKey>.settingsEntry(chrome: SignedInChrome) {
     val navigator: Navigator = chrome.navigator
     entry<Destination.Settings> {
         SignedInFrame(
-            kind = FrameKind.Place,
-            doesScreenReadTown = false,
+            kind = FrameKind.Place(doesScreenReadTown = false),
             chrome = chrome,
         ) {
             val context: Context = LocalContext.current

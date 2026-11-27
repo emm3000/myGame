@@ -27,7 +27,6 @@ import com.emm.mygame.core.ui.frameHeaderTurn
 @Composable
 internal fun FramedScreen(
     kind: FrameKind,
-    doesScreenReadTown: Boolean,
     chrome: SignedInChrome,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -40,7 +39,13 @@ internal fun FramedScreen(
             .background(MyGameTheme.colors.surface)
             .semantics { isTraversalGroup = true },
     ) {
-        if (kind != FrameKind.Home) FrameHeader(doesScreenReadTown = doesScreenReadTown, chrome = chrome)
+        when (kind) {
+            FrameKind.Home -> Unit
+            is FrameKind.Place -> FrameHeader(chrome = chrome) {
+                RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = kind.doesScreenReadTown)
+            }
+            FrameKind.Task -> FrameHeader(chrome = chrome)
+        }
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -53,13 +58,13 @@ internal fun FramedScreen(
 }
 
 @Composable
-private fun FrameHeader(doesScreenReadTown: Boolean, chrome: SignedInChrome) {
+private fun FrameHeader(chrome: SignedInChrome, ring: @Composable () -> Unit = {}) {
     MyGameHeader(
         modifier = Modifier
             .statusBarsPadding()
             .padding(horizontal = MyGameSpacing.step4)
             .frameHeaderTurn(),
-        end = { RetainedWordsRing(towns = chrome.dependencies.towns, doesScreenReadTown = doesScreenReadTown) },
+        end = ring,
     ) {
         if (chrome.navigator.isOnTabRoot) return@MyGameHeader
         MyGameBackLink(

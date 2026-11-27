@@ -13,7 +13,6 @@ internal fun EntryProviderScope<NavKey>.placementEntry(chrome: SignedInChrome) {
     entry<Destination.Placement> {
         SignedInFrame(
             kind = FrameKind.Task,
-            doesScreenReadTown = false,
             chrome = chrome,
         ) {
             PlacementRoute(

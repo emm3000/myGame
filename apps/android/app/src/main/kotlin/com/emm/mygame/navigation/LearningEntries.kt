@@ -13,7 +13,6 @@ internal fun EntryProviderScope<NavKey>.reviewEntry(chrome: SignedInChrome) {
     entry<Destination.Review> {
         SignedInFrame(
             kind = FrameKind.Task,
-            doesScreenReadTown = true,
             chrome = chrome,
         ) {
             ReviewRoute(
