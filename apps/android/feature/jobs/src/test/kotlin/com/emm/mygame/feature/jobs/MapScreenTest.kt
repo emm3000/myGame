@@ -96,7 +96,7 @@ class MapScreenTest {
 
         composeRule.onNodeWithText("Libre").assertIsDisplayed()
         composeRule.onNodeWithText("Hillcrest").assertIsDisplayed()
-        composeRule.onNodeWithText("Tu pueblo").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Riverton · Tu pueblo").performScrollTo().assertIsDisplayed()
     }
 
     @Test

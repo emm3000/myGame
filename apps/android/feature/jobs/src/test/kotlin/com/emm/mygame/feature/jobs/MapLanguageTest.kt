@@ -140,12 +140,13 @@ class MapLanguageTest {
     fun `draws the map in Spanish in the Spanish phase`() {
         show(spanishPhase)
 
-        assertDrawn("Mapa", "Zona 1", "Río", "Zona siguiente", "Sitio 1", "Libre", "Tu pueblo")
-        assertDrawn("Sitio con residuos")
+        assertDrawn("Mapa", "Zona 1", "Río", "Zona siguiente", "Sitio 1", "Libre", "Riverton · Tu pueblo")
+        assertDrawn("Sitio con residuos · Tamaño 2 · Residuos: 12")
         assertDrawn("Trabajo en el sitio 1", "Trabajadores a enviar")
         assertDrawn("Este trabajo paga 120 de dinero y 40 de material")
         assertDrawn("Trabajo", "Región 1, zona 2, sitio 4", "Trabajando", "Pago: 120 de dinero y 40 de material")
-        assertNotDrawn("Map", "Area 1", "River", "Next area", "Site 1", "Free", "Your town", "Job at site 1")
+        assertNotDrawn("Map", "Area 1", "River", "Next area", "Site 1", "Free", "Riverton · Your town")
+        assertNotDrawn("Job at site 1")
         assertNotDrawn("This job pays 120 money and 40 material", "Pay: 120 money and 40 material", "Working")
     }
 
@@ -159,8 +160,8 @@ class MapLanguageTest {
         assertEnglishOverSpanish("Next area", "Zona siguiente")
         assertEnglishOverSpanish("Site 1", "Sitio 1")
         assertEnglishOverSpanish("Free", "Libre")
-        assertEnglishOverSpanish("Your town", "Tu pueblo")
-        assertEnglishOverSpanish("Waste site", "Sitio con residuos")
+        assertEnglishOverSpanish("Riverton · Your town", "Riverton · Tu pueblo")
+        assertEnglishOverSpanish("Waste site · Size 2 · Waste: 12", "Sitio con residuos · Tamaño 2 · Residuos: 12")
         assertEnglishOverSpanish("Job at site 1", "Trabajo en el sitio 1")
         assertEnglishOverSpanish("Workers to send", "Trabajadores a enviar")
         assertEnglishOverSpanish("Send the team", "Enviar el equipo")
@@ -186,10 +187,12 @@ class MapLanguageTest {
     fun `draws the map in English in the English phase`() {
         show(englishPhase)
 
-        assertDrawn("Map", "Area 1", "River", "Next area", "Site 1", "Free", "Your town", "Waste site")
+        assertDrawn("Map", "Area 1", "River", "Next area", "Site 1", "Free", "Riverton · Your town")
+        assertDrawn("Waste site · Size 2 · Waste: 12")
         assertDrawn("Job at site 1", "Workers to send", "This job pays 120 money and 40 material")
         assertDrawn("Job", "Region 1, area 2, site 4", "Working", "Pay: 120 money and 40 material")
-        assertNotDrawn("Mapa", "Zona 1", "Río", "Sitio 1", "Libre", "Tu pueblo", "Trabajo en el sitio 1", "Trabajando")
+        assertNotDrawn("Mapa", "Zona 1", "Río", "Sitio 1", "Libre", "Riverton · Tu pueblo")
+        assertNotDrawn("Trabajo en el sitio 1", "Trabajando")
     }
 
     @Test
