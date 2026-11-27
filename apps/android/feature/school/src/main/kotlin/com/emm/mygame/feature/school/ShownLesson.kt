@@ -1,29 +1,35 @@
 package com.emm.mygame.feature.school
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
-import com.emm.mygame.core.designsystem.MyGameBlock
+import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameMetaText
 import com.emm.mygame.core.designsystem.MyGameNavRow
-import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
+import com.emm.mygame.core.designsystem.MyGameRadii
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.blockHueOf
 import com.emm.mygame.core.designsystem.englishTextOf
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
+
+internal const val SHOWN_LESSON_CARD: String = "shown_lesson_card"
 
 @Composable
 internal fun ShownLesson(
@@ -34,53 +40,61 @@ internal fun ShownLesson(
     modifier: Modifier = Modifier,
 ) {
     val running: SchoolUiState.SlotLine.Running? = content.slot as? SchoolUiState.SlotLine.Running
-    val state: SchoolUiState.LessonState = card.state
-    val isStep: Boolean = content.isStepLesson(card)
-    val open: SchoolUiState.LessonState.Open? = state as? SchoolUiState.LessonState.Open
+    val open: SchoolUiState.LessonState.Open? = card.state as? SchoolUiState.LessonState.Open
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
-        LessonBlock(card = card, isStep = isStep)
-        if (open != null) StudyAction(card = card, block = open.block, content = content, onIntent = onIntent)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(SHOWN_LESSON_CARD)
+                .background(MyGameTheme.colors.surfaceSunken, RoundedCornerShape(MyGameRadii.md))
+                .padding(MyGameSpacing.step4),
+        ) {
+            LessonHeading(card = card, isStep = content.isStepLesson(card))
+            if (open != null) {
+                StudyAction(card = card, block = open.block, content = content, onIntent = onIntent)
+            } else {
+                LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
+            }
+        }
         running?.let { slot: SchoolUiState.SlotLine.Running ->
             ReadWordsRow(running = slot.lesson, name = slot.name, shown = card.lesson, onLessonOpen = onLessonOpen)
-        }
-        if (open == null) {
-            LessonStartAnswer(lesson = card.lesson, start = content.start, opening = content.learning.opening)
         }
     }
 }
 
 @Composable
-private fun LessonBlock(card: SchoolUiState.LessonCard, isStep: Boolean, modifier: Modifier = Modifier) {
+private fun LessonHeading(card: SchoolUiState.LessonCard, isStep: Boolean, modifier: Modifier = Modifier) {
     val copy: PlayerCopy = rememberPlayerCopy()
-    MyGameBlock(
-        hue = blockHueOf(card.number - 1),
+    Column(
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3),
         modifier = modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
     ) {
         if (isStep) {
-            MyGameMetaText(label = copy.chrome(R.string.school_next_title), color = MyGameTheme.colors.onBlockMuted)
+            MyGameMetaText(label = copy.chrome(R.string.school_next_title), color = MyGameTheme.colors.inkMuted)
         }
         MyGameText(
             label = copy.chrome(R.string.school_lesson_title, "number" to card.number.toString()),
             style = MyGameTypography.display,
-            color = MyGameTheme.colors.onBlock,
+            color = MyGameTheme.colors.ink,
             modifier = Modifier.semantics { heading() },
         )
         MyGameText(
             text = englishTextOf(card.theme),
             style = MyGameTypography.reading,
-            color = MyGameTheme.colors.onBlock,
+            color = MyGameTheme.colors.ink,
         )
         MyGameText(
             label = copy.chrome { lessonSummaryOf(card) },
             style = MyGameTypography.caption,
-            color = MyGameTheme.colors.onBlockMuted,
+            color = MyGameTheme.colors.inkMuted,
             modifier = Modifier.semantics { testTag = LESSON_SIZE_LABEL },
         )
         if (card.state == SchoolUiState.LessonState.Studying) {
             MyGameText(
                 label = copy.chrome(R.string.school_lesson_studying),
                 style = MyGameTypography.caption,
-                color = MyGameTheme.colors.onBlockMuted,
+                color = MyGameTheme.colors.inkMuted,
             )
         }
     }
