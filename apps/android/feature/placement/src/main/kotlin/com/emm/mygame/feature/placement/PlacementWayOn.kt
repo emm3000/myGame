@@ -1,9 +1,9 @@
 package com.emm.mygame.feature.placement
 
 import androidx.compose.runtime.Composable
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameWayOn
+import com.emm.mygame.core.designsystem.control.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.navigation.MyGameWayOn
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.core.ui.fixedLabel
 

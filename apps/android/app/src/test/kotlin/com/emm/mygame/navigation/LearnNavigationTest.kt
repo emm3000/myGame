@@ -6,7 +6,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
 import com.emm.mygame.core.model.town.TownReadResult
 import org.junit.Test
 import org.junit.runner.RunWith

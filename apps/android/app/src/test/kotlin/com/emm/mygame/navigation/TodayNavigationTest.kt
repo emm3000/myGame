@@ -6,7 +6,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
-import com.emm.mygame.core.designsystem.NAVIGATION_BAR
+import com.emm.mygame.core.designsystem.navigation.NAVIGATION_BAR
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSite

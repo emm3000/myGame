@@ -10,15 +10,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.testing.FakeTownRepository
-import kotlin.time.Clock
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Clock
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolRouteTest {

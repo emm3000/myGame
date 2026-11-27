@@ -21,6 +21,12 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.control.MyGameOutlinedButton
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameStrokeWidths
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.lightColors
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Rule

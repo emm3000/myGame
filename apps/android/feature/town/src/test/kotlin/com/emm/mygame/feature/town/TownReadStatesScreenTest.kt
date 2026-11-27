@@ -10,8 +10,8 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.emm.mygame.core.designsystem.MyGameTransitions
-import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.frame.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

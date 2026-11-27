@@ -14,20 +14,20 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.GO_OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.jobs.Terrain
 import com.emm.mygame.core.model.town.jobs.TownJobRefusal
-import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class MapScreenTest {

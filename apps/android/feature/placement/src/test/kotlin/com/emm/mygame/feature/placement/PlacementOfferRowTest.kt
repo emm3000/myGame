@@ -15,9 +15,9 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import com.emm.mygame.core.designsystem.HAIRLINE
-import com.emm.mygame.core.designsystem.MyGameColors
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.frame.HAIRLINE
+import com.emm.mygame.core.designsystem.theme.MyGameColors
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.uitesting.outlinedDoorOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule

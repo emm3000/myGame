@@ -8,6 +8,15 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import com.emm.mygame.core.designsystem.art.MyGameIcons
+import com.emm.mygame.core.designsystem.navigation.MyGameNavigationBar
+import com.emm.mygame.core.designsystem.navigation.MyGameNavigationItem
+import com.emm.mygame.core.designsystem.navigation.MyGameNavigationItems
+import com.emm.mygame.core.designsystem.navigation.navigationLabelTagOf
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

@@ -8,7 +8,7 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.model.account.SignedInPlayer

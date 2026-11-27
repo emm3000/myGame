@@ -1,9 +1,8 @@
 package com.emm.mygame.feature.school.words
 
 import android.content.res.XmlResourceParser
-import com.emm.mygame.core.designsystem.MyGameArt
-import com.emm.mygame.core.designsystem.MyGameArtTint
-import com.emm.mygame.core.designsystem.R as DesignSystemR
+import com.emm.mygame.core.designsystem.art.MyGameArt
+import com.emm.mygame.core.designsystem.art.MyGameArtTint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -11,6 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.xmlpull.v1.XmlPullParser
+import com.emm.mygame.core.designsystem.R as DesignSystemR
 
 private const val ANDROID_NAMESPACE: String = "http://schemas.android.com/apk/res/android"
 private const val ON_BLOCK: Int = 0xFF15141A.toInt()

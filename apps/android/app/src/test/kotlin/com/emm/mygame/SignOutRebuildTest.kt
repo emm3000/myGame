@@ -12,7 +12,7 @@ import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.NAVIGATION_BAR
+import com.emm.mygame.core.designsystem.navigation.NAVIGATION_BAR
 import com.emm.mygame.core.model.account.RestoreResult
 import com.emm.mygame.core.testing.FakeSessionRepository
 import org.junit.After

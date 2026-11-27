@@ -8,8 +8,8 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import com.emm.mygame.Destination
-import com.emm.mygame.core.designsystem.INK_PILL
-import com.emm.mygame.core.designsystem.NAVIGATION_BAR
+import com.emm.mygame.core.designsystem.control.INK_PILL
+import com.emm.mygame.core.designsystem.navigation.NAVIGATION_BAR
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.news.TownNewsReadResult
 import org.junit.Test

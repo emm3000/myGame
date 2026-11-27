@@ -8,11 +8,11 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.DpRect
-import com.emm.mygame.core.designsystem.MyGameArt
-import com.emm.mygame.core.designsystem.MyGameArtTint
-import com.emm.mygame.core.designsystem.MyGamePlaceArt
-import com.emm.mygame.core.designsystem.MyGameSizes
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.art.MyGameArt
+import com.emm.mygame.core.designsystem.art.MyGameArtTint
+import com.emm.mygame.core.designsystem.art.MyGamePlaceArt
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

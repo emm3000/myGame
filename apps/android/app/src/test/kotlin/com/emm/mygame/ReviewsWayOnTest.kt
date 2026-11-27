@@ -13,7 +13,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
-import com.emm.mygame.core.designsystem.INK_PILL
+import com.emm.mygame.core.designsystem.control.INK_PILL
 import com.emm.mygame.core.model.learning.DueReview
 import com.emm.mygame.core.model.learning.DueReviews
 import com.emm.mygame.core.model.learning.FrameSpan

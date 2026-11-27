@@ -35,7 +35,7 @@ import com.emm.mygame.PlayerLanguageUiState
 import com.emm.mygame.PlayerLanguageViewModel
 import com.emm.mygame.TownFollowIntent
 import com.emm.mygame.TownFollowViewModel
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.HeldTown
 import com.emm.mygame.feature.account.verification.VerificationBannerRoute
 import com.emm.mygame.feature.shell.bar.AppNavigationBar

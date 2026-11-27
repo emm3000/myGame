@@ -2,8 +2,8 @@ package com.emm.mygame.feature.school
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.emm.mygame.core.designsystem.MyGameRing
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.navigation.MyGameRing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.uitesting.assertRingOnTitleRow
 import com.emm.mygame.core.uitesting.tabRingLabel
 import org.junit.Rule

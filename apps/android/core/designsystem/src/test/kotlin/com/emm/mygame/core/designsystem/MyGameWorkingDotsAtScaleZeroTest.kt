@@ -6,6 +6,13 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.control.MyGameWorkingDots
+import com.emm.mygame.core.designsystem.control.WORKING_DOTS
+import com.emm.mygame.core.designsystem.control.WORKING_DOT_ALPHAS
+import com.emm.mygame.core.designsystem.control.WORKING_DOT_OFFSETS
+import com.emm.mygame.core.designsystem.control.WORKING_DOT_SCALES
+import com.emm.mygame.core.designsystem.control.WORKING_DOT_STAGGER_MILLIS
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

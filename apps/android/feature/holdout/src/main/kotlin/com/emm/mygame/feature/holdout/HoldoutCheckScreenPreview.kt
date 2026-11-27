@@ -3,8 +3,8 @@ package com.emm.mygame.feature.holdout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.designsystem.theme.MyGamePreviewSurface
+import com.emm.mygame.core.designsystem.theme.PreviewMyGame
 import com.emm.mygame.core.model.holdout.HoldoutCheckRefusal
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.WordId

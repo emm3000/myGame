@@ -9,8 +9,8 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTransitions
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import com.emm.mygame.core.model.town.TownLabel
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
@@ -24,9 +24,9 @@ import com.emm.mygame.feature.town.building.StockLine
 import com.emm.mygame.feature.town.building.WordsLine
 import com.emm.mygame.feature.town.building.work.SlotLine
 import com.emm.mygame.feature.town.building.work.StopStatus
+import org.junit.Rule
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import org.junit.Rule
 
 abstract class TownScreenFixture {
 

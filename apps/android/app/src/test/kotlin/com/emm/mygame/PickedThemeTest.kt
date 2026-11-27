@@ -11,7 +11,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.theme.ThemePick
 import org.junit.Assert.assertEquals
 import org.junit.Rule

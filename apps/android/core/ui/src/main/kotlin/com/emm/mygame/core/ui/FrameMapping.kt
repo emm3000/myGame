@@ -1,8 +1,8 @@
 package com.emm.mygame.core.ui
 
-import com.emm.mygame.core.designsystem.MyGameFrame
-import com.emm.mygame.core.designsystem.MyGameFramePiece
-import com.emm.mygame.core.designsystem.MyGameWordSupport
+import com.emm.mygame.core.designsystem.frame.MyGameFrame
+import com.emm.mygame.core.designsystem.frame.MyGameFramePiece
+import com.emm.mygame.core.designsystem.text.MyGameWordSupport
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.WordSupport
 

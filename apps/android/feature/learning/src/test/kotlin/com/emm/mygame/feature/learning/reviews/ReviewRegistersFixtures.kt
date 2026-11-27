@@ -2,9 +2,9 @@ package com.emm.mygame.feature.learning.reviews
 
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import com.emm.mygame.core.designsystem.MyGameRegistering
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.REGISTERING
+import com.emm.mygame.core.designsystem.control.MyGameRegistering
+import com.emm.mygame.core.designsystem.control.REGISTERING
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 
 internal val dealtSchool: ReviewUiState.Reviewing = ReviewUiState.Reviewing(

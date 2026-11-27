@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameChoiceLook
-import com.emm.mygame.core.designsystem.MyGameChoiceRow
-import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.control.MyGameChoiceLook
+import com.emm.mygame.core.designsystem.control.MyGameChoiceRow
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.feature.account.R
 

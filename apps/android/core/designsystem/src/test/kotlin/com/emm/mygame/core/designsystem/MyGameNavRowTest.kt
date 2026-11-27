@@ -46,6 +46,16 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.art.MyGameIcons
+import com.emm.mygame.core.designsystem.frame.HAIRLINE
+import com.emm.mygame.core.designsystem.navigation.MyGameNavRow
+import com.emm.mygame.core.designsystem.navigation.NAV_ROW_CHEVRON
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameStrokeWidths
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.lightColors
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

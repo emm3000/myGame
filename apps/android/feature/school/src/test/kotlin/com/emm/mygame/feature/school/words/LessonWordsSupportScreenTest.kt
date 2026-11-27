@@ -14,7 +14,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.intl.LocaleList
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.LessonName
 import com.emm.mygame.core.model.town.TownSnapshot
 import org.junit.Assert.assertEquals

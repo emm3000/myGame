@@ -12,6 +12,12 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpRect
+import com.emm.mygame.core.designsystem.control.MyGameChoiceLook
+import com.emm.mygame.core.designsystem.control.MyGameChoiceRow
+import com.emm.mygame.core.designsystem.theme.MyGameSizes
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.lightColors
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

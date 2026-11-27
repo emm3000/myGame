@@ -4,7 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.building.TownBuildingKind
 import com.emm.mygame.core.projection.town.ReadyTime
@@ -14,16 +14,16 @@ import com.emm.mygame.core.projection.town.building.NextLevelLine
 import com.emm.mygame.core.projection.town.building.Shortfall
 import com.emm.mygame.core.projection.town.building.StartStatus
 import com.emm.mygame.feature.town.building.NextLevel
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 private const val SHORT_OF_FOOD: String = "Necesitas 20 de comida más."
 

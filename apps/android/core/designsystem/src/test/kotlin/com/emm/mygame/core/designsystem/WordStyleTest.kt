@@ -2,6 +2,7 @@ package com.emm.mygame.core.designsystem
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.emm.mygame.core.designsystem.text.wordStyleAt
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

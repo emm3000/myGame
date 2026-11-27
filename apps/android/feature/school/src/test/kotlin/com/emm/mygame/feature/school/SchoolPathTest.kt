@@ -18,13 +18,12 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
-import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.control.GO_OUTLINED_PILL
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.model.town.guidance.NextStep
 import com.emm.mygame.core.model.town.school.WordStanding
-import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -33,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolPathTest {

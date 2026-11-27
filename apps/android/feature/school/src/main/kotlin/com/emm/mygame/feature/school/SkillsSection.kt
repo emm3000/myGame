@@ -5,13 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameSunkenCard
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.withTabularFigures
+import com.emm.mygame.core.designsystem.frame.MyGameSunkenCard
+import com.emm.mygame.core.designsystem.text.MyGameSectionTitle
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.text.withTabularFigures
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 

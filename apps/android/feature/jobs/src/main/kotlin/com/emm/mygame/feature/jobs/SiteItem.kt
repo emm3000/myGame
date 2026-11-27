@@ -17,12 +17,12 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
-import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.control.MyGameGoOutlinedButton
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 

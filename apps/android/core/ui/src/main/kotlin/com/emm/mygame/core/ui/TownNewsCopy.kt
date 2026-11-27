@@ -1,7 +1,7 @@
 package com.emm.mygame.core.ui
 
 import androidx.annotation.StringRes
-import com.emm.mygame.core.designsystem.formatQuantity
+import com.emm.mygame.core.designsystem.text.formatQuantity
 import com.emm.mygame.core.model.town.TownAmount
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.TownSite

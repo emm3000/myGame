@@ -10,8 +10,8 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.DpRect
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTransitions
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.ReviewChoice
 import com.emm.mygame.core.model.learning.ReviewHint
@@ -25,13 +25,13 @@ import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import kotlin.time.Instant
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "en")

@@ -3,8 +3,8 @@ package com.emm.mygame.feature.account.verification
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.designsystem.theme.MyGamePreviewSurface
+import com.emm.mygame.core.designsystem.theme.PreviewMyGame
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage

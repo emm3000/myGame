@@ -3,11 +3,11 @@ package com.emm.mygame.feature.school
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGamePreviewSurface
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
+import com.emm.mygame.core.designsystem.theme.PreviewMyGame
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId

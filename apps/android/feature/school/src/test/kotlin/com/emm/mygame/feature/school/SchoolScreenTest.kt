@@ -21,18 +21,15 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
-import com.emm.mygame.core.designsystem.BLOCKED_LOCK
-import com.emm.mygame.core.designsystem.GO_OUTLINED_PILL
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTransitions
-import com.emm.mygame.core.designsystem.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.control.BLOCKED_LOCK
+import com.emm.mygame.core.designsystem.control.GO_OUTLINED_PILL
+import com.emm.mygame.core.designsystem.frame.SKELETON_BLOCK
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -40,6 +37,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolScreenTest {

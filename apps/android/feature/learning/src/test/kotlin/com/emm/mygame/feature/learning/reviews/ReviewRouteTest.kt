@@ -7,20 +7,20 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.testing.FakeLearningRepository
 import com.emm.mygame.core.testing.FakeTownRepository
-import java.util.concurrent.TimeUnit
-import kotlin.time.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper
+import java.util.concurrent.TimeUnit
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @RunWith(RobolectricTestRunner::class)
 class ReviewRouteTest {

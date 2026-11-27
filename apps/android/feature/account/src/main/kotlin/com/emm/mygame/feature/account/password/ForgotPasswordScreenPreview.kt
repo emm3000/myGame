@@ -3,8 +3,8 @@ package com.emm.mygame.feature.account.password
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.emm.mygame.core.designsystem.MyGamePreviewSurface
-import com.emm.mygame.core.designsystem.PreviewMyGame
+import com.emm.mygame.core.designsystem.theme.MyGamePreviewSurface
+import com.emm.mygame.core.designsystem.theme.PreviewMyGame
 
 private val previewForgotForm: ForgotPasswordUiState.Form = ForgotPasswordUiState.Form(
     email = "ana@example.com",

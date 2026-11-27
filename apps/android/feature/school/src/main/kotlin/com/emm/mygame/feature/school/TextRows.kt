@@ -4,11 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameOutlinedDoor
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.englishTextOf
+import com.emm.mygame.core.designsystem.control.MyGameOutlinedDoor
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameSectionTitle
+import com.emm.mygame.core.designsystem.text.englishTextOf
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.ui.chromeResource
 

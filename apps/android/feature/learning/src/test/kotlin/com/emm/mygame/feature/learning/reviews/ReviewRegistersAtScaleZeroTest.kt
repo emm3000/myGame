@@ -3,7 +3,7 @@ package com.emm.mygame.feature.learning.reviews
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import com.emm.mygame.core.designsystem.MyGameRegisteredRow
+import com.emm.mygame.core.designsystem.control.MyGameRegisteredRow
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

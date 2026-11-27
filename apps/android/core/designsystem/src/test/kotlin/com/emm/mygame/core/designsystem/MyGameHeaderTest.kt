@@ -11,6 +11,14 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import com.emm.mygame.core.designsystem.navigation.MyGameBackLink
+import com.emm.mygame.core.designsystem.navigation.MyGameHeader
+import com.emm.mygame.core.designsystem.navigation.MyGameRing
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

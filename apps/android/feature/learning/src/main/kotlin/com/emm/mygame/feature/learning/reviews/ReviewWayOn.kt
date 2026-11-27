@@ -2,8 +2,8 @@ package com.emm.mygame.feature.learning.reviews
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameWayOn
+import com.emm.mygame.core.designsystem.navigation.MyGameWayOn
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedLabel
 import com.emm.mygame.feature.learning.R

@@ -6,17 +6,17 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameBlock
-import com.emm.mygame.core.designsystem.MyGameBlockStack
-import com.emm.mygame.core.designsystem.MyGameFrame
-import com.emm.mygame.core.designsystem.MyGameFrameText
-import com.emm.mygame.core.designsystem.MyGameSupportLine
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
-import com.emm.mygame.core.designsystem.MyGameWordSupport
-import com.emm.mygame.core.designsystem.blockHueOf
-import com.emm.mygame.core.designsystem.wordStyle
+import com.emm.mygame.core.designsystem.frame.MyGameBlock
+import com.emm.mygame.core.designsystem.frame.MyGameBlockStack
+import com.emm.mygame.core.designsystem.frame.MyGameFrame
+import com.emm.mygame.core.designsystem.frame.MyGameFrameText
+import com.emm.mygame.core.designsystem.frame.blockHueOf
+import com.emm.mygame.core.designsystem.text.MyGameSupportLine
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.text.MyGameWordSupport
+import com.emm.mygame.core.designsystem.text.wordStyle
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 
 @Composable
 internal fun ReviewBlock(

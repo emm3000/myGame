@@ -1,5 +1,9 @@
 package com.emm.mygame.core.designsystem
 
+import com.emm.mygame.core.designsystem.art.MyGameArtTint
+import com.emm.mygame.core.designsystem.art.tintOf
+import com.emm.mygame.core.designsystem.theme.darkColors
+import com.emm.mygame.core.designsystem.theme.lightColors
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

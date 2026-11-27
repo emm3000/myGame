@@ -17,13 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import com.emm.mygame.core.designsystem.MyGameHairline
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextLink
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.control.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.control.MyGameTextLink
+import com.emm.mygame.core.designsystem.frame.MyGameHairline
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import com.emm.mygame.core.ui.fixedCopyResource
 import com.emm.mygame.feature.account.R
 

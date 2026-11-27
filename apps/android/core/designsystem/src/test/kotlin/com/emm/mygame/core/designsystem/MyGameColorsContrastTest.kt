@@ -1,6 +1,9 @@
 package com.emm.mygame.core.designsystem
 
 import androidx.compose.ui.graphics.Color
+import com.emm.mygame.core.designsystem.theme.MyGameColors
+import com.emm.mygame.core.designsystem.theme.darkColors
+import com.emm.mygame.core.designsystem.theme.lightColors
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.math.pow

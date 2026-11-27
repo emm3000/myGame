@@ -5,7 +5,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.unit.DpRect
-import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 

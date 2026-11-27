@@ -2,7 +2,7 @@ package com.emm.mygame.feature.town
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.control.MyGameInlineAlert
 import com.emm.mygame.core.ui.rememberRevealOnce
 
 @Composable

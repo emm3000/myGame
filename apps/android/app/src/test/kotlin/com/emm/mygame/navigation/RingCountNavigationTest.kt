@@ -13,7 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.Destination
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.school.RetainedWords
 import kotlinx.coroutines.flow.emptyFlow

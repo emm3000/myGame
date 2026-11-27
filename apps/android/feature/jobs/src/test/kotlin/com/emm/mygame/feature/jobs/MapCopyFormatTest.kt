@@ -1,6 +1,6 @@
 package com.emm.mygame.feature.jobs
 
-import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.CopyReader

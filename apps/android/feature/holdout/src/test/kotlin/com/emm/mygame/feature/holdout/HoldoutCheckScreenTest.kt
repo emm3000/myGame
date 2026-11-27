@@ -19,10 +19,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Dp
-import com.emm.mygame.core.designsystem.INK_PILL
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.control.INK_PILL
+import com.emm.mygame.core.designsystem.control.OUTLINED_PILL
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.holdout.HoldoutCheckRefusal
 import com.emm.mygame.core.model.holdout.HoldoutCheckWeek
 import com.emm.mygame.core.model.placement.PlacementBand

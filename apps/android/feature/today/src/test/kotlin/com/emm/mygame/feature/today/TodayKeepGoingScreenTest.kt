@@ -17,10 +17,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import com.emm.mygame.core.designsystem.BLOCK_HUE
-import com.emm.mygame.core.designsystem.FRAME_STYLE
-import com.emm.mygame.core.designsystem.MyGameColors
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.frame.BLOCK_HUE
+import com.emm.mygame.core.designsystem.frame.FRAME_STYLE
+import com.emm.mygame.core.designsystem.theme.MyGameColors
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.learning.FrameSpan
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.learning.WordSupport

@@ -1,8 +1,8 @@
 package com.emm.mygame.feature.school.words
 
 import androidx.compose.runtime.Composable
-import com.emm.mygame.core.designsystem.MyGameLabel
-import com.emm.mygame.core.designsystem.MyGameWayOn
+import com.emm.mygame.core.designsystem.navigation.MyGameWayOn
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 import com.emm.mygame.core.model.town.guidance.NextStepCard
 import com.emm.mygame.core.ui.chromeResource
 import com.emm.mygame.core.ui.fixedLabel

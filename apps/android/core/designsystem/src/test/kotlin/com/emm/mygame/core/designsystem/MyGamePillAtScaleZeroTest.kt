@@ -4,6 +4,12 @@ import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import com.emm.mygame.core.designsystem.control.MyGameButton
+import com.emm.mygame.core.designsystem.control.WORKING_DOTS
+import com.emm.mygame.core.designsystem.control.WORKING_DOT_ALPHAS
+import com.emm.mygame.core.designsystem.text.MyGameLabel
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTransitions
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

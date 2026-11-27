@@ -8,7 +8,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import androidx.navigation3.runtime.NavKey
-import com.emm.mygame.core.designsystem.NAVIGATION_BAR
+import com.emm.mygame.core.designsystem.navigation.NAVIGATION_BAR
 import com.emm.mygame.core.model.report.ReportReadResult
 import com.emm.mygame.core.model.town.TownReadResult
 import org.junit.Assert.assertEquals

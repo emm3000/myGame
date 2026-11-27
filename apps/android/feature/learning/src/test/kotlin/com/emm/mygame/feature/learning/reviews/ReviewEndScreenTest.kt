@@ -17,22 +17,22 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.intl.LocaleList
-import com.emm.mygame.core.designsystem.BLOCK_HUE
-import com.emm.mygame.core.designsystem.INK_PILL
-import com.emm.mygame.core.designsystem.MyGameBlockHue
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.control.INK_PILL
+import com.emm.mygame.core.designsystem.frame.BLOCK_HUE
+import com.emm.mygame.core.designsystem.frame.MyGameBlockHue
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.ui.ChromePhase
 import com.emm.mygame.core.ui.CopyLanguage
 import com.emm.mygame.core.ui.ProvideCopyLanguage
 import com.emm.mygame.core.ui.ScaffoldLanguage
-import kotlin.time.Duration.Companion.minutes
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class ReviewEndScreenTest {

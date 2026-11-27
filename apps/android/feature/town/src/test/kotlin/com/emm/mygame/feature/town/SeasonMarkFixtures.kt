@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
-import com.emm.mygame.core.designsystem.MyGameIcons
+import com.emm.mygame.core.designsystem.art.MyGameIcons
 import com.emm.mygame.core.model.town.SeasonKind
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
 

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import com.emm.mygame.core.designsystem.MyGameLabel
+import com.emm.mygame.core.designsystem.text.MyGameLabel
 
 class PlayerCopy(context: Context, private val language: CopyLanguage?) {
 

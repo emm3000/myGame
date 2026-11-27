@@ -18,14 +18,14 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import com.emm.mygame.core.designsystem.MyGameButton
-import com.emm.mygame.core.designsystem.MyGameInlineAlert
-import com.emm.mygame.core.designsystem.MyGameSpacing
-import com.emm.mygame.core.designsystem.MyGameText
-import com.emm.mygame.core.designsystem.MyGameTextField
-import com.emm.mygame.core.designsystem.MyGameTextLink
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.MyGameTypography
+import com.emm.mygame.core.designsystem.control.MyGameButton
+import com.emm.mygame.core.designsystem.control.MyGameInlineAlert
+import com.emm.mygame.core.designsystem.control.MyGameTextField
+import com.emm.mygame.core.designsystem.control.MyGameTextLink
+import com.emm.mygame.core.designsystem.text.MyGameText
+import com.emm.mygame.core.designsystem.theme.MyGameSpacing
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTypography
 import com.emm.mygame.feature.account.R
 import com.emm.mygame.feature.account.auth.AuthHeader
 

@@ -10,17 +10,17 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.AnnotatedString
-import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownSnapshot
 import com.emm.mygame.core.uitesting.outlinedDoorOf
-import kotlin.time.Duration
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SchoolTextsTest {

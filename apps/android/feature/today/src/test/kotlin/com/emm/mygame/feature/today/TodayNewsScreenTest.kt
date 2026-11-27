@@ -11,10 +11,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.emm.mygame.core.designsystem.BLOCK_HUE
-import com.emm.mygame.core.designsystem.MyGameBlockHue
-import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.designsystem.SEAL
+import com.emm.mygame.core.designsystem.art.SEAL
+import com.emm.mygame.core.designsystem.frame.BLOCK_HUE
+import com.emm.mygame.core.designsystem.frame.MyGameBlockHue
+import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownSite
 import com.emm.mygame.core.model.town.building.TownBuildingKind
