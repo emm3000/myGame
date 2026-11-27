@@ -77,10 +77,7 @@ internal fun EntryProviderScope<NavKey>.schoolTextEntry(chrome: SignedInChrome) 
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.SchoolText> { shown: Destination.SchoolText ->
-        SignedInFrame(
-            kind = FrameKind.Place(doesScreenReadTown = false),
-            chrome = chrome,
-        ) {
+        SignedInFrame(kind = FrameKind.Door, chrome = chrome) {
             SchoolTextRoute(
                 text = shown.text,
                 texts = dependencies.texts,

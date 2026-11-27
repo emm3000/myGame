@@ -35,12 +35,13 @@ class LessonFinishNavigationTest : AppNavigationFixture() {
 
     @Test
     fun `reads the town at the lesson's finish on a text`() {
-        onLessonOneNearItsFinish(
+        showLessonOneNearItsFinish(
             Destination.Today,
             Destination.Town,
             Destination.School,
             Destination.SchoolText(TextId("text-1")),
         )
+        runBlocking { towns.read() }
 
         passingTheFinish()
 

@@ -14,7 +14,6 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.Destination
 import com.emm.mygame.core.designsystem.MyGameTheme
-import com.emm.mygame.core.model.learning.TextId
 import com.emm.mygame.core.model.town.TownReadResult
 import com.emm.mygame.core.model.town.school.RetainedWords
 import kotlinx.coroutines.flow.emptyFlow
@@ -95,11 +94,7 @@ class RetainedWordsRingNavigationTest : AppNavigationFixture() {
                     dependencies = dependencies,
                     reminderTaps = emptyFlow(),
                     mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(
-                        Destination.Today,
-                        Destination.School,
-                        Destination.SchoolText(TextId("text-1")),
-                    ),
+                    backStack = rememberNavBackStack(Destination.Today, Destination.Settings),
                 )
             }
         }
