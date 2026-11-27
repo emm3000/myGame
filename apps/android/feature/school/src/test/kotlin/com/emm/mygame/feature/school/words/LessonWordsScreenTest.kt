@@ -9,11 +9,11 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -293,18 +293,30 @@ class LessonWordsScreenTest {
 
     @Test
     @Config(qualifiers = "+w411dp-h891dp")
-    fun `the last word of the town's next step waits for the lesson's end and sends nothing`() {
+    fun `returns to the opener from one enabled Continue on the last word of the town's next lesson while it runs`() {
         draw(waitingLastWord)
 
-        composeRule.onNode(
-            hasText("Empezar los repasos") and
-                hasStateDescription("Cuando termine la lección, empiezan los repasos.") and
-                inScroll,
-        ).performScrollTo().performClick()
+        wayOn("Continuar").performScrollTo().assertIsEnabled().performClick()
 
-        assertEquals(emptyList<LessonWordsIntent>(), intents)
+        composeRule.onNodeWithText("Empezar los repasos").assertDoesNotExist()
+        composeRule.onNodeWithText("Tu siguiente paso", ignoreCase = true).assertDoesNotExist()
         assertEquals(emptyList<LessonWordsUiState.WayOn>(), wayOns)
-        assertEquals(0, doneCount)
+        assertEquals(1, doneCount)
+    }
+
+    @Test
+    fun `says the reviews follow in muted plain text on the last word of the town's next lesson while it runs`() {
+        var muted: Color = Color.Unspecified
+        composeRule.setContent {
+            MyGameTheme {
+                muted = MyGameTheme.colors.inkMuted
+                LessonWordsScreen(state = waitingLastWord, onIntent = {}, onWayOn = {}, onDone = {})
+            }
+        }
+
+        val then: SemanticsMatcher = hasText("Cuando termine la lección, empiezan los repasos.") and
+            hasTestTag(INK_PILL).not()
+        assertEquals(muted, textStyleOf(composeRule, then).color)
     }
 
     @Test

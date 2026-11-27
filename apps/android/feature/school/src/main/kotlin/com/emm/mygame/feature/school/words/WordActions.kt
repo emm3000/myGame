@@ -20,10 +20,10 @@ internal fun WordActions(
         !reading.isLastWord -> wayOn?.let { shown: LessonWordsUiState.WayOn ->
             MyGameNavRow(title = wayOnLabelOf(shown), onClick = { onWayOn(shown) }, modifier = modifier)
         }
-        reading.isReturningToOpener -> MyGameText(
+        reading.isWaitingForLessonEnd -> MyGameText(
             label = chromeResource(R.string.school_lesson_word_then),
             style = MyGameTypography.body,
-            color = MyGameTheme.colors.ink,
+            color = MyGameTheme.colors.inkMuted,
             modifier = modifier,
         )
         else -> Unit
