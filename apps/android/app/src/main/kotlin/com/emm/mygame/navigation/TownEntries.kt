@@ -22,7 +22,7 @@ internal fun EntryProviderScope<NavKey>.namingEntry(chrome: SignedInChrome) {
 
 internal fun EntryProviderScope<NavKey>.placeEntry(chrome: SignedInChrome) {
     entry<Destination.Place> { shown: Destination.Place ->
-        SignedInFrame(kind = FrameKind.Place, doesScreenReadTown = true, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Place(doesScreenReadTown = true), chrome = chrome) {
             TownRoute(
                 towns = chrome.dependencies.towns,
                 clock = chrome.dependencies.clock,
@@ -36,7 +36,7 @@ internal fun EntryProviderScope<NavKey>.placeEntry(chrome: SignedInChrome) {
 @Composable
 private fun TownHome(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
-    SignedInFrame(kind = FrameKind.Home, doesScreenReadTown = true, chrome = chrome) {
+    SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
         TownRoute(
             towns = dependencies.towns,
             clock = dependencies.clock,

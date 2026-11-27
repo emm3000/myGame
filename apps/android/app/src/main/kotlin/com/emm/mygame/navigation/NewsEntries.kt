@@ -12,8 +12,7 @@ internal fun EntryProviderScope<NavKey>.newsEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     entry<Destination.News> {
         SignedInFrame(
-            kind = FrameKind.Place,
-            doesScreenReadTown = false,
+            kind = FrameKind.Place(doesScreenReadTown = false),
             chrome = chrome,
         ) {
             NewsRoute(reports = dependencies.reports, clock = dependencies.clock)

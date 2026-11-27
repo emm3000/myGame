@@ -13,7 +13,6 @@ internal fun EntryProviderScope<NavKey>.holdoutCheckEntry(chrome: SignedInChrome
     entry<Destination.HoldoutCheck> { check: Destination.HoldoutCheck ->
         SignedInFrame(
             kind = FrameKind.Task,
-            doesScreenReadTown = false,
             chrome = chrome,
         ) {
             HoldoutCheckRoute(

@@ -19,7 +19,7 @@ internal fun EntryProviderScope<NavKey>.todayEntry(chrome: SignedInChrome) {
     val dependencies: AppDependencies = chrome.dependencies
     val navigator: Navigator = chrome.navigator
     entry<Destination.Today> {
-        SignedInFrame(kind = FrameKind.Home, doesScreenReadTown = true, chrome = chrome) {
+        SignedInFrame(kind = FrameKind.Home, chrome = chrome) {
             TodayRoute(
                 towns = dependencies.towns,
                 reports = dependencies.reports,
