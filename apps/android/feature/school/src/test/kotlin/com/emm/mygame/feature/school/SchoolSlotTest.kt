@@ -4,6 +4,8 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -11,11 +13,11 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.emm.mygame.core.designsystem.MyGameTheme
+import com.emm.mygame.core.designsystem.OUTLINED_PILL
 import com.emm.mygame.core.model.learning.LessonId
 import com.emm.mygame.core.model.town.TownResourceKind
 import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
-import com.emm.mygame.core.uitesting.navRowOf
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -92,10 +94,10 @@ class SchoolSlotTest {
         SchoolUiState.SlotLine.Busy(firstLesson, firstLessonName, remaining = remaining, total = 150.seconds)
 
     @Test
-    fun `opens the words of the running lesson from a nav row`() {
+    fun `opens the words of the running lesson from its outlined button`() {
         show(idleSchool.copy(slot = busySlot(150.seconds)))
 
-        composeRule.onNode(navRowOf("Leer las palabras"), useUnmergedTree = true).performScrollTo().performClick()
+        composeRule.onNode(hasTestTag(OUTLINED_PILL) and hasText("Leer las palabras")).performScrollTo().performClick()
 
         assertEquals(listOf(firstLesson), lessonOpens)
     }

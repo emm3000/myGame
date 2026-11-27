@@ -44,7 +44,6 @@ import com.emm.mygame.core.model.town.school.SchoolPathCounts
 import com.emm.mygame.core.model.town.school.TownLessonRefusal
 import com.emm.mygame.core.ui.DurationMark
 import com.emm.mygame.core.ui.SEASON_MARK_ICON
-import com.emm.mygame.core.uitesting.navRowOf
 import com.emm.mygame.core.uitesting.textStyleOf
 import kotlin.time.Duration.Companion.seconds
 import org.junit.Assert.assertEquals
@@ -130,6 +129,10 @@ class SchoolLookTest {
         slot = firstRunning,
         lessons = listOf(runningFirst, openSecond.copy(state = busyOnFirst)),
     )
+
+    private val secondShownWhileFirstRuns: SchoolUiState.Content = secondWhileFirstRuns.copy(selected = secondLesson)
+
+    private fun readWordsOf(label: String): SemanticsMatcher = hasTestTag(OUTLINED_PILL) and hasText(label)
 
     private val shownFourth: LessonId = LessonId("lesson-4")
 
@@ -217,7 +220,7 @@ class SchoolLookTest {
 
     @Test
     fun `puts a blocked study button and its reason inside the card`() {
-        show(secondWhileFirstRuns)
+        show(secondShownWhileFirstRuns)
 
         composeRule
             .onNode(hasTestTag(GO_OUTLINED_PILL) and hasText("Estudiar la lección 2 · 2:30") and inTheCard)
@@ -237,10 +240,11 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `opens the card on the first open lesson past a running one`() {
+    fun `keeps the card on the running lesson while an open one waits`() {
         show(secondWhileFirstRuns)
 
-        composeRule.onNode(hasText("Lección 2") and inTheCard).assertExists()
+        composeRule.onNode(hasText("Lección 1") and inTheCard).assertExists()
+        composeRule.onNode(hasText("En estudio") and inTheCard).assertExists()
     }
 
     @Test
@@ -252,15 +256,15 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `sets the running lesson's mark in its card in caption on the muted ink`() {
-        val (_, muted: Color) = showCardInks(
+    fun `sets the running lesson's busy line in its card in label on the ink`() {
+        val (ink: Color, _) = showCardInks(
             idleSchool.copy(slot = firstRunning, lessons = listOf(runningFirst, studiedSecond)),
         )
 
         val mark: TextStyle = textStyleOf(composeRule, hasText("En estudio") and inTheCard)
         assertEquals(15.sp, mark.fontSize)
-        assertEquals(FontWeight.Normal, mark.fontWeight)
-        assertEquals(muted, mark.color)
+        assertEquals(FontWeight.SemiBold, mark.fontWeight)
+        assertEquals(ink, mark.color)
     }
 
     @Test
@@ -345,7 +349,7 @@ class SchoolLookTest {
 
     @Test
     fun `selects the running lesson from its row`() {
-        show(secondWhileFirstRuns)
+        show(secondShownWhileFirstRuns)
 
         composeRule.onNode(hasText("Lección 1") and hasClickAction()).performScrollTo().performClick()
 
@@ -405,17 +409,17 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `names the running lesson on the nav row while the block shows another`() {
-        show(secondWhileFirstRuns)
+    fun `names the running lesson on Read the words while the card shows another`() {
+        show(secondShownWhileFirstRuns)
 
-        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).assertExists()
+        composeRule.onNode(readWordsOf("Lección 1 · Leer las palabras") and inTheCard).assertExists()
     }
 
     @Test
-    fun `opens the running lesson from the nav row under another lesson's block`() {
-        show(secondWhileFirstRuns)
+    fun `opens the running lesson from Read the words on another lesson's card`() {
+        show(secondShownWhileFirstRuns)
 
-        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true)
+        composeRule.onNode(readWordsOf("Lección 1 · Leer las palabras"))
             .performScrollTo()
             .performClick()
 
@@ -423,23 +427,23 @@ class SchoolLookTest {
     }
 
     @Test
-    fun `leaves the running lesson unnamed on the nav row under its own block`() {
-        show(secondWhileFirstRuns.copy(selected = firstLesson))
+    fun `leaves the running lesson unnamed on Read the words in its own card`() {
+        show(secondWhileFirstRuns)
 
-        composeRule.onNode(navRowOf("Leer las palabras"), useUnmergedTree = true).assertExists()
+        composeRule.onNode(readWordsOf("Leer las palabras") and inTheCard).assertExists()
     }
 
     @Test
-    fun `keeps the nav row on a lesson that finished while the town reads again`() {
-        show(secondWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
+    fun `keeps Read the words on a lesson that finished while the town reads again`() {
+        show(secondShownWhileFirstRuns.copy(slot = SchoolUiState.SlotLine.Done(firstLesson, firstLessonName)))
 
-        composeRule.onNode(navRowOf("Lección 1 · Leer las palabras"), useUnmergedTree = true).assertExists()
+        composeRule.onNode(readWordsOf("Lección 1 · Leer las palabras")).assertExists()
     }
 
     @Test
     fun `draws a refused start right under the study button it refused`() {
         show(
-            secondWhileFirstRuns.copy(
+            secondShownWhileFirstRuns.copy(
                 lessons = listOf(runningFirst, openSecond),
                 start = SchoolUiState.LessonRequestStatus.Refused(secondLesson, TownLessonRefusal.StudySlotBusy),
             ),
