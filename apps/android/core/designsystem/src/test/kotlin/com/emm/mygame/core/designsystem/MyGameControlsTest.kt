@@ -10,6 +10,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasAnyAncestor
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -106,17 +108,26 @@ class MyGameControlsTest {
         show { MyGameTextLink(label = "Sign out", isBusy = true, busyDescription = "Signing out", onClick = {}) }
 
         composeRule
-            .onNodeWithText("Sign out")
+            .onNodeWithContentDescription("Sign out")
             .assertIsNotEnabled()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Signing out"))
     }
 
     @Test
-    fun `draws a busy text link's label in muted ink`() {
+    fun `draws the working dots and the busy description in place of a busy text link's label`() {
         show { MyGameTextLink(label = "Sign out", isBusy = true, busyDescription = "Signing out", onClick = {}) }
 
-        assertEquals(lightColors.inkMuted, styleOf("Sign out").color)
+        composeRule.onNodeWithTag(WORKING_DOTS, useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithText("Signing out", useUnmergedTree = true).assertIsDisplayed()
+        composeRule.onNodeWithText("Sign out", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `draws no working dots on a text link at rest`() {
+        show { MyGameTextLink(label = "Sign out", isBusy = false, busyDescription = "Signing out", onClick = {}) }
+
+        composeRule.onNodeWithTag(WORKING_DOTS, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -125,7 +136,7 @@ class MyGameControlsTest {
             MyGameTextLink(label = "Sign out", isBusy = true, busyDescription = "Signing out", onClick = { taps += 1 })
         }
 
-        composeRule.onNodeWithText("Sign out").performClick()
+        composeRule.onNodeWithContentDescription("Sign out").performClick()
 
         assertEquals(0, taps)
     }

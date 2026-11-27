@@ -10,6 +10,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -61,7 +62,7 @@ class VerificationBannerScreenTest {
         draw(banner(VerificationBannerUiState.Resend.Sending))
 
         composeRule.onNodeWithText(BANNER_LINE).assertIsDisplayed()
-        composeRule.onNodeWithText(RESEND).assertIsDisplayed().assertIsNotEnabled()
+        composeRule.onNodeWithContentDescription(RESEND).assertIsDisplayed().assertIsNotEnabled()
     }
 
     @Test
