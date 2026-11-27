@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.emm.mygame.core.designsystem.MyGameChoiceLook
 import com.emm.mygame.core.designsystem.MyGameChoiceRow
-import com.emm.mygame.core.designsystem.MyGameSectionTitle
 import com.emm.mygame.core.designsystem.MyGameSpacing
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.feature.account.R
@@ -23,7 +23,7 @@ internal fun ScaffoldChoice(
 ) {
     val question: String = stringResource(R.string.scaffold_label)
     Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier) {
-        MyGameSectionTitle(text = question)
+        ChoiceGroupTitle(text = question)
         Column(
             verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2),
             modifier = Modifier
@@ -36,6 +36,7 @@ internal fun ScaffoldChoice(
                     isChosen = scaffold == picked,
                     isEnabled = isEnabled,
                     onClick = { onPick(scaffold) },
+                    look = MyGameChoiceLook.Setting,
                 )
             }
         }

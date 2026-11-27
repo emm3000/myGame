@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.emm.mygame.core.designsystem.MyGameErrorBanner
+import com.emm.mygame.core.designsystem.MyGameHeader
 import com.emm.mygame.core.designsystem.MyGameInlineAlert
 import com.emm.mygame.core.designsystem.MyGameSizes
 import com.emm.mygame.core.designsystem.MyGameSkeleton
@@ -40,25 +41,27 @@ internal fun SettingsScreen(
 ) {
     val title: String = stringResource(R.string.settings_title)
     Column(
-        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step6),
+        verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5),
         modifier = modifier
             .fillMaxSize()
             .background(MyGameTheme.colors.surface)
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
             .padding(
-                start = MyGameSpacing.step4,
-                end = MyGameSpacing.step4,
-                top = MyGameSpacing.step8,
+                start = MyGameSpacing.step5,
+                end = MyGameSpacing.step5,
+                top = MyGameSpacing.step4,
                 bottom = MyGameSpacing.step8,
             ),
     ) {
-        MyGameText(
-            text = title,
-            style = MyGameTypography.display,
-            color = MyGameTheme.colors.ink,
-            modifier = Modifier.semantics { heading() },
-        )
+        MyGameHeader {
+            MyGameText(
+                text = title,
+                style = MyGameTypography.title,
+                color = MyGameTheme.colors.ink,
+                modifier = Modifier.semantics { heading() },
+            )
+        }
         if ((state as? SettingsUiState.Loaded)?.reminder?.isOffered == true) ReminderOffer(onIntent = onIntent)
         themeChoice()
         MyGameSkeleton(
@@ -120,18 +123,20 @@ private fun ScaffoldSetting(
     onNotificationSettingsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step4), modifier = modifier) {
-        ScaffoldChoice(
-            picked = loaded.shown,
-            isEnabled = !loaded.isSaving,
-            onPick = { scaffold: PlayerScaffold -> onIntent(SettingsIntent.ScaffoldPicked(scaffold)) },
-        )
-        MyGameText(
-            text = stringResource(R.string.settings_cards_kept),
-            style = MyGameTypography.caption,
-            color = MyGameTheme.colors.inkMuted,
-        )
-        ChangeLine(change = loaded.change)
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step5), modifier = modifier) {
+        Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2)) {
+            ScaffoldChoice(
+                picked = loaded.shown,
+                isEnabled = !loaded.isSaving,
+                onPick = { scaffold: PlayerScaffold -> onIntent(SettingsIntent.ScaffoldPicked(scaffold)) },
+            )
+            MyGameText(
+                text = stringResource(R.string.settings_cards_kept),
+                style = MyGameTypography.caption,
+                color = MyGameTheme.colors.inkMuted,
+            )
+            ChangeLine(change = loaded.change)
+        }
         ReminderSetting(
             reminder = loaded.reminder,
             onIntent = onIntent,

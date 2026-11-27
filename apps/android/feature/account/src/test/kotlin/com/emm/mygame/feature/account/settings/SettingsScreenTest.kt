@@ -100,7 +100,7 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun `draws the help language question as a section title in heading on the ink`() {
+    fun `draws the help language question as a heading in the label style on the ink`() {
         var ink: Color = Color.Unspecified
         composeRule.setContent {
             MyGameTheme {
@@ -110,8 +110,8 @@ class SettingsScreenTest {
         }
 
         val drawn: TextStyle = textStyleOf(composeRule, HELP_LANGUAGE_QUESTION)
-        assertEquals(MyGameTypography.heading.fontSize, drawn.fontSize)
-        assertEquals(MyGameTypography.heading.fontWeight, drawn.fontWeight)
+        assertEquals(MyGameTypography.label.fontSize, drawn.fontSize)
+        assertEquals(MyGameTypography.label.fontWeight, drawn.fontWeight)
         assertEquals(ink, drawn.color)
         composeRule.onNode(isHeading() and hasText(HELP_LANGUAGE_QUESTION)).assertExists()
     }

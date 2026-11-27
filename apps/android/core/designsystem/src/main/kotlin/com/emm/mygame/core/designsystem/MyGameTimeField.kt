@@ -20,7 +20,7 @@ fun MyGameTimeField(
     minutesLater: MyGameTimeStep,
     modifier: Modifier = Modifier,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
+    Column(verticalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier.fillMaxWidth()) {
         MyGameText(
             text = time,
             style = MyGameTypography.numeral.copy(textAlign = TextAlign.Center),
@@ -36,7 +36,7 @@ fun MyGameTimeField(
 
 @Composable
 private fun TimeStepPair(earlier: MyGameTimeStep, later: MyGameTimeStep, modifier: Modifier = Modifier) {
-    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step3), modifier = modifier.fillMaxWidth()) {
+    Row(horizontalArrangement = Arrangement.spacedBy(MyGameSpacing.step2), modifier = modifier.fillMaxWidth()) {
         TimeStepButton(step = earlier, modifier = Modifier.weight(1f))
         TimeStepButton(step = later, modifier = Modifier.weight(1f))
     }
@@ -44,7 +44,9 @@ private fun TimeStepPair(earlier: MyGameTimeStep, later: MyGameTimeStep, modifie
 
 @Composable
 private fun TimeStepButton(step: MyGameTimeStep, modifier: Modifier = Modifier) {
-    MyGameOutlinedButton(
+    MyGamePill(
+        look = outlinedPillLook(colors = MyGameTheme.colors, height = MyGameSizes.control)
+            .copy(sidePadding = MyGameSpacing.step3),
         label = step.label,
         isBusy = false,
         busyDescription = MyGameLabel(text = step.accessibleName, translation = null),
