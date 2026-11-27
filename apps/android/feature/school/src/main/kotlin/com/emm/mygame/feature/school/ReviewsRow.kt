@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.emm.mygame.core.designsystem.MyGameGoOutlinedButton
 import com.emm.mygame.core.designsystem.MyGameLabel
 import com.emm.mygame.core.designsystem.MyGameSpacing
+import com.emm.mygame.core.designsystem.MyGameSunkenCard
 import com.emm.mygame.core.designsystem.MyGameText
 import com.emm.mygame.core.designsystem.MyGameTheme
 import com.emm.mygame.core.designsystem.MyGameTypography
@@ -16,6 +18,8 @@ import com.emm.mygame.core.ui.PlayerCopy
 import com.emm.mygame.core.ui.rememberPlayerCopy
 import com.emm.mygame.core.ui.titledFinishLabelOf
 
+internal const val REVIEWS_ROW: String = "reviews_row"
+
 @Composable
 internal fun ReviewsRow(
     line: SchoolUiState.ReviewsLine,
@@ -23,13 +27,14 @@ internal fun ReviewsRow(
     onReviewsOpen: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when (line) {
-        is SchoolUiState.ReviewsLine.Due -> DueRow(
-            line = line,
-            onOpen = { line.readFirst?.let(onLessonOpen) ?: onReviewsOpen() },
-            modifier = modifier,
-        )
-        is SchoolUiState.ReviewsLine.NoneDue -> NoneDueRow(line = line, modifier = modifier)
+    MyGameSunkenCard(modifier = modifier.testTag(REVIEWS_ROW)) {
+        when (line) {
+            is SchoolUiState.ReviewsLine.Due -> DueRow(
+                line = line,
+                onOpen = { line.readFirst?.let(onLessonOpen) ?: onReviewsOpen() },
+            )
+            is SchoolUiState.ReviewsLine.NoneDue -> NoneDueRow(line = line)
+        }
     }
 }
 
