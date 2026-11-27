@@ -48,6 +48,10 @@ None. No KDoc, no `//`, no `/* */`, no commented-out code, no `// region` banner
 - A preview's sample text is a fixture, not UI copy: it stays in the preview, outside `packages/catalog`.
 - The names are what detekt reads: the Compose rules want a multipreview named with the `Preview` prefix, and `UnusedPrivateMember` spares a preview by its `Preview` suffix, since its `ignoreAnnotated` matches `@Preview` and not `@PreviewMyGame`.
 
+## Structure limits
+
+The limits on a file's lines, a package's files, a test file's lines and a class's private `var`s live only in `apps/android/build-logic/convention/src/main/kotlin/com/emm/mygame/buildlogic/StructureLimits.kt`; this file never copies a number. `checkStructure` enforces them (ADR 056, sections 6 and 7). A finding is fixed by shape: split the file, the package or the ViewModel's state. Never by adding a line to `config/structure/baseline.txt`.
+
 ## detekt
 
 detekt with the Compose rules is the Android leg's linter. Its thresholds live only in `apps/android/config/detekt/detekt.yml`; this file never copies a number. Guard clauses are the default shape of every function (Flat control flow in `principles.md`), and `ReturnCount` does not count them. When a function trips a complexity rule, the fix is shape, never a suppression: a guard clause instead of a nested `if`, a `when` instead of an `else if` chain, a named step instead of nested `let` / `also` / `apply` / `run`.

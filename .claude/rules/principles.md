@@ -38,6 +38,14 @@ A function reads top to bottom, its happy path at the lowest indentation.
 - **A named step instead of nesting.** When nesting hides the happy path, the inner block becomes a function named for what it does, and the outer one calls it.
 - **Chains stay flat.** `async` / `await` in sequence over nested `.then()` callbacks; a `Result` passes through early returns or a flat pipeline of steps.
 
+## Readability
+
+The goal, in the owner's words: a human with no AI opens a tree and finds where a thing lives, what a file is for and where a new thing goes. Clean Code, Clean and Screaming Architecture, SOLID, names that say the thing, no god files.
+
+- **The reader-first test.** A name, a file's role or a placement that would make a reader hesitate is a defect, not a taste.
+- A review treats that hesitation as blocking, never as polish. A minor that hurts legibility is fixed in its own ticket, never dropped.
+- The layouts: ADR 052 and ADR 054 for the backend, ADR 056 for Android. This file does not restate them.
+
 ## Rebuild, never adapt
 
 A structure that does not fit is replaced. No shims, no adapters over legacy, no `Legacy*` names, no feature flags to keep two paths alive. `architecture.md` defines a shim.

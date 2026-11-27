@@ -40,6 +40,15 @@ core:designsystem -> nothing in the project
 
 `./gradlew checkModuleBoundaries` fails on any other edge, a feature-to-feature edge included, and on `core:testing`, `core:uitesting` or a module's `testFixtures(project(...))` through any configuration but a test one. Before adding an edge, check the table; if a `core` module needs to reach outward, invert it with an interface in that module.
 
+## Layout
+
+Feature first, then role (ADR 056, section 1), with the same feature word as `apps/api/src` and `packages/domain`: a reader who knows the word knows every path.
+
+- A feature module names a screen or a sub-area by package and the role by the file's suffix (`TownRoute`, `TownViewModel`, `TownUiState`). A piece two screens of one feature draw lives in a package named for what it draws, never in `common`, `shared` or another screen's package.
+- `core:model` and `core:network` hold one package per feature: its types, answers and ports in the first, its `Api*` adapter and `*Mapping` files in the second. What names no game word goes in `core:network`'s `platform`.
+- A new thing goes in its feature's package of the module for its role. A new feature word is a new package in every module that holds the feature.
+- The package and file-name grammars are ADR 056, sections 4 and 5. The packages of `app` follow them as its files move.
+
 ## The contract
 
 - The api's OpenAPI spec generates the Kotlin types and client into `core:network`'s build directory. They are the only wire shapes: no hand-written DTO, no edit to a generated file, no raw HTTP call beside the client.
