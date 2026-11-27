@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -258,6 +259,7 @@ class MyGameNavRowTest {
 
         assertTrue("the top edge is ground", topEdge.all { pixel: Int -> pixel == ground })
         assertTrue("the bottom edge is ground", bottomEdge.all { pixel: Int -> pixel == ground })
+        row().captureRoboImage()
     }
 
     @Test

@@ -32,6 +32,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
+import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -100,6 +101,7 @@ class MyGameGoButtonTest {
 
         assertEquals(hexOf(lightColors.go.toArgb()), hexOf(mostDrawnOf(pixels)))
         assertTrue("the label is drawn in on-go", pixels.contains(lightColors.onGo.toArgb()))
+        composeRule.onNodeWithTag(INK_PILL).captureRoboImage()
     }
 
     @Test
