@@ -289,6 +289,13 @@ class TownLessonsRepositoryTest : TownRepositoryFixture() {
     }
 
     @Test
+    fun `answers unreachable when a lesson gets a town read at an instant that is not a date`() = runTest {
+        api.enqueue(json(200, LESSON_TOWN.replace("2026-11-05T10:05:00.000Z", "soon")))
+
+        assertEquals(TownLessonResult.Unreachable, town().stopLesson(firstLesson))
+    }
+
+    @Test
     fun `answers unreachable when a lesson cannot reach the api`() = runTest {
         api.close()
 

@@ -85,4 +85,18 @@ class SessionRestoreRepositoryTest : SessionRepositoryFixture() {
         assertEquals(RestoreResult.Unreachable, result)
         assertEquals("opaque-session", store.read())
     }
+
+    @Test
+    fun `answers unreachable on restore for a player whose id is not a uuid`() = runTest {
+        val store: TokenStore = tokenStore().apply { write("opaque-session") }
+        api.enqueue(
+            json(
+                200,
+                playerJson(email = "ines@sotoverde.es", isEmailVerified = true)
+                    .replace("0b6f2f2e-6a43-4a8e-9c4e-2f1d3c4b5a69", "player-one"),
+            ),
+        )
+
+        assertEquals(RestoreResult.Unreachable, repository(store).restore())
+    }
 }

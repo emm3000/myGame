@@ -16,6 +16,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import retrofit2.Response
 
 internal class ApiTownTextRepository(
@@ -28,7 +29,7 @@ internal class ApiTownTextRepository(
             textResultOf(api.townTextsTextIdGet(textId = text.value))
         } catch (expectedOutage: IOException) {
             TownTextResult.Unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             TownTextResult.Unreachable
         }
     }

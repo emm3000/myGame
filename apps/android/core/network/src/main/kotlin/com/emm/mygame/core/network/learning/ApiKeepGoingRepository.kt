@@ -16,6 +16,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import retrofit2.Response
 
 internal class ApiKeepGoingRepository(
@@ -28,7 +29,7 @@ internal class ApiKeepGoingRepository(
             framesResultOf(api.townFramesGet())
         } catch (expectedOutage: IOException) {
             KeepGoingResult.Unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             KeepGoingResult.Unreachable
         }
     }

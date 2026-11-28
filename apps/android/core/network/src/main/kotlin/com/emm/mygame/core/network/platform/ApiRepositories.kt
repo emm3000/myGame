@@ -32,6 +32,7 @@ import kotlin.time.toJavaDuration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -173,12 +174,13 @@ private fun ApiEndpoint.bearerClient(bearer: BearerInterceptor, callTimeout: Dur
         .build()
 
 private fun ApiEndpoint.defaultApi(client: OkHttpClient): DefaultApi {
+    val json: Json = Serializer.kotlinxSerializationJson
     val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(client)
         .addConverterFactory(IsoInstantConverterFactory())
-        .addConverterFactory(KnownTownNewsConverterFactory(Serializer.kotlinxSerializationJson))
-        .addConverterFactory(Serializer.kotlinxSerializationJson.asConverterFactory("application/json".toMediaType()))
+        .addConverterFactory(MalformedBodyConverterFactory(KnownTownNewsConverterFactory(json)))
+        .addConverterFactory(MalformedBodyConverterFactory(json.asConverterFactory("application/json".toMediaType())))
         .build()
     return retrofit.create(DefaultApi::class.java)
 }

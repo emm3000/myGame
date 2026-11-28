@@ -75,6 +75,16 @@ class TownHiringRepositoryTest : TownRepositoryFixture() {
     }
 
     @Test
+    fun `answers unreachable for a stale hiring order refusal whose start is not a date`() = runTest {
+        api.enqueue(json(409, """{"kind":"HiringOrderNotFound","params":{"hire":"worker","startedAt":"soon"}}"""))
+
+        assertEquals(
+            TownHiringResult.Unreachable,
+            town().stopHiring(TownHireKind.Worker, startedAt = Instant.parse(ORDER_START)),
+        )
+    }
+
+    @Test
     fun `reads the hiring terms and the hires held per kind`() = runTest {
         api.enqueue(json(200, TOWN))
 

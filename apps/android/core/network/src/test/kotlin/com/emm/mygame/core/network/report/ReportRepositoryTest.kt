@@ -291,6 +291,20 @@ class ReportRepositoryTest {
     }
 
     @Test
+    fun `answers unreachable for a report read at an instant that is not a date`() = runTest {
+        api.enqueue(json(200, reportOf().replace("2026-11-10T09:00:00.000Z", "soon")))
+
+        assertEquals(ReportReadResult.Unreachable, reports().read())
+    }
+
+    @Test
+    fun `answers unreachable for a town news item that is not an object`() = runTest {
+        api.enqueue(json(200, newsOf("1")))
+
+        assertEquals(TownNewsReadResult.Unreachable, reports().news())
+    }
+
+    @Test
     fun `answers unreachable for a body that is not a report`() = runTest {
         api.enqueue(json(200, "[]"))
 
