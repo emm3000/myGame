@@ -71,10 +71,14 @@ What trunk holds, checked at `9bb0969ae`:
   reminder's sink, the sink needs the town, the town's repository needs
   the study answers. `MyGameApplication` cuts the loop with a lambda and
   a `Lazy` (`MyGameApplication.kt:51`, `:60`, `:81`).
-- **`core:network` exports one constructor.** Every `Api*` adapter is
-  `internal`; `ApiRepositories` builds the eight repositories from four
-  differently configured clients of one generated type, `DefaultApi`
-  (`ApiRepositories.kt:68-167`).
+- **`core:network` exports its repositories through one constructor.**
+  Every `Api*` adapter is `internal`; `ApiRepositories` builds the eight
+  repositories from four differently configured clients of one generated
+  type, `DefaultApi` (`ApiRepositories.kt:68-167`). Beside it the module
+  exports what that constructor takes, which `MyGameApplication` builds
+  by hand: a `TokenStore` over a `KeystoreTokenCipher`, `SessionEnds`,
+  `PlayerLanguages` and `StudyAnswers` (`MyGameApplication.kt:41-52`,
+  `:78-83`).
 - **Robolectric builds the application again for every test.** 45 test
   files of `app` run under Robolectric: 6 name `ReminderTapApplication`,
   the other 39 start `MyGameApplication`. `MyGameApplicationTest` builds
@@ -143,6 +147,14 @@ What the libraries' own sources say, read on 2026-11-27:
   the evidence that they work together.
 - `checkModules()` is deprecated for `verify()`, which lives in
   `koin-test` and brings `kotlin-reflect`.
+- `verify()` reads the bindings it is called on and those they include,
+  nothing else (`Verification.kt:38-40`), and only public constructors
+  (`:79`). It matches a parameter by substring: a type whose full name
+  is part of a bound type's key passes (`:205-206`). A parameter with a
+  default value passes unbound (`:166`, `:185`).
+- `androidContext()` binds the phone's `Context` in bindings of its own,
+  loaded into the graph (`KoinExt.kt:54-70` of `koin-android`), which a
+  `verify()` of the client's bindings does not read.
 - Koin's Navigation 3 artifact, `koin-compose-navigation3`, marks every
   public API `@KoinExperimentalAPI`.
 - `koin-android` exposes `appcompat` and `fragment` to its consumers.
@@ -152,9 +164,10 @@ What the libraries' own sources say, read on 2026-11-27:
   verified Kotlin versions stop at 2.4.20, and its README does not
   assume another patch compatible.
 - Dagger and Hilt 2.60.1 support AGP 9 and its built-in Kotlin through
-  KSP. A Hilt test must run on `HiltTestApplication`, and since 2.58 an
-  `@AndroidEntryPoint` activity fails at run time on any other
-  application.
+  KSP. Every Hilt test must use a Hilt test application:
+  `HiltTestApplication`, or one that `@CustomTestApplication` generates
+  from a base class. Hilt's Gradle plugin rewrites the classes the
+  system starts; without it their base class is named in the annotation.
 
 ## Decision
 
@@ -188,6 +201,8 @@ holds it. Nothing calls `startKoin`, and no global Koin exists.**
 - `AppGraph` replaces `AppDependencies`: an interface with one member,
   the graph. `MyGameApplication` and the tests' application implement
   it.
+- The graph takes the phone's `Context` from `androidContext(this)` and
+  everything else from `appBindings`.
 - `MainActivity` draws `AppNavigation` inside `KoinIsolatedContext`,
   given the graph of its application.
 - The graph is built with `allowOverride(false)`, so two bindings of one
@@ -206,7 +221,7 @@ holds it. Nothing calls `startKoin`, and no global Koin exists.**
 
 | Module | File | What it binds |
 |---|---|---|
-| `app` | `AppBindings.kt` | the root: it includes the three below and binds the clock, the session's token store, `SessionEnds`, the player's languages, `ApiRepositories` and the eight repositories it builds |
+| `app` | `AppBindings.kt` | the root: it includes the three below and binds the clock, the session's token store and its cipher, `SessionEnds`, the player's languages, `ApiRepositories` and the eight repositories it builds |
 | `app` | `navigation/ScreenBindings.kt` | every ViewModel: it includes the ten features' bindings and binds `TownFollowViewModel` and `PlayerLanguageViewModel` |
 | `app` | `reminder/ReminderBindings.kt` | the alarm, the store, the sink, the study answers and the notifications |
 | `app` | `theme/ThemeBindings.kt` | the theme store |
@@ -296,6 +311,15 @@ today (spike 7). The entries stay in `app`'s `*Entries.kt`.
   then still checks each constructor call. A value no other binding
   needs is written inline: the dispatcher, the application's scope, a
   file, a preferences file, a callback.
+- **The phone's `Context` is read with `androidContext()`**, by the
+  alarm, the notifications and the lambdas that open a file or a
+  preferences file. It is bound where the graph is built, outside
+  `appBindings`.
+- **An interface a bound class asks for is bound too, never listed as
+  unbound.** `TokenStore` takes a `TokenCipher`: `KeystoreTokenCipher`
+  is bound by its class and, with `bind`, as `TokenCipher`.
+  `StudyReminderSink` is bound the same way as the `StudyAnswerSink`
+  that `StudyAnswers` takes.
 - **A cycle is cut where it is cut today**, by a lambda or a `Lazy` in
   the adapter's constructor, filled with `{ get() }` or `inject()`.
 
@@ -309,21 +333,39 @@ today (spike 7). The entries stay in `app`'s `*Entries.kt`.
 | `MyGameApplication`, `MainActivity`, `StudyReminderReceiver` | the graph itself: the manifest starts them, so nothing can hand them a parameter |
 | everything else | nothing |
 
-`checkStructure` holds it. Each line is expected empty, and is empty on
-trunk today:
+`checkStructure` holds which file may name what. Each line is expected
+empty, and is empty on trunk today:
 
 ```
 rg -l 'org\.koin' apps/android/core -g '*.kt'
 rg -l 'org\.koin' apps/android -g '*ViewModel.kt' -g '*UiState.kt' -g '*Screen.kt' -g '*UiStateMapping.kt' -g '!**/src/test/**'
-rg -n 'koinInject|getKoin' apps/android/feature -g '*.kt' -g '!**/src/test/**'
+rg -l 'org\.koin' apps/android -g '*.kt' -g '!*Bindings.kt' -g '!*Route.kt' -g '!RetainedWordsRing.kt' -g '!**/app/src/main/**/navigation/**' -g '!AppGraph.kt' -g '!MyGameApplication.kt' -g '!MainActivity.kt' -g '!StudyReminderReceiver.kt' -g '!**/src/test/**' -g '!**/build-logic/**'
+rg -l 'org\.koin\.dsl\.module|org\.koin\.core\.module\.' apps/android -g '*.kt' -g '!*Bindings.kt' -g '!**/src/test/**' -g '!**/build-logic/**'
+rg -l 'koinViewModel' apps/android -g '*.kt' -g '!*Route.kt' -g '!RetainedWordsRing.kt' -g '!AppNavigation.kt' -g '!SignedInFrame.kt' -g '!**/src/test/**' -g '!**/build-logic/**'
+rg -n 'koinInject|getKoin' apps/android -g '*.kt' -g '!**/app/src/main/**/navigation/**' -g '!**/src/test/**' -g '!**/build-logic/**'
+rg -l '\bAppGraph\b|org\.koin\.core\.Koin(Application)?\b' apps/android -g '*.kt' -g '!AppGraph.kt' -g '!MyGameApplication.kt' -g '!MainActivity.kt' -g '!StudyReminderReceiver.kt' -g '!**/src/test/**' -g '!**/build-logic/**'
 rg -n 'KoinComponent|GlobalContext|startKoin' apps/android -g '*.kt' -g '!**/build-logic/**'
 rg -n '(single|factory|viewModel)<[^>(]*<' apps/android -g '*Bindings.kt'
 ```
 
-In order: the cores hold no Koin; a ViewModel, a state, a screen and a
-mapping hold none; a feature never pulls from the graph by hand; no
-global Koin and no class that locates its own dependencies; no binding
-with a type argument.
+In order:
+
+1. the cores hold no Koin;
+2. a ViewModel, a state, a screen and a mapping hold none;
+3. no file outside the table's rows imports it;
+4. only a `*Bindings.kt` declares bindings;
+5. only the composables of the second row open a ViewModel from the
+   graph;
+6. only `app`'s navigation pulls a value from it by hand;
+7. only `AppGraph` and the three classes the manifest starts name the
+   graph;
+8. no global Koin and no class that locates its own dependencies;
+9. no binding with a type argument.
+
+A pattern cannot hold the rest, so review does: a route calls
+`koinViewModel` only as the default of its `viewModel` parameter, and
+`app`'s navigation uses `koinInject` for the two values of the third row
+and never for a port a ViewModel should take.
 
 ### 6. Tests
 
@@ -364,10 +406,19 @@ fun `every constructor parameter of a binding is bound or declared`() {
 
 - `injections` declares every call value of the table above, one
   `definition` per ViewModel.
-- `unboundTypes` is one list in that file: `SavedStateHandle` and the
-  types section 4 writes inline. Each entry is a type `verify()` no
-  longer checks anywhere, so the list only grows with a reason in the
-  pull request.
+- `unboundTypes` is one list in that file:
+  - `Context`, which `androidContext()` binds outside the root. Left
+    out, `verify()` reports the alarm's `context` as missing;
+  - `SavedStateHandle`;
+  - the types section 4 writes inline: `File`, `SharedPreferences`,
+    `CoroutineScope`, `CoroutineDispatcher` and the function types, each
+    by its arity (`Function0`).
+
+  Each entry is a type `verify()` no longer checks anywhere, so the list
+  only grows with a reason in the pull request.
+- The test above is its last shape. K1 writes it with `unboundTypes` and
+  no `injections`, since `appBindings` holds no ViewModel yet; a slice
+  that binds a ViewModel with a call value adds its `definition`.
 - `:app:testDebugUnitTest` runs it. The Android leg of the gate and
   CI's `android` job already run `testDebugUnitTest`, so no command
   changes.
@@ -394,24 +445,28 @@ One pull request per slice, in this order. K3 to K11 need only K2 and
 may run side by side, except that K11 needs K10's port; each adds one
 line to `ScreenBindings.kt` and its call values to `AppBindingsTest`.
 
-From K2 to K12, `AppDependencies` stays for the entries not yet moved,
-read from the graph, and takes no new member. It is the migration's only
-bridge, and K12 deletes it.
+From K1 until K12 deletes it, `AppDependencies` stays for what has not
+moved: `MyGameApplication` answers each member from the graph, and
+`MainActivity` still casts the application to it (`MainActivity.kt:32`).
+It takes no new member and is the migration's only bridge.
 
 Every slice owes the Android leg green and, since a wiring mistake now
 shows when a screen opens, its screens opened on an emulator against the
 real api.
 
-- **K1. The graph binds the phone.** Koin enters `libs.versions.toml`.
-  `AppGraph`, `AppBindings`, `ReminderBindings` and `ThemeBindings` hold
-  what `MyGameApplication` builds; the application builds the graph and
-  keeps its two start-up calls; `StudyReminderReceiver` reads the graph.
-  `AppBindingsTest` verifies the root. No route changes. Owed: the
-  release APK's size before and after.
+- **K1. The graph binds the phone.** Plumbing: no screen changes. Koin
+  enters `libs.versions.toml`. `AppGraph`, `AppBindings`,
+  `ReminderBindings` and `ThemeBindings` hold what `MyGameApplication`
+  builds; the application builds the graph, answers `AppDependencies`
+  from it and keeps its two start-up calls; `StudyReminderReceiver`
+  reads the graph. What proves it: `AppBindingsTest` on the root,
+  `MyGameApplicationTest`, and the study reminder firing on the
+  emulator. It stands alone so the first screen's slice carries no
+  build change. Owed: the release APK's size before and after.
 - **K2. Town News opens from the graph.** The first screen end to end:
   `ScreenBindings`, `ReportBindings`, `NewsRoute` on `koinViewModel()`,
   `MainActivity` inside `KoinIsolatedContext`, `fakePortBindings` in
-  place of `dependenciesOf`, the tests' application on a graph, the five
+  place of `dependenciesOf`, the tests' application on a graph, the
   lines of section 5 in `checkStructure`, and the rows of the amendment
   table that are now true.
 - **K3. `feature:placement`**: two ViewModels, no call value.
@@ -424,11 +479,16 @@ real api.
   `LessonWalk`.
 - **K9. `feature:holdout`**: the first binding with two call values.
   The spike measured one; this slice's screen test is the proof for two.
-- **K10. `feature:shell` and `app`'s two ViewModels**:
-  `PlayerLanguageReader`, the `Boolean` call value, `FramedScreen` and
-  `SignedInFrame` without a port.
+- **K10. `feature:shell` and what `app` reads itself**: `app`'s two
+  ViewModels, `PlayerLanguageReader`, the `Boolean` call value,
+  `FramedScreen` and `SignedInFrame` without a port. `AppNavigation`
+  reads the session's ends and the held town with `koinInject`
+  (`AppNavigation.kt:56`, `:89`), and `MainActivity` the theme from the
+  graph (`MainActivity.kt:35`, `:37`).
 - **K11. `feature:account`**: eight ViewModels, the two nullable tokens,
-  the two `SavedStateHandle`s; `SettingsSources` is deleted.
+  the two `SavedStateHandle`s; `SettingsSources` is deleted, and the
+  verification banner `AppNavigation` draws takes no port
+  (`AppNavigation.kt:94`).
 - **K12. `AppDependencies` is deleted.** No entry takes `dependencies`;
   `ARCHITECTURE.md` and ADR 056's status line say what is true.
 
@@ -438,7 +498,7 @@ real api.
 |---|---|---|---|---|
 | The hand-built root | the compiler | none | yes, it is plain Kotlin | a constructor argument |
 | **Koin (chosen)** | a test, `verify()` | two artifacts and what they bring, no code generation | yes | a binding in the test's graph |
-| Hilt | the compiler | the plugin and KSP in the eleven modules that declare a ViewModel or an entry point | no | `@TestInstallIn` or `@BindValue`, on `HiltTestApplication` |
+| Hilt | the compiler | its Gradle plugin in `app`; KSP and its compiler in the eleven modules that declare a ViewModel or an entry point | no | `@TestInstallIn` or `@BindValue`, on a Hilt test application |
 
 - **Keep the hand-built root.** The honest alternative: it is the only
   one with no library, and the compiler proves it whole. It loses on
@@ -448,10 +508,11 @@ real api.
   justified a move.
 - **Hilt.** It gives back the compile-time proof Koin gives up. It
   costs an annotation processor in eleven modules of a build that has
-  none, and it is Android only, the one reason #2198 records against
-  it. Its tests must
-  run on `HiltTestApplication`, where six of `app`'s test files run on
-  an application of their own today.
+  none, and its Gradle plugin in `app`. It is Android only, the one
+  reason #2198 records against it. A Hilt test runs on a Hilt test
+  application, `HiltTestApplication` or one generated from a base
+  class; the six test files of `app` that run on an application of
+  their own would move to one.
 - **Koin started globally, with `startKoin`.** A second start in one
   JVM throws (spike 6), and Robolectric
   starts `MyGameApplication` again for each of 39 test files. Robolectric
@@ -492,9 +553,13 @@ real api.
   - one type bound twice in one file.
 - **`verify()` has blind spots.** It reads constructors, so every type
   in `unboundTypes` is trusted everywhere and a declared call value is
-  trusted to be given. A binding declared as an interface has no
-  constructor to read: that one is read in Koin's source at 4.2.2, not
-  measured.
+  trusted to be given. Three more are read in Koin's source at 4.2.2,
+  not measured:
+  - a binding declared as an interface has no constructor to read,
+    which is every repository `ApiRepositories` builds;
+  - a parameter is matched by substring, so one typed `PlayerLanguage`
+    passes once `PlayerLanguageReader` is bound;
+  - a parameter with a default value passes unbound.
 - **Adding a port touches three wiring files, not seven**:
   `ApiRepositories.kt`, `AppBindings.kt` and `fakePortBindings`. A port
   that already exists reaches one more ViewModel by its constructor
@@ -512,9 +577,15 @@ real api.
 - **`verify()`'s two helpers are experimental.** `injectedParameters`
   and `definition` are `@KoinExperimentalAPI`. They are called from one
   test.
-- **Leaving Koin stays cheap.** No `core` module, ViewModel, state or
-  screen names it. A later move to another injector rewrites the 14
-  bindings files, the 24 calls that open a ViewModel and `AppGraph`.
+- **Leaving Koin rewrites the wiring and nothing else.** No `core`
+  module, ViewModel, state or screen names it. A later move to another
+  injector rewrites:
+  - the 14 bindings files and `AppGraph`;
+  - the 24 calls that open a ViewModel;
+  - the `koinInject` reads of `app`'s navigation;
+  - the graph reads of `MainActivity` and `StudyReminderReceiver`;
+  - in the tests, `fakePortBindings`, the tests' application,
+    `AppBindingsTest` and every route test that draws inside a graph.
 - **Compose Multiplatform stays parked.** This ADR does not reopen
   ADR 034; it only stops the wiring from being a reason against it.
 
