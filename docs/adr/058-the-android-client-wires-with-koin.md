@@ -130,8 +130,13 @@ What a spike measured on that trunk with Koin 4.2.2, in a JVM test of
    against the constructor form, `viewModelOf`. A value of the wrong
    type, or none, throws the same.
 6. **A second `startKoin` in one JVM throws**
-   `KoinApplicationAlreadyStartedException`. Two `koinApplication { }`
-   hold separate instances.
+   `KoinApplicationAlreadyStartedException`. A `single`'s instance lives
+   in its `Module`, not in the graph: `Module.single` builds a
+   `SingleInstanceFactory`, which keeps the instance in `value`
+   (`SingleInstanceFactory.kt`), and `InstanceRegistry.loadModule` puts
+   that same factory in each graph that loads the `Module`. So two
+   `koinApplication { }` hold separate instances only when each loads a
+   `Module` of its own.
 7. **A graph the application object holds works with Navigation 3.**
    Inside `KoinIsolatedContext`, `koinViewModel()` in an entry decorated
    by `rememberViewModelStoreNavEntryDecorator()` gives one instance per
@@ -181,10 +186,12 @@ what they build, and a test that verifies the root.**
 own `Module` gets another word, so no sentence about the client means
 two things by one.
 
-- **Bindings**: one Koin `Module`, a `val` named `<name>Bindings` in a
-  file `<Name>Bindings.kt`. `Bindings` joins the map's suffixes. The
-  name check needs no edit: it already accepts a file that declares its
-  own name with a lower-case first letter (`NameChecks.kt:66-72`).
+- **Bindings**: a `val` named `<name>Bindings` in a file
+  `<Name>Bindings.kt`, whose getter builds a Koin `Module` on each read:
+  `val <name>Bindings: Module get() = module { }`. `Bindings` joins the
+  map's suffixes. The name check needs no edit: it already accepts a file
+  that declares its own name with a lower-case first letter
+  (`NameChecks.kt:66-72`).
 - **The graph**: the `KoinApplication` an application object builds
   from bindings.
 - **Call value**: a value a ViewModel takes that no binding holds, the
@@ -209,8 +216,12 @@ holds it. Nothing calls `startKoin`, and no global Koin exists.**
   type in two files stop the application at its start (spike 3), which
   `MyGameApplicationTest` already exercises.
 - Each application object has its own graph, as each has its own lazy
-  values today. A second `MyGameApplication` in one JVM, which
-  Robolectric builds for every test, is then no special case (spike 6).
+  values today. A `single` lives in its `Module`, in the
+  `SingleInstanceFactory` that holds its instance, so each application
+  gets its own graph because each read of a bindings value builds a new
+  `Module`. One stored `Module` would hand every graph the same
+  instances. With the getter, a second `MyGameApplication` in one JVM,
+  which Robolectric builds for every test, is no special case (spike 6).
 
 ### 2. Where the bindings live
 
@@ -264,7 +275,7 @@ shows which values the caller gives, and a nullable one arrives (spike
 5):
 
 ```kotlin
-val schoolBindings: Module = module {
+val schoolBindings: Module get() = module {
     viewModelOf(::SchoolViewModel)
     viewModel { (text: TextId) -> SchoolTextViewModel(text = text, texts = get()) }
     viewModel { (walk: LessonWalk) ->
@@ -346,6 +357,7 @@ rg -n 'koinInject|getKoin' apps/android -g '*.kt' -g '!**/app/src/main/**/naviga
 rg -l '\bAppGraph\b|org\.koin\.core\.Koin(Application)?\b' apps/android -g '*.kt' -g '!AppGraph.kt' -g '!MyGameApplication.kt' -g '!MainActivity.kt' -g '!StudyReminderReceiver.kt' -g '!**/src/test/**' -g '!**/build-logic/**'
 rg -n 'KoinComponent|GlobalContext|startKoin' apps/android -g '*.kt' -g '!**/build-logic/**'
 rg -n '(single|factory|viewModel)<[^>(]*<' apps/android -g '*Bindings.kt'
+rg -n 'val \w+Bindings(: Module)? = ' apps/android -g '*Bindings.kt'
 ```
 
 In order:
@@ -360,7 +372,9 @@ In order:
 7. only `AppGraph` and the three classes the manifest starts name the
    graph;
 8. no global Koin and no class that locates its own dependencies;
-9. no binding with a type argument.
+9. no binding with a type argument;
+10. no bindings value stores its `Module`: a getter builds one on each
+    read (section 1).
 
 A pattern cannot hold the rest, so review does: a route calls
 `koinViewModel` only as the default of its `viewModel` parameter, and
