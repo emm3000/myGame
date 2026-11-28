@@ -42,7 +42,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerializationException
 import retrofit2.Response
 
 internal class ApiTownRepository(
@@ -129,7 +128,7 @@ internal class ApiTownRepository(
             resultOf(response, answeredTown(response, request))
         } catch (expectedOutage: IOException) {
             unreachable
-        } catch (expectedMalformedBody: SerializationException) {
+        } catch (expectedMalformedBody: IllegalArgumentException) {
             unreachable
         }
     }
@@ -141,7 +140,7 @@ internal class ApiTownRepository(
             readOrNoTown(response, request)
         } catch (expectedOutage: IOException) {
             TownReadResult.Unreachable
-        } catch (expectedMalformedBody: SerializationException) {
+        } catch (expectedMalformedBody: IllegalArgumentException) {
             TownReadResult.Unreachable
         }
 

@@ -10,7 +10,6 @@ import com.emm.mygame.core.network.generated.apis.DefaultApi
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerializationException
 
 internal class ApiRegionReader(
     private val api: DefaultApi,
@@ -35,7 +34,7 @@ internal class ApiRegionReader(
                 call()
             } catch (expectedOutage: IOException) {
                 unreachable
-            } catch (expectedMalformedBody: SerializationException) {
+            } catch (expectedMalformedBody: IllegalArgumentException) {
                 unreachable
             }
         }
