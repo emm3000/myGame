@@ -6,18 +6,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.model.placement.PlacementRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PlacementRoute(
-    placements: PlacementRepository,
     onEnd: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PlacementViewModel = viewModel { PlacementViewModel(placements) },
+    viewModel: PlacementViewModel = koinViewModel(),
 ) {
     val state: PlacementUiState by viewModel.state.collectAsStateWithLifecycle()
     val onPlacementEnded: () -> Unit by rememberUpdatedState(onEnd)

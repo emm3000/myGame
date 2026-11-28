@@ -38,7 +38,6 @@ internal fun EntryProviderScope<NavKey>.todayEntry(dependencies: AppDependencies
                 ring = { RetainedWordsRing(towns = dependencies.towns, doesScreenReadTown = true) },
                 placement = {
                     PlacementOfferRoute(
-                        placements = dependencies.placements,
                         onPlacementOpen = { navigator.openOnTab(Destination.Placement) },
                     )
                 },

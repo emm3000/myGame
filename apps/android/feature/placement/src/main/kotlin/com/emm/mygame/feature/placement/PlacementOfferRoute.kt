@@ -5,15 +5,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.model.placement.PlacementRepository
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PlacementOfferRoute(
-    placements: PlacementRepository,
     onPlacementOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PlacementOfferViewModel = viewModel { PlacementOfferViewModel(placements) },
+    viewModel: PlacementOfferViewModel = koinViewModel(),
 ) {
     val state: PlacementOfferUiState by viewModel.state.collectAsStateWithLifecycle()
     LifecycleStartEffect(viewModel) {

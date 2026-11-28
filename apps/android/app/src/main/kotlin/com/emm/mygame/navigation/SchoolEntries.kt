@@ -41,7 +41,6 @@ internal fun EntryProviderScope<NavKey>.schoolEntry(
                 },
                 placement = {
                     PlacementOfferRoute(
-                        placements = dependencies.placements,
                         onPlacementOpen = { navigator.openOnTab(Destination.Placement) },
                     )
                 },
