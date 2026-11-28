@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension) {
     commonExtension.compileSdk = COMPILE_SDK
+    commonExtension.compileSdkMinor = COMPILE_SDK_MINOR
     commonExtension.defaultConfig.minSdk = MIN_SDK
     commonExtension.compileOptions.sourceCompatibility = JAVA_VERSION
     commonExtension.compileOptions.targetCompatibility = JAVA_VERSION
