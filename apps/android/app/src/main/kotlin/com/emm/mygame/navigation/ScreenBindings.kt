@@ -1,5 +1,6 @@
 package com.emm.mygame.navigation
 
+import com.emm.mygame.feature.jobs.jobsBindings
 import com.emm.mygame.feature.placement.placementBindings
 import com.emm.mygame.feature.report.reportBindings
 import org.koin.core.module.Module
@@ -7,5 +8,5 @@ import org.koin.dsl.module
 
 val screenBindings: Module
     get() = module {
-        includes(placementBindings, reportBindings)
+        includes(jobsBindings, placementBindings, reportBindings)
     }

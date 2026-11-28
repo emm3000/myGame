@@ -14,6 +14,7 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.koin.compose.viewmodel)
 
     testImplementation(project(":core:testing"))
     testImplementation(libs.robolectric)
