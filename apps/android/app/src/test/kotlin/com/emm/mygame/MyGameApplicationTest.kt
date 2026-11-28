@@ -6,6 +6,7 @@ import android.content.Context
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.model.theme.ThemePick
 import com.emm.mygame.core.projection.StudyReminderFacts
+import com.emm.mygame.reminder.StudyReminderStore
 import java.time.LocalTime
 import java.util.TimeZone
 import kotlin.time.Instant
@@ -26,6 +27,8 @@ class MyGameApplicationTest {
 
     private val application: MyGameApplication = RuntimeEnvironment.getApplication() as MyGameApplication
 
+    private val studyReminderStore: StudyReminderStore = application.graph.koin.get()
+
     private val phoneZone: TimeZone = TimeZone.getDefault()
 
     private val alarmManager: AlarmManager = application.getSystemService(AlarmManager::class.java)
@@ -44,8 +47,8 @@ class MyGameApplicationTest {
 
     @Test
     fun `a start schedules the stored reminder the system dropped`() {
-        application.studyReminderStore.choose(StudyReminderChoice(isOn = true, time = LocalTime.of(19, 0)))
-        application.studyReminderStore.fold {
+        studyReminderStore.choose(StudyReminderChoice(isOn = true, time = LocalTime.of(19, 0)))
+        studyReminderStore.fold {
             StudyReminderFacts(cardsWaitingFrom = Instant.parse("2100-01-01T00:00:00Z"))
         }
         alarmManager.cancelAll()
@@ -66,7 +69,7 @@ class MyGameApplicationTest {
     fun `the theme outlives the study reminder's clear, which every sign-out runs`() {
         application.themes.choose(ThemePick.Light)
 
-        application.studyReminderStore.clear()
+        studyReminderStore.clear()
 
         assertEquals(ThemePick.Light, nextProcessOf(application).themes.pick.value)
     }

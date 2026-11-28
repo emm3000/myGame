@@ -9,6 +9,7 @@ import com.emm.mygame.core.model.account.PlayerLanguage
 import com.emm.mygame.core.model.account.PlayerScaffold
 import com.emm.mygame.core.model.reminder.StudyReminderChoice
 import com.emm.mygame.core.projection.StudyReminderFacts
+import com.emm.mygame.reminder.StudyReminderStore
 import java.time.LocalTime
 import java.util.TimeZone
 import kotlin.time.Instant
@@ -26,6 +27,8 @@ import org.robolectric.shadows.ShadowAlarmManager
 class StudyReminderReceiverTest {
 
     private val application: MyGameApplication = RuntimeEnvironment.getApplication() as MyGameApplication
+
+    private val studyReminderStore: StudyReminderStore = application.graph.koin.get()
 
     private val phoneZone: TimeZone = TimeZone.getDefault()
 
@@ -50,8 +53,8 @@ class StudyReminderReceiverTest {
 
     @Test
     fun `boot, a time set and a time zone change reschedule from the stored facts`() {
-        application.studyReminderStore.choose(onAtSevenPm)
-        application.studyReminderStore.fold { wordsWaitingIn2100 }
+        studyReminderStore.choose(onAtSevenPm)
+        studyReminderStore.fold { wordsWaitingIn2100 }
         val clockChanges: List<String> =
             listOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED)
 
@@ -66,8 +69,8 @@ class StudyReminderReceiverTest {
 
     @Test
     fun `a time zone change moves the alarm to the chosen time in the new zone`() {
-        application.studyReminderStore.choose(onAtSevenPm)
-        application.studyReminderStore.fold { wordsWaitingIn2100 }
+        studyReminderStore.choose(onAtSevenPm)
+        studyReminderStore.fold { wordsWaitingIn2100 }
         TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"))
 
         StudyReminderReceiver().onReceive(application, Intent(Intent.ACTION_TIMEZONE_CHANGED))
@@ -77,11 +80,11 @@ class StudyReminderReceiverTest {
 
     @Test
     fun `the alarm posts the stored line in the stored scaffold language`() {
-        application.studyReminderStore.choose(onAtSevenPm)
-        application.studyReminderStore.fold {
+        studyReminderStore.choose(onAtSevenPm)
+        studyReminderStore.fold {
             StudyReminderFacts(cardsWaitingFrom = Instant.parse("2026-01-01T00:00:00Z"))
         }
-        application.studyReminderStore.nameLanguage(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
+        studyReminderStore.nameLanguage(PlayerLanguage(PlayerScaffold.Spanish, PlayerChromePhase.Scaffold))
 
         StudyReminderReceiver().onReceive(application, Intent(StudyReminderReceiver.STUDY_REMINDER_FIRED))
 
