@@ -14,6 +14,7 @@ import com.emm.mygame.core.network.town.news.toTownNews
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import retrofit2.Response
 
 internal class ApiReportRepository(
@@ -28,7 +29,7 @@ internal class ApiReportRepository(
             readOrUnreachable(api.reportGet(), study)
         } catch (expectedOutage: IOException) {
             ReportReadResult.Unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             ReportReadResult.Unreachable
         }
     }
@@ -46,7 +47,7 @@ internal class ApiReportRepository(
             newsOrUnreachable(api.townNewsGet())
         } catch (expectedOutage: IOException) {
             TownNewsReadResult.Unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             TownNewsReadResult.Unreachable
         }
     }

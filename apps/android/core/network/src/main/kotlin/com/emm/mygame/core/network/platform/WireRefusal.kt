@@ -15,6 +15,7 @@ import com.emm.mygame.core.network.generated.models.NotEnoughWordsError
 import com.emm.mygame.core.network.generated.models.OfficeTooLowError
 import com.emm.mygame.core.network.generated.models.TopLevelReachedError
 import com.emm.mygame.core.network.generated.models.WaitingListFullError
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -35,8 +36,8 @@ internal fun WireRefusal.bareKind(): BareApiError.Kind? = when (this) {
 internal fun Response<*>.wireRefusal(): WireRefusal? {
     val body: String = errorBody()?.string() ?: return null
     return try {
-        refusalOf(body)
-    } catch (expectedMalformedBody: IllegalArgumentException) {
+        decodedOrMalformed { refusalOf(body) }
+    } catch (expectedMalformedBody: SerializationException) {
         null
     }
 }

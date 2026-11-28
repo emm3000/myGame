@@ -24,6 +24,7 @@ import com.emm.mygame.core.network.reminder.StudyRequest
 import java.io.IOException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import retrofit2.Response
 
 internal class ApiLearningRepository(
@@ -39,7 +40,7 @@ internal class ApiLearningRepository(
             readOrUnreachable(api.reviewsGet(), study)
         } catch (expectedOutage: IOException) {
             ReviewsReadResult.Unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             ReviewsReadResult.Unreachable
         }
     }
@@ -49,7 +50,7 @@ internal class ApiLearningRepository(
             hintedOrRefused(api.reviewsWordIdHintPost(word.value))
         } catch (expectedOutage: IOException) {
             ReviewHintResult.Unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             ReviewHintResult.Unreachable
         }
     }
@@ -64,7 +65,7 @@ internal class ApiLearningRepository(
                 answeredOrRefused(response)
             } catch (expectedOutage: IOException) {
                 ReviewAnswerResult.Unreachable
-            } catch (expectedMalformedBody: IllegalArgumentException) {
+            } catch (expectedMalformedBody: SerializationException) {
                 ReviewAnswerResult.Unreachable
             }
         }

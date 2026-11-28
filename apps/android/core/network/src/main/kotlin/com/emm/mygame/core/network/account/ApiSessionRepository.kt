@@ -36,6 +36,7 @@ import java.security.ProviderException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import retrofit2.Response
 
 internal class ApiSessionRepository(
@@ -84,7 +85,7 @@ internal class ApiSessionRepository(
                 restoredOrSignedOut(api.authSessionGet(), read)
             } catch (expectedOutage: IOException) {
                 RestoreResult.Unreachable
-            } catch (expectedMalformedBody: IllegalArgumentException) {
+            } catch (expectedMalformedBody: SerializationException) {
                 RestoreResult.Unreachable
             }
         }
@@ -105,7 +106,7 @@ internal class ApiSessionRepository(
                 changedOrRefused(api.playerScaffoldPut(ScaffoldChange(scaffold = scaffold.toScaffold())), read)
             } catch (expectedOutage: IOException) {
                 ScaffoldChangeResult.Unreachable
-            } catch (expectedMalformedBody: IllegalArgumentException) {
+            } catch (expectedMalformedBody: SerializationException) {
                 ScaffoldChangeResult.Unreachable
             }
         }
@@ -130,7 +131,7 @@ internal class ApiSessionRepository(
             open()
         } catch (expectedOutage: IOException) {
             unreachable
-        } catch (expectedMalformedBody: IllegalArgumentException) {
+        } catch (expectedMalformedBody: SerializationException) {
             unreachable
         } catch (expectedKeystoreRefusal: GeneralSecurityException) {
             unreachable

@@ -172,6 +172,20 @@ class LearningRepositoryTest {
     }
 
     @Test
+    fun `answers unreachable for reviews read at an instant that is not a date`() = runTest {
+        api.enqueue(json(200, NOTHING_DUE.replace("2026-11-10T09:04:00.000Z", "soon")))
+
+        assertEquals(ReviewsReadResult.Unreachable, learning().reviews())
+    }
+
+    @Test
+    fun `answers unreachable for a verdict that is not an object`() = runTest {
+        api.enqueue(json(200, answerOf("1")))
+
+        assertEquals(ReviewAnswerResult.Unreachable, learning().answer(WordId("lesson-1-2"), "school"))
+    }
+
+    @Test
     fun `posts the hint of the word it names on the player's reviews`() = runTest {
         api.enqueue(json(200, GIVE_UP_HINT_BODY))
 
