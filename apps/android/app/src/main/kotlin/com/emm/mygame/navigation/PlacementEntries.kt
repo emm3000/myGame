@@ -19,7 +19,6 @@ internal fun EntryProviderScope<NavKey>.placementEntry(
             navigator = navigator,
         ) {
             PlacementRoute(
-                placements = dependencies.placements,
                 onEnd = onTaskAnswer,
                 onDone = navigator::back,
             )
