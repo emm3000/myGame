@@ -15,21 +15,17 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 
 | Model:effort | PRs | MERGE | FIX FIRST checklist | FIX FIRST judgment | FIX FIRST spec |
 |---|---|---|---|---|---|
-| sonnet:low | 84 | 71 | 3 | 3 | 7 |
+| sonnet:low | 85 | 72 | 3 | 3 | 7 |
 | sonnet:medium | 7 | 5 | 0 | 2 | 0 |
 | sonnet:high | 3 | 0 | 0 | 2 | 1 |
 | opus:medium | 108 | 80 | 11 | 14 | 3 |
-| opus:high | 725 | 498 | 94 | 86 | 46 |
+| opus:high | 728 | 500 | 94 | 86 | 47 |
 | fable:high | 84 | 64 | 2 | 12 | 6 |
 
 ## Recent
 
 | PR | Model:effort | First review | Cause | Rounds | Lines +/- |
 |---|---|---|---|---|---|
-| #2169 | opus:high | MERGE |  | 1 | +173/-26 |
-| #2167 | opus:high | FIX FIRST | spec | 2 | +115/-30 |
-| #2170 | opus:high | MERGE |  | 1 | +340/-71 |
-| #2173 | sonnet:low | MERGE |  | 1 | +13/-89 |
 | #2174 | opus:high | MERGE |  | 1 | +17/-0 |
 | #2176 | opus:high | FIX FIRST | judgment | 2 | +3/-3 |
 | #2177 | opus:high | MERGE |  | 2 | +54/-15 |
@@ -46,3 +42,7 @@ Totals of the rows folded out of Recent. Until #1207 they were also split by the
 | #2195 | sonnet:low | MERGE |  | 1 | +69/-49 |
 | #2196 | opus:high | MERGE |  | 1 | +54/-29 |
 | #2197 | opus:high | FIX FIRST | spec | 3 | +238/-114 |
+| #2199 | fable:high | FIX FIRST | judgment | 2 | +613/-0 |
+| #2200 | opus:high | FIX FIRST | spec | 2 | +106/-6 |
+| #2201 | opus:high | MERGE |  | 1 | +6/-3 |
+| #2202 | opus:high | MERGE |  | 1 | +4/-4 |
