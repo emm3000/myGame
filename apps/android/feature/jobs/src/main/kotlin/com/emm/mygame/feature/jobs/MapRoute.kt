@@ -7,19 +7,15 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.model.town.jobs.TownRegionRepository
-import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MapRoute(
-    towns: TownRegionRepository,
-    clock: Clock,
     onNoTown: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: MapViewModel = viewModel { MapViewModel(towns, clock) },
+    viewModel: MapViewModel = koinViewModel(),
 ) {
     val state: MapUiState by viewModel.state.collectAsStateWithLifecycle()
     val currentOnNoTown: () -> Unit by rememberUpdatedState(onNoTown)

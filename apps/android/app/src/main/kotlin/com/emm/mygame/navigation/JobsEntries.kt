@@ -15,8 +15,6 @@ internal fun EntryProviderScope<NavKey>.jobsEntry(dependencies: AppDependencies,
             navigator = navigator,
         ) {
             MapRoute(
-                towns = dependencies.towns,
-                clock = dependencies.clock,
                 onNoTown = navigator::townUnnamed,
             )
         }
