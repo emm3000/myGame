@@ -31,7 +31,7 @@ class SignOutRebuildTest {
 
     private val sessions: FakeSessionRepository = FakeSessionRepository()
 
-    private val dependencies: AppDependencies = dependenciesOf(sessions = sessions)
+    private val app: FakeAppGraph = FakeAppGraph(fakePortBindings(sessions = sessions))
 
     @After
     fun forgetTheHostContent() {
@@ -40,7 +40,7 @@ class SignOutRebuildTest {
 
     private fun signingOutOnARecreatedMe() {
         RebuildHostActivity.shown =
-            RebuildHostActivity.Shown(dependencies, listOf(Destination.Today, Destination.Settings))
+            RebuildHostActivity.Shown(app, listOf(Destination.Today, Destination.Settings))
         val host: ActivityController<RebuildHostActivity> =
             Robolectric.buildActivity(RebuildHostActivity::class.java).setup()
         waitForLine("Salir")

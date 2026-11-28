@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -31,7 +32,7 @@ class NoTownNavigationTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val dependencies: AppDependencies = dependenciesOf(clock = fixedClock, towns = towns)
+    private val app: FakeAppGraph = FakeAppGraph(fakePortBindings(clock = fixedClock, towns = towns))
 
     @Test
     fun `asks for the town's name when the school finds no town`() {
@@ -39,12 +40,14 @@ class NoTownNavigationTest {
 
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.School),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(Destination.Today, Destination.Town, Destination.School),
+                    )
+                }
             }
         }
 

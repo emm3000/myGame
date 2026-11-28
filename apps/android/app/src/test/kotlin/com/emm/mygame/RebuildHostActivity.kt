@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import com.emm.mygame.core.designsystem.theme.MyGameTheme
 import com.emm.mygame.navigation.AppNavigation
 import kotlinx.coroutines.flow.emptyFlow
+import org.koin.compose.KoinIsolatedContext
 
 class RebuildHostActivity : ComponentActivity() {
 
@@ -18,17 +19,19 @@ class RebuildHostActivity : ComponentActivity() {
         setContent {
             val backStack: NavBackStack<NavKey> = rememberNavBackStack(*content.destinations.toTypedArray())
             MyGameTheme {
-                AppNavigation(
-                    dependencies = content.dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = backStack,
-                )
+                KoinIsolatedContext(context = content.app.graph) {
+                    AppNavigation(
+                        dependencies = content.app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = backStack,
+                    )
+                }
             }
         }
     }
 
-    data class Shown(val dependencies: AppDependencies, val destinations: List<NavKey>)
+    data class Shown(val app: FakeAppGraph, val destinations: List<NavKey>)
 
     companion object {
         var shown: Shown? = null

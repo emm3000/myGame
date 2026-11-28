@@ -19,7 +19,7 @@ The Android leg of the gate runs the unit tests (`verification.md`); a test the 
 - An emission sequence or an `Effect` is asserted with Turbine: `awaitItem()` for each expected emission, `expectNoEvents()` where nothing may follow.
 - `runTest` with the `TestClock` from `core:testing`, which reads the scheduler's virtual time, so `advanceTimeBy` advances it. Never `Thread.sleep`, never real time.
 - A ViewModel that loops on the clock (`while (true) { delay(...) }`) never lets `runTest` finish: cancel its `viewModelScope` from a `backgroundScope.launch(start = CoroutineStart.UNDISPATCHED)` that awaits cancellation.
-- Collaborators are the fakes in `core:testing`; no mocking library until a ticket proves the need. A fake that needs a stub per test is a sign the interface is too wide.
+- Collaborators are the fakes in `core:testing`, bound in a test's Koin graph when a route is drawn and never by overriding a binding (ADR 058, section 6); no mocking library until a ticket proves the need. A fake that needs a stub per test is a sign the interface is too wide.
 
 ## Projection tests
 

@@ -36,6 +36,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
@@ -70,12 +71,14 @@ class SettingsNavigationTest {
 
     private val themes: FakeThemeSettings = FakeThemeSettings(ThemePick.System)
 
-    private val dependencies: AppDependencies = dependenciesOf(
+    private val app: FakeAppGraph = FakeAppGraph(
+        ports = fakePortBindings(
+            sessions = sessionsHoldingTheAnsweredLanguage,
+            reports = reports,
+            themes = themes,
+        ),
         playerLanguage = latestRead,
         playerScaffold = heldScaffold,
-        sessions = sessionsHoldingTheAnsweredLanguage,
-        reports = reports,
-        themes = themes,
     )
 
     private val nothingDue: TownReport = TownReport(
@@ -101,12 +104,14 @@ class SettingsNavigationTest {
             MyGameTheme {
                 val backStack: NavBackStack<NavKey> = rememberNavBackStack(*destinations)
                 shownBackStack = backStack
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = backStack,
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = backStack,
+                    )
+                }
             }
         }
     }

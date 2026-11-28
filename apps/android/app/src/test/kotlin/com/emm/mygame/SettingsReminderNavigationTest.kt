@@ -38,6 +38,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
@@ -79,12 +80,14 @@ class SettingsReminderNavigationTest {
     private val notifications: ShadowNotificationManager =
         shadowOf(application.getSystemService(NotificationManager::class.java))
 
-    private val dependencies: AppDependencies = dependenciesOf(
+    private val app: FakeAppGraph = FakeAppGraph(
+        ports = fakePortBindings(
+            sessions = sessions,
+            studyReminders = store,
+            reminderNotifications = PhoneReminderNotifications(application),
+        ),
         playerLanguage = MutableStateFlow(spanishScaffold),
         playerScaffold = MutableStateFlow(PlayerScaffold.Spanish),
-        sessions = sessions,
-        studyReminders = store,
-        reminderNotifications = PhoneReminderNotifications(application),
     )
 
     private fun showSettings() {
@@ -95,15 +98,17 @@ class SettingsReminderNavigationTest {
         }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(
-                        Destination.Today,
-                        Destination.Settings,
-                    ),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(
+                            Destination.Today,
+                            Destination.Settings,
+                        ),
+                    )
+                }
             }
         }
         composeRule.waitUntil(WAIT_MILLIS) {

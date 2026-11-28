@@ -27,6 +27,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -48,7 +49,7 @@ class TownGridNavigationTest {
 
     private val reports: FakeReportRepository = FakeReportRepository()
 
-    private val dependencies: AppDependencies = dependenciesOf(clock = fixedClock, towns = towns, reports = reports)
+    private val app: FakeAppGraph = FakeAppGraph(fakePortBindings(clock = fixedClock, towns = towns, reports = reports))
 
     private var shownStack: NavBackStack<NavKey>? = null
 
@@ -84,14 +85,16 @@ class TownGridNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(townOf(readAt))) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
-                        shownStack = shown
-                    },
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
+                            shownStack = shown
+                        },
+                    )
+                }
             }
         }
     }
