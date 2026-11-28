@@ -30,6 +30,7 @@ import com.emm.mygame.core.testing.townOf
 import com.emm.mygame.navigation.AppNavigation
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
+import org.koin.compose.KoinIsolatedContext
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -55,13 +56,15 @@ abstract class SignedInScreenFixture {
     protected var shownStack: NavBackStack<NavKey>? = null
         private set
 
-    private val dependencies: AppDependencies = dependenciesOf(
-        sessions = sessions,
-        towns = towns,
-        learning = learning,
-        reports = reports,
-        placements = placements,
-        holdoutChecks = holdoutChecks,
+    private val app: FakeAppGraph = FakeAppGraph(
+        fakePortBindings(
+            sessions = sessions,
+            towns = towns,
+            learning = learning,
+            reports = reports,
+            placements = placements,
+            holdoutChecks = holdoutChecks,
+        ),
     )
 
     protected val readAt: Instant = Clock.System.now()
@@ -99,14 +102,16 @@ abstract class SignedInScreenFixture {
         repeat(townReads) { towns.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
-                        shownStack = shown
-                    },
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
+                            shownStack = shown
+                        },
+                    )
+                }
             }
         }
     }

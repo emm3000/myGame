@@ -18,6 +18,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.koin.compose.KoinIsolatedContext
+import org.koin.core.KoinApplication
 
 class MainActivity : ComponentActivity() {
 
@@ -29,14 +31,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) take(intent)
+        val graph: KoinApplication = (application as AppGraph).graph
         val dependencies: AppDependencies = application as AppDependencies
         val taps: Flow<Unit> = reminderTaps.receiveAsFlow()
         val links: Flow<Destination.MailedLink> = mailedLinks.receiveAsFlow()
         lifecycleScope.launch { dependencies.themes.pick.collect(::followNightMode) }
         setContent {
             val pick: ThemePick by dependencies.themes.pick.collectAsStateWithLifecycle()
-            PickedTheme(pick = pick) {
-                AppNavigation(dependencies = dependencies, reminderTaps = taps, mailedLinks = links)
+            KoinIsolatedContext(context = graph) {
+                PickedTheme(pick = pick) {
+                    AppNavigation(dependencies = dependencies, reminderTaps = taps, mailedLinks = links)
+                }
             }
         }
     }

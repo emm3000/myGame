@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -38,7 +39,7 @@ class SignUpNavigationTest {
 
     private val towns: FakeTownRepository = FakeTownRepository()
 
-    private val dependencies: AppDependencies = dependenciesOf(sessions = sessions, towns = towns)
+    private val app: FakeAppGraph = FakeAppGraph(fakePortBindings(sessions = sessions, towns = towns))
 
     @Test
     fun `opens Name your town after sign-up`() {
@@ -51,7 +52,9 @@ class SignUpNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.NoTown) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(dependencies = app, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                }
             }
         }
         waitForLine("Crea tu cuenta")

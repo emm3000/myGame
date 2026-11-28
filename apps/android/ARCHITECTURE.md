@@ -8,7 +8,7 @@ One row for each module of `apps/android/settings.gradle.kts`. A new module adds
 
 | Module | What it holds |
 |---|---|
-| `app` | The composition root: five files at the root (`MainActivity`, `MyGameApplication`, `StudyReminderReceiver`, `Destination`, `AppDependencies`), the entry points the system starts and `Destination`, which the back stack saves, and four packages: `navigation` (`AppNavigation`, `Navigator`, one `*Entries` file per feature module with destinations, and `TownFollowIntent` and `TownFollowViewModel`, which only `AppNavigation` drives), `account` (the player's language around every screen), `reminder` (the study reminder's alarm, store, sink and notifications) and `theme` (the picked theme and its store) |
+| `app` | The composition root: seven files at the root (`MainActivity`, `MyGameApplication`, `StudyReminderReceiver`, `Destination`, `AppGraph`, `AppBindings`, `AppDependencies`), the entry points the system starts, `Destination`, which the back stack saves, the Koin graph and its root bindings (ADR 058), and `AppDependencies`, the bridge ADR 058's migration deletes; and four packages: `navigation` (`AppNavigation`, `Navigator`, one `*Entries` file per feature module with destinations, `ScreenBindings`, which includes each feature's bindings, and `TownFollowIntent` and `TownFollowViewModel`, which only `AppNavigation` drives), `account` (the player's language around every screen), `reminder` (the study reminder's alarm, store, sink, notifications and bindings) and `theme` (the picked theme, its store and its bindings) |
 | `core:model` | Pure Kotlin, JVM only: one package per feature, holding its types, the `*Result` and `*Refusal` an api answer is read into, and its ports (`TownRepository`, `ReportRepository`) |
 | `core:network` | The client generated from `apps/api/openapi.json`, in its build directory; one package per feature, named as in `core:model`, holding the `Api*` adapters that implement its ports and their `*Mapping` files; and `platform`, what names no game word: the endpoint, the bearer, the token store and `ApiRepositories`, which builds every adapter |
 | `core:projection` | Pure Kotlin, JVM only: the lazy projection and the values it reads |
@@ -85,6 +85,7 @@ A file is named for the one declaration it holds, or carries a suffix (ADR 056, 
 | `Copy` | functions that choose a catalog string |
 | `Requests` | what a ViewModel remembers of its requests in flight |
 | `Entries`, in `app`'s `navigation` | one feature module's navigation entries |
+| `Bindings` | the Koin bindings of the module that owns what they build (ADR 058) |
 | `Fixtures`, and the `Fake` prefix, in `core:testing` | test data and the fakes of ports |
 
 ## One intent, end to end
@@ -93,7 +94,7 @@ Starting a lesson:
 
 1. `apps/android/feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolScreen.kt` draws `LessonRows.kt`, whose Study button sends `SchoolIntent.StudyTapped` through the `onIntent` that `SchoolRoute.kt` hands it.
 2. `apps/android/feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolViewModel.kt` marks the start waiting and asks the port `startLesson` of `apps/android/core/model/src/main/kotlin/com/emm/mygame/core/model/town/TownRepository.kt`.
-3. `apps/android/core/network/src/main/kotlin/com/emm/mygame/core/network/town/ApiTownRepository.kt`, built once by `ApiRepositories` from `MyGameApplication`, posts a `StartLessonRequest` through the generated client, off the main thread.
+3. `apps/android/core/network/src/main/kotlin/com/emm/mygame/core/network/town/ApiTownRepository.kt`, built once by `ApiRepositories`, which `AppBindings` binds, posts a `StartLessonRequest` through the generated client, off the main thread.
 4. The `TownOverview` it answers passes `apps/android/core/network/src/main/kotlin/com/emm/mygame/core/network/town/TownMapping.kt` into a `TownSnapshot`, held as the `HeldTown` every screen that reads `towns.town` sees, and `apps/android/core/network/src/main/kotlin/com/emm/mygame/core/network/town/school/TownLessonMapping.kt` into a `TownLessonResult`: answered, refused or unreachable.
 5. The ViewModel restarts the projection from the answered town and draws it through `apps/android/feature/school/src/main/kotlin/com/emm/mygame/feature/school/SchoolUiStateMapping.kt` into a `SchoolUiState`, then sends `SchoolEffect.LessonStarted`, which `SchoolRoute.kt` hands to `app` as `onLessonStart`.
 
@@ -115,11 +116,12 @@ A new signed-in screen adds, in order:
 
 1. Its `UiState`, `Intent`, `Effect`, `ViewModel` and their test, in its feature's package.
 2. Its `UiStateMapping` beside them, when it maps the model.
-3. Its `Screen`, `ScreenPreview` and `Route`, beside them.
-4. Its strings under `android.<module>.*` in `packages/catalog/en.json` and `packages/catalog/es.json`, then `pnpm --filter @mygame/catalog generate`.
-5. Its member of `apps/android/app/src/main/kotlin/com/emm/mygame/Destination.kt`, pinned in `apps/android/app/src/test/kotlin/com/emm/mygame/DestinationTest.kt`.
-6. Its entry in its feature's `*Entries.kt`, in a `SignedInFrame` of its `FrameKind`.
-7. The way to open it, in `apps/android/app/src/main/kotlin/com/emm/mygame/navigation/Navigator.kt`.
+3. Its `Screen`, `ScreenPreview` and `Route`, beside them; the route opens its ViewModel with `koinViewModel()` and takes no port.
+4. Its ViewModel's line in its feature module's `<Feature>Bindings.kt`, which `app`'s `ScreenBindings.kt` includes.
+5. Its strings under `android.<module>.*` in `packages/catalog/en.json` and `packages/catalog/es.json`, then `pnpm --filter @mygame/catalog generate`.
+6. Its member of `apps/android/app/src/main/kotlin/com/emm/mygame/Destination.kt`, pinned in `apps/android/app/src/test/kotlin/com/emm/mygame/DestinationTest.kt`.
+7. Its entry in its feature's `*Entries.kt`, in a `SignedInFrame` of its `FrameKind`.
+8. The way to open it, in `apps/android/app/src/main/kotlin/com/emm/mygame/navigation/Navigator.kt`.
 
 A new feature module also adds its `include` to `settings.gradle.kts`, its row above and its `robolectric.properties`.
 

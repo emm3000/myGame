@@ -1,6 +1,6 @@
 package com.emm.mygame.buildlogic
 
-private val structureChecks: List<StructureCheck> = sizeChecks + boundaryChecks + nameChecks
+private val structureChecks: List<StructureCheck> = sizeChecks + boundaryChecks + nameChecks + koinChecks
 
 fun structureFindingsOf(sources: List<SourceFile>, limits: StructureLimits): List<String> =
     structureChecks

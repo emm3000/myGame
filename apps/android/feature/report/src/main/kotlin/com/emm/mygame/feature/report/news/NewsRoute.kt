@@ -4,17 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.emm.mygame.core.model.report.ReportRepository
-import kotlin.time.Clock
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun NewsRoute(
-    reports: ReportRepository,
-    clock: Clock,
-    modifier: Modifier = Modifier,
-    viewModel: NewsViewModel = viewModel { NewsViewModel(reports, clock) },
-) {
+fun NewsRoute(modifier: Modifier = Modifier, viewModel: NewsViewModel = koinViewModel()) {
     val state: NewsUiState by viewModel.state.collectAsStateWithLifecycle()
     NewsScreen(state = state, onIntent = viewModel::onIntent, modifier = modifier)
 }

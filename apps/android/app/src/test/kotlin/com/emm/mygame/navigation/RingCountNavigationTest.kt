@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 
 private val ringWording: Regex = Regex("\\d+ de \\d+ palabras? aprendidas?")
@@ -90,12 +91,14 @@ class RingCountNavigationTest : AppNavigationFixture() {
 
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(Destination.Today, Destination.Settings),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(Destination.Today, Destination.Settings),
+                    )
+                }
             }
         }
         waitForRing(THREE_OF_FIVE)
@@ -109,7 +112,9 @@ class RingCountNavigationTest : AppNavigationFixture() {
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(playedTown(retainedWords = threeOfFive))) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(dependencies = app, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                }
             }
         }
         waitForRing(THREE_OF_FIVE)

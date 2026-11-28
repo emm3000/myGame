@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
@@ -53,10 +54,12 @@ class PlayerLanguageNavigationTest {
 
     private val latestRead: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
 
-    private val dependencies: AppDependencies = dependenciesOf(
+    private val app: FakeAppGraph = FakeAppGraph(
+        ports = fakePortBindings(
+            sessions = sessions,
+            reports = reports,
+        ),
         playerLanguage = latestRead,
-        sessions = sessions,
-        reports = reports,
     )
 
     private val nothingDue: TownReport = TownReport(
@@ -83,12 +86,14 @@ class PlayerLanguageNavigationTest {
         reports.answerRead(ReportReadResult.Read(nothingDue))
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations),
+                    )
+                }
             }
         }
     }
@@ -97,7 +102,9 @@ class PlayerLanguageNavigationTest {
         sessions.answerRestore(RestoreResult.SignedOut)
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(dependencies = app, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                }
             }
         }
     }

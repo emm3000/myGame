@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import kotlin.time.Instant
 
@@ -44,8 +45,13 @@ class SchoolHoldoutChecksNavigationTest {
 
     private val holdoutChecks: FakeHoldoutCheckRepository = FakeHoldoutCheckRepository()
 
-    private val dependencies: AppDependencies =
-        dependenciesOf(sessions = sessions, towns = towns, holdoutChecks = holdoutChecks)
+    private val app: FakeAppGraph = FakeAppGraph(
+        fakePortBindings(
+            sessions = sessions,
+            towns = towns,
+            holdoutChecks = holdoutChecks,
+        ),
+    )
 
     private val verifiedSession: RestoreResult = RestoreResult.SignedIn(
         SignedInPlayer("player@example.com", isEmailVerified = true, scaffold = PlayerScaffold.Spanish),
@@ -65,12 +71,14 @@ class SchoolHoldoutChecksNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(townOf(readAt))) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations),
+                    )
+                }
             }
         }
     }

@@ -27,8 +27,9 @@ import com.emm.mygame.core.testing.FakeTownTextRepository
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.koin.core.KoinApplication
 
-class ReminderTapApplication : Application(), AppDependencies {
+class ReminderTapApplication : Application(), AppGraph, AppDependencies {
 
     override val clock: Clock = Clock.System
 
@@ -61,4 +62,22 @@ class ReminderTapApplication : Application(), AppDependencies {
         FakeReminderNotifications(areAllowed = true, canAsk = true)
 
     override val themes: FakeThemeSettings = FakeThemeSettings(ThemePick.System)
+
+    override val graph: KoinApplication = fakeGraphOf(
+        fakePortBindings(
+            clock = clock,
+            sessionEnds = sessionEnds,
+            sessions = sessions,
+            towns = towns,
+            texts = texts,
+            keepGoing = keepGoing,
+            learning = learning,
+            reports = reports,
+            placements = placements,
+            holdoutChecks = holdoutChecks,
+            studyReminders = studyReminders,
+            reminderNotifications = reminderNotifications,
+            themes = themes,
+        ),
+    )
 }

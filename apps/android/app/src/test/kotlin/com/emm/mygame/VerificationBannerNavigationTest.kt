@@ -42,6 +42,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import kotlin.time.Instant
@@ -59,10 +60,12 @@ class VerificationBannerNavigationTest {
 
     private val readLanguage: MutableStateFlow<PlayerLanguage?> = MutableStateFlow(null)
 
-    private val dependencies: AppDependencies = dependenciesOf(
+    private val app: FakeAppGraph = FakeAppGraph(
+        ports = fakePortBindings(
+            sessions = sessions,
+            towns = towns,
+        ),
         playerLanguage = readLanguage,
-        sessions = sessions,
-        towns = towns,
     )
 
     private val unverifiedSession: RestoreResult =
@@ -180,7 +183,9 @@ class VerificationBannerNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(town) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(dependencies = app, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                }
             }
         }
         if (town is TownReadResult.Read) openTab("Pueblo")

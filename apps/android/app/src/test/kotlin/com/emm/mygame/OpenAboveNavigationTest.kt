@@ -33,6 +33,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -54,11 +55,7 @@ class OpenAboveNavigationTest {
 
     private val reports: FakeReportRepository = FakeReportRepository()
 
-    private val dependencies: AppDependencies = dependenciesOf(
-        clock = fixedClock,
-        towns = towns,
-        reports = reports,
-    )
+    private val app: FakeAppGraph = FakeAppGraph(fakePortBindings(clock = fixedClock, towns = towns, reports = reports))
 
     private val newestText: TownSnapshot.TextTitle = TownSnapshot.TextTitle(TextId("text-31"), "The New Shop")
 
@@ -112,14 +109,16 @@ class OpenAboveNavigationTest {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
-                        shownStack = shown
-                    },
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations).also { shown: NavBackStack<NavKey> ->
+                            shownStack = shown
+                        },
+                    )
+                }
             }
         }
     }

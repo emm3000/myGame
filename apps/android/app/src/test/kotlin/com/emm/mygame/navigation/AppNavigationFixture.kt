@@ -18,8 +18,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import com.emm.mygame.AppDependencies
 import com.emm.mygame.Destination
+import com.emm.mygame.FakeAppGraph
 import com.emm.mygame.core.designsystem.control.INK_PILL
 import com.emm.mygame.core.designsystem.navigation.NAVIGATION_BAR
 import com.emm.mygame.core.designsystem.theme.MyGameTheme
@@ -44,9 +44,10 @@ import com.emm.mygame.core.testing.FakeSessionRepository
 import com.emm.mygame.core.testing.FakeTownRepository
 import com.emm.mygame.core.testing.lessonsDone
 import com.emm.mygame.core.testing.townOf
-import com.emm.mygame.dependenciesOf
+import com.emm.mygame.fakePortBindings
 import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Rule
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 import kotlin.time.Clock
@@ -83,13 +84,15 @@ abstract class AppNavigationFixture {
 
     protected val movableClock: MovableClock = MovableClock()
 
-    protected val dependencies: AppDependencies = dependenciesOf(
-        clock = movableClock,
-        sessions = sessions,
-        towns = towns,
-        learning = learning,
-        reports = reports,
-        placements = placements,
+    protected val app: FakeAppGraph = FakeAppGraph(
+        fakePortBindings(
+            clock = movableClock,
+            sessions = sessions,
+            towns = towns,
+            learning = learning,
+            reports = reports,
+            placements = placements,
+        ),
     )
 
     protected val readAt: Instant = Instant.parse("2026-11-05T10:00:00Z")
@@ -153,7 +156,9 @@ abstract class AppNavigationFixture {
         repeat(READS_AVAILABLE) { towns.answerRead(answer) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(dependencies = dependencies, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(dependencies = app, reminderTaps = emptyFlow(), mailedLinks = emptyFlow())
+                }
             }
         }
     }
@@ -189,12 +194,14 @@ abstract class AppNavigationFixture {
         repeat(READS_AVAILABLE) { towns.answerRead(TownReadResult.Read(town)) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations),
+                    )
+                }
             }
         }
     }
@@ -212,12 +219,14 @@ abstract class AppNavigationFixture {
         repeat(READS_ON_ARRIVAL) { towns.answerRead(TownReadResult.Read(runningTown(lasting = NEAR_FINISH))) }
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependencies,
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(*destinations),
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(*destinations),
+                    )
+                }
             }
         }
     }

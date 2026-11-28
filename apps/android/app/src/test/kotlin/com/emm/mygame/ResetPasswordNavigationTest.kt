@@ -20,6 +20,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.compose.KoinIsolatedContext
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
@@ -32,20 +33,24 @@ class ResetPasswordNavigationTest {
     private val mailedLink: Destination.ResetPassword =
         Destination.ResetPassword(PasswordResetToken("rbi-I29wMEaqgA12gHRHjVk7zceeOXQn"))
 
+    private val app: FakeAppGraph = FakeAppGraph()
+
     private var shownStack: NavBackStack<NavKey>? = null
 
     @Test
     fun `opens sign-in in place of the new password screen from its sign-in link`() {
         composeRule.setContent {
             MyGameTheme {
-                AppNavigation(
-                    dependencies = dependenciesOf(),
-                    reminderTaps = emptyFlow(),
-                    mailedLinks = emptyFlow(),
-                    backStack = rememberNavBackStack(mailedLink).also { shown: NavBackStack<NavKey> ->
-                        shownStack = shown
-                    },
-                )
+                KoinIsolatedContext(context = app.graph) {
+                    AppNavigation(
+                        dependencies = app,
+                        reminderTaps = emptyFlow(),
+                        mailedLinks = emptyFlow(),
+                        backStack = rememberNavBackStack(mailedLink).also { shown: NavBackStack<NavKey> ->
+                            shownStack = shown
+                        },
+                    )
+                }
             }
         }
         val signInLink: SemanticsMatcher = hasText(SIGN_IN_LINK).and(hasClickAction())

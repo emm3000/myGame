@@ -14,7 +14,7 @@ internal fun EntryProviderScope<NavKey>.newsEntry(dependencies: AppDependencies,
             dependencies = dependencies,
             navigator = navigator,
         ) {
-            NewsRoute(reports = dependencies.reports, clock = dependencies.clock)
+            NewsRoute()
         }
     }
 }

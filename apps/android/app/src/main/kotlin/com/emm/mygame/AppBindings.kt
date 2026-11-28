@@ -10,6 +10,7 @@ import com.emm.mygame.core.network.platform.KeystoreTokenCipher
 import com.emm.mygame.core.network.platform.SessionEnds
 import com.emm.mygame.core.network.platform.TokenCipher
 import com.emm.mygame.core.network.platform.TokenStore
+import com.emm.mygame.navigation.screenBindings
 import com.emm.mygame.reminder.StudyReminderStore
 import com.emm.mygame.reminder.reminderBindings
 import com.emm.mygame.theme.themeBindings
@@ -24,7 +25,7 @@ import org.koin.dsl.module
 
 val appBindings: Module
     get() = module {
-        includes(reminderBindings, themeBindings)
+        includes(reminderBindings, themeBindings, screenBindings)
         single<Clock> { Clock.System }
         single { KeystoreTokenCipher(keyAlias = SESSION_KEY_ALIAS) } bind TokenCipher::class
         single { TokenStore(file = File(androidContext().noBackupFilesDir, SESSION_FILE_NAME), cipher = get()) }

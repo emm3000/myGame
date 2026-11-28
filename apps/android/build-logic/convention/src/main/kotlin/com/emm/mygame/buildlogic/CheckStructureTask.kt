@@ -38,7 +38,10 @@ abstract class CheckStructureTask : DefaultTask() {
         val findings: List<String> = structureFindingsOf(sources, clientStructureLimits) +
             mapFindingsOf(settingsFile.get().asFile.readText(), mapFile.get().asFile.readText())
         check(findings.isEmpty()) {
-            findings.joinToString(separator = "\n", prefix = "Structure violations (ADR 056, sections 6, 7 and 8):\n")
+            findings.joinToString(separator = "\n", prefix = STRUCTURE_VIOLATIONS)
         }
     }
 }
+
+private const val STRUCTURE_VIOLATIONS: String =
+    "Structure violations (ADR 056, sections 6, 7 and 8; ADR 058, section 5):\n"
