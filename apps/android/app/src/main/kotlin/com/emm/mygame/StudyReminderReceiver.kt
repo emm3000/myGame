@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.Intent
 import com.emm.mygame.reminder.StudyReminderAlarm
 import com.emm.mygame.reminder.StudyReminderStore
+import org.koin.core.Koin
 
 class StudyReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val application: MyGameApplication = context.applicationContext as MyGameApplication
-        val store: StudyReminderStore = application.studyReminderStore
-        val alarm: StudyReminderAlarm = application.studyReminderAlarm
+        val graph: Koin = (context.applicationContext as AppGraph).graph.koin
+        val store: StudyReminderStore = graph.get()
+        val alarm: StudyReminderAlarm = graph.get()
         when (intent.action) {
             STUDY_REMINDER_FIRED -> alarm.fire(store.choice.value, store.facts.value, store.language)
             Intent.ACTION_BOOT_COMPLETED,

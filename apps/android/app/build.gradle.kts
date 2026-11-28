@@ -109,10 +109,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.koin.compose.viewmodel)
 
     testImplementation(project(":core:testing"))
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.robolectric)
+    testImplementation(libs.koin.test)
     testImplementation(libs.androidx.lifecycle.runtime.testing)
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
